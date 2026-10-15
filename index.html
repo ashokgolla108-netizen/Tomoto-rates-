@@ -3,64 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Auction & Profit Dashboard</title>
+    <title>Tomato Auction & Yield Dashboard</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f4f7f6; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .card { background: #ffffff; padding: 20px; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .container { width: 100%; max-width: 500px; }
-        h2 { text-align: center; color: #d32f2f; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-weight: 600; margin-bottom: 4px; color: #333; font-size: 13px; }
-        input, select { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background-color: #fff; }
-        input:focus, select:focus { border-color: #d32f2f; outline: none; }
-        .results { background-color: #fbe9e7; padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid #ffccbc; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
-        .row.total { font-weight: bold; font-size: 17px; color: #b71c1c; border-top: 1px solid #ffab91; padding-top: 6px; margin-top: 6px; }
-        .breakdown-title { font-weight: bold; color: #424242; margin-top: 8px; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --success: #2e7d32;
+            --warning: #f57c00;
+            --danger: #c62828;
+            --info: #0288d1;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; color: var(--text-main); }
+        .container { width: 100%; max-width: 520px; }
+
+        /* Card Styles */
+        .card { background: var(--card-bg); padding: 22px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.03); }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; font-size: 13px; }
+        input, select { width: 100%; padding: 11px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; background-color: #f8fafc; transition: all 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background-color: #fff; box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
+
+        /* Live Calculation Box */
+        .results { background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); padding: 16px; border-radius: 12px; margin-top: 18px; border: 1px solid #ffcdd2; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #4a5568; }
+        .row.total { font-weight: 700; font-size: 18px; color: var(--primary-dark); border-top: 2px dashed #ef9a9a; padding-top: 10px; margin-top: 10px; }
+        .breakdown-title { font-weight: 700; color: #742a2a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+        /* Buttons */
+        .btn { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 18px; box-shadow: 0 4px 12px rgba(46,125,50,0.25); transition: transform 0.1s, box-shadow 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-danger { background-color: #ffebee; color: var(--danger); border: 1px solid #ffcdd2; padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-danger:hover { background-color: var(--danger); color: white; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px; }
+
+        .sync-status { text-align: center; font-size: 12px; margin-top: 12px; color: var(--text-sub); }
+        .sync-online { color: var(--success); font-weight: 600; }
+
+        /* Dashboard Grid & Cards */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-card { padding: 14px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .stat-card.earnings { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); grid-column: span 2; }
+        .stat-card.investment { background: linear-gradient(135deg, #e65100 0%, #bf360c 100%); }
+        .stat-card.boxes { background: linear-gradient(135deg, #0288d1 0%, #01579b 100%); }
+        .stat-card.profit { background: linear-gradient(135deg, #00796b 0%, #004d40 100%); grid-column: span 2; }
+        .stat-card.loss { background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); grid-column: span 2; }
         
-        .btn { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .btn:hover { background-color: #1b5e20; }
-        .btn-danger { background-color: #c62828; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; }
-        .btn-danger:hover { background-color: #8e0000; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 5px; }
-        .icon-btn:hover { transform: scale(1.1); }
-
-        .sync-status { text-align: center; font-size: 12px; margin-top: 10px; color: #555; }
-        .sync-online { color: #2e7d32; font-weight: bold; }
-
-        /* History & Dashboard Section */
-        .history-card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-        th { background-color: #f2f2f2; color: #333; cursor: pointer; user-select: none; }
-        th:hover { background-color: #e4e4e4; }
+        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.9; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .stat-val { font-size: 18px; font-weight: 700; }
         
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .summary-box { padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(0,0,0,0.1); }
-        .box-earnings { background: #e8f5e9; color: #2e7d32; grid-column: span 2; }
-        .box-investment { background: #fff3e0; color: #e65100; display: flex; justify-content: center; align-items: center; gap: 6px; }
-        .box-boxes { background: #e3f2fd; color: #0d47a1; grid-column: span 2; line-height: 1.5; }
-        .box-profit { background: #e0f2f1; color: #00695c; grid-column: span 2; }
-        .box-loss { background: #ffebee; color: #c62828; grid-column: span 2; }
+        /* Yield Progress Bar */
+        .progress-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 15px; }
+        .progress-title { font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .progress-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #e2e8f0; }
+        .bar-high { background: var(--success); }
+        .bar-medium { background: var(--warning); }
+        .bar-low { background: #c2185b; }
 
-        .filter-row { display: flex; gap: 6px; margin-bottom: 10px; }
-        .filter-row input, .filter-row select { font-size: 12px; padding: 6px; }
+        /* Filter Controls */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .filter-row input, .filter-row select { font-size: 12px; padding: 8px; border-radius: 6px; }
 
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: white; }
-        .badge-High { background-color: #2e7d32; }
-        .badge-Medium { background-color: #f57c00; }
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border-bottom: 1px solid #edf2f7; padding: 10px 6px; text-align: center; }
+        th { background-color: #f7fafc; color: #4a5568; font-weight: 700; cursor: pointer; user-select: none; }
+        th:hover { background-color: #edf2f7; }
+        
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; color: white; display: inline-block; }
+        .badge-High { background-color: var(--success); }
+        .badge-Medium { background-color: var(--warning); }
         .badge-Low { background-color: #c2185b; }
-        .comment-tag { font-style: italic; color: #555; font-size: 10px; }
-        .profit-text { color: #2e7d32; font-weight: bold; }
-        .loss-text { color: #c62828; font-weight: bold; }
+        .comment-tag { font-style: italic; color: #718096; font-size: 10px; margin-top: 2px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Input Form Card -->
     <div class="card">
-        <h2>🍅 Tomato Profit & Rate Calculator</h2>
+        <h2>🍅 Tomato Auction Entry</h2>
 
         <div class="form-group">
             <label for="entryDate">Date:</label>
@@ -70,9 +100,9 @@
         <div class="form-group">
             <label for="crateType">Quality / Grade:</label>
             <select id="crateType">
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="High">High Quality</option>
+                <option value="Medium">Medium Quality</option>
+                <option value="Low">Low Quality</option>
             </select>
         </div>
 
@@ -83,51 +113,51 @@
 
         <div class="form-group">
             <label for="totalCrates">Total Crates Sent:</label>
-            <input type="number" id="totalCrates" value="31" oninput="calculate()">
+            <input type="number" id="totalCrates" placeholder="Enter total crates" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="lessCrates">Less Crates (Deduction):</label>
-            <input type="number" id="lessCrates" value="1" oninput="calculate()">
+            <input type="number" id="lessCrates" value="0" placeholder="e.g. 1" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="auctionPrice">Auction Price per Crate (₹):</label>
-            <input type="number" id="auctionPrice" value="300" oninput="calculate()">
+            <input type="number" id="auctionPrice" placeholder="Enter auction price" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="transportRate">Transport Cost per Crate (₹):</label>
-            <input type="number" id="transportRate" value="25" oninput="calculate()">
+            <input type="number" id="transportRate" placeholder="e.g. 25" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="commission">Auction Commission per Crate (₹):</label>
-            <input type="number" id="commission" value="30" oninput="calculate()">
+            <input type="number" id="commission" placeholder="e.g. 30" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="rent">Market Rent per Crate (₹) [Fixed]:</label>
-            <input type="number" id="rent" value="2" oninput="calculate()">
+            <input type="number" id="rent" value="2" placeholder="e.g. 2" oninput="calculate()">
         </div>
 
         <div class="results">
             <div class="breakdown-title">Live Crate Summary</div>
             <div class="row">
                 <span>Sold Crates (Net):</span>
-                <span id="soldCrates">30</span>
+                <span id="soldCrates">0</span>
             </div>
             <div class="row">
                 <span>Gross Sales Amount:</span>
-                <span>₹<span id="grossAmount">9000.00</span></span>
+                <span>₹<span id="grossAmount">0.00</span></span>
             </div>
             <div class="row">
                 <span>Total Deductions:</span>
-                <span>- ₹<span id="totalDeductionsDisplay">1735.00</span></span>
+                <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
             </div>
             <div class="row total">
                 <span>Net Payable Amount:</span>
-                <span>₹<span id="finalAmount">7265.00</span></span>
+                <span>₹<span id="finalAmount">0.00</span></span>
             </div>
         </div>
 
@@ -135,20 +165,46 @@
         <div class="sync-status" id="syncStatus">Status: <span class="sync-online">🟢 Realtime Database Connected</span></div>
     </div>
 
-    <div class="history-card">
-        <h3>📅 Shared Family Dashboard</h3>
+    <!-- Stylish Dashboard Card -->
+    <div class="card">
+        <h2>📊 Family Harvest Dashboard</h2>
         
         <div class="dashboard-grid">
-            <div class="summary-box box-earnings" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
+            <div class="stat-card earnings">
+                <div class="stat-label">💰 Total Net Earnings</div>
+                <div class="stat-val" id="totalEarningsSummary">₹0.00</div>
+            </div>
             
-            <div class="summary-box box-investment">
-                <span id="totalInvestmentDisplay">Inv: ₹1,50,000</span>
-                <button class="icon-btn" onclick="editInvestment()" title="Edit Investment">✏️</button>
+            <div class="stat-card investment">
+                <div class="stat-label">🌱 Crop Investment</div>
+                <div class="stat-val" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span id="totalInvestmentDisplay">₹1,50,000</span>
+                    <button class="icon-btn" onclick="editInvestment()" title="Edit Investment" style="color:white;">✏️</button>
+                </div>
             </div>
 
-            <div class="summary-box box-boxes" id="totalBoxesSummary">Total Boxes: 0</div>
+            <div class="stat-card boxes">
+                <div class="stat-label">📦 Total Boxes Sold</div>
+                <div class="stat-val" id="totalBoxesSummary">0 Boxes</div>
+            </div>
 
-            <div class="summary-box box-profit" id="totalProfitLossSummary">Overall Net Profit: ₹0.00</div>
+            <div class="stat-card profit" id="totalProfitLossSummary">
+                <div class="stat-label">📈 Overall Net Profit/Loss</div>
+                <div class="stat-val" id="profitLossVal">₹0.00</div>
+            </div>
+        </div>
+
+        <!-- Quality Yield Visual Bar -->
+        <div class="progress-box">
+            <div class="progress-title">
+                <span>Harvest Quality Breakdown</span>
+                <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="bar-high" id="barHigh" style="width: 0%;"></div>
+                <div class="bar-medium" id="barMedium" style="width: 0%;"></div>
+                <div class="bar-low" id="barLow" style="width: 0%;"></div>
+            </div>
         </div>
 
         <!-- Filters & Search -->
@@ -226,6 +282,19 @@
         return { soldCrates, auctionPrice, finalAmount };
     }
 
+    // Reset Form Fields after saving
+    function resetFormFields() {
+        document.getElementById('totalCrates').value = '';
+        document.getElementById('lessCrates').value = '0';
+        document.getElementById('auctionPrice').value = '';
+        document.getElementById('transportRate').value = '';
+        document.getElementById('commission').value = '';
+        document.getElementById('comments').value = '';
+        document.getElementById('crateType').value = 'High';
+        document.getElementById('entryDate').valueAsDate = new Date();
+        window.calculate();
+    }
+
     window.editInvestment = async function() {
         let currentInv = window.globalInvestment || 150000;
         let newInv = prompt("Enter total overall crop investment (₹):", currentInv);
@@ -250,6 +319,10 @@
         }
 
         const calc = window.calculate();
+        if (calc.soldCrates <= 0 && calc.auctionPrice <= 0) {
+            alert('Please enter total crates and auction price.');
+            return;
+        }
 
         try {
             await push(ref(db, 'tomato_entries'), {
@@ -262,7 +335,7 @@
                 timestamp: Date.now()
             });
             alert('Entry saved successfully!');
-            document.getElementById('comments').value = '';
+            resetFormFields();
         } catch (error) {
             alert("Error saving: " + error.message);
         }
@@ -290,7 +363,7 @@
             set(ref(db, 'crop_investment'), 150000);
             window.globalInvestment = 150000;
         }
-        document.getElementById('totalInvestmentDisplay').innerText = `Inv: ₹${window.globalInvestment.toLocaleString('en-IN')}`;
+        document.getElementById('totalInvestmentDisplay').innerText = `₹${window.globalInvestment.toLocaleString('en-IN')}`;
         updateDashboardAndTable();
     });
 
@@ -328,7 +401,6 @@
         let boxesMedium = 0;
         let boxesLow = 0;
 
-        // Calculate absolute totals across all records
         cachedEntries.forEach(item => {
             totalEarnings += item.finalAmount;
             let crates = (item.soldCrates || 0);
@@ -341,65 +413,17 @@
 
         let netProfitLoss = totalEarnings - window.globalInvestment;
 
-        document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
-        
-        // Update Total Boxes and Quality Breakdown
-        document.getElementById('totalBoxesSummary').innerHTML = 
-            `📦 Total Boxes: <b>${totalBoxes}</b><br>` +
-            `<span style="font-size: 11px; font-weight: normal;">(High: ${boxesHigh} | Med: ${boxesMedium} | Low: ${boxesLow})</span>`;
+        // Dashboard Stats Updates
+        document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Boxes`;
         
         let plBox = document.getElementById('totalProfitLossSummary');
-        plBox.innerText = `Overall Net Profit/Loss: ₹${Math.abs(netProfitLoss).toFixed(2)} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
-        plBox.className = netProfitLoss >= 0 ? "summary-box box-profit" : "summary-box box-loss";
+        let plVal = document.getElementById('profitLossVal');
+        plVal.innerText = `₹${Math.abs(netProfitLoss).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
+        plBox.className = netProfitLoss >= 0 ? "stat-card profit" : "stat-card loss";
 
-        // Filter and Sort entries for the table view
-        let filtered = cachedEntries.filter(item => {
-            let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
-            let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
-            return matchesSearch && matchesGrade;
-        });
-
-        filtered.sort((a, b) => {
-            let valA = a[currentSortColumn];
-            let valB = b[currentSortColumn];
-
-            if (typeof valA === 'string') {
-                valA = valA.toLowerCase();
-                valB = valB.toLowerCase();
-            }
-
-            if (valA < valB) return currentSortAsc ? -1 : 1;
-            if (valA > valB) return currentSortAsc ? 1 : -1;
-            return 0;
-        });
-
-        let tbody = document.getElementById('historyTableBody');
-        tbody.innerHTML = '';
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="color: #777;">No matching records found.</td></tr>';
-            return;
-        }
-
-        filtered.forEach((item) => {
-            let displayType = item.crateType || 'High';
-            let badgeClass = 'badge-' + displayType;
-            let commentText = item.comments !== '-' ? `<br><span class="comment-tag">${item.comments}</span>` : '';
-
-            let row = `<tr>
-                <td>${item.date}</td>
-                <td><span class="badge ${badgeClass}">${displayType}</span>${commentText}</td>
-                <td>${item.soldCrates}</td>
-                <td>₹${item.auctionPrice}</td>
-                <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
-                <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Del</button></td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    window.calculate();
-</script>
-
-</body>
-</html>
+        // Progress Bar Calculation
+        if (totalBoxes > 0) {
+            let pHigh = ((boxesHigh / totalBoxes) * 100).toFixed(0);
+            let pMed = ((boxesMedium / totalBoxes) * 100).toFixed(0);
+            let pLow = ((boxesLow / totalBoxe
