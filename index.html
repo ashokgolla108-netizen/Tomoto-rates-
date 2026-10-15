@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farm Crop & Auction Tracker</title>
+    <title>Farm Crop & Master Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -15,6 +15,8 @@
         .badge-high, .badge-High { background: #10b981; }
         .badge-medium, .badge-Medium { background: #f59e0b; }
         .badge-low, .badge-Low { background: #ec4899; }
+        .status-badge-progress { background-color: #3b82f6; color: white; }
+        .status-badge-completed { background-color: #10b981; color: white; }
         .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 2px; display: block; }
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
@@ -34,17 +36,14 @@
         </div>
       </div>
 
-      <!-- Top Right Actions & Quick Crop Selector -->
+      <!-- Top Right Crop Selector & Quick WhatsApp -->
       <div class="flex items-center gap-1.5">
-        <!-- TOP RIGHT CROP SELECTOR -->
-        <select id="topCropSelect" onchange="handleCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[130px] truncate">
+        <!-- CROP SELECTOR (Master Summary + Individual Crops) -->
+        <select id="topCropSelect" onchange="handleCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
           <!-- Dynamically populated -->
         </select>
 
-        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2 py-1.5 rounded-lg border border-red-600 font-medium transition hidden sm:inline-block">
-          📊 CSV
-        </button>
-        <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition">
+        <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition" title="Share via WhatsApp">
           💬
         </button>
       </div>
@@ -63,14 +62,6 @@
       </div>
       <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold p-1">✕</button>
     </div>
-    
-    <!-- Crop Selector in Sidebar -->
-    <div class="p-4 bg-slate-50 border-b border-slate-100">
-      <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Select Crop / Project</label>
-      <select id="globalCropSelect" onchange="handleCropDropdownChange(this.value)" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-red-500">
-        <!-- Dynamically populated -->
-      </select>
-    </div>
 
     <!-- Sidebar Navigation Links -->
     <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
@@ -80,8 +71,15 @@
       <button onclick="switchTab('auction')" id="navAuctionBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
         <span>📦</span> Auction / Yield Entry
       </button>
-      <button onclick="switchTab('expenses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
+      <button onclick="switchTab('expenses')" id="navExpenseBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
         <span>💸</span> Crop Expenses
+      </button>
+
+      <hr class="my-3 border-slate-200">
+
+      <!-- Export Button inside Sidebar Navigation -->
+      <button onclick="exportCSV()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition border border-emerald-200">
+        <span>📥</span> Export Farm Data (CSV)
       </button>
     </nav>
 
@@ -96,7 +94,20 @@
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
+        
+        <!-- Header with Crop Status -->
+        <div class="flex justify-between items-center mb-3 border-b pb-2">
+          <h2 class="text-base font-bold text-slate-700" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
+          
+          <!-- Crop Status Selector / Display -->
+          <div id="cropStatusContainer" class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold text-slate-500 uppercase">Status:</span>
+            <select id="cropStatusSelect" onchange="updateCropStatus(this.value)" class="text-xs font-bold rounded-full px-2.5 py-1 focus:outline-none border cursor-pointer">
+              <option value="In Progress">⏳ In Progress</option>
+              <option value="Completed">✅ Completed</option>
+            </select>
+          </div>
+        </div>
         
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
@@ -109,7 +120,7 @@
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5" id="investmentLabel">🌱 Total Investment</div>
               <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹0</div>
             </div>
-            <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
+            <button id="editInvBtn" onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
           <!-- Total Boxes Card -->
@@ -129,6 +140,12 @@
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="plLabel">📈 Overall Net Profit/Loss</div>
             <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
           </div>
+        </div>
+
+        <!-- Master Crop Breakdown Cards (Shown in All Crops Summary View) -->
+        <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Crop Wise Summary</h3>
+          <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
         <!-- SVG Expense Pie Chart Section -->
@@ -364,7 +381,7 @@
   <!-- Firebase & Multi-Crop Logic Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push, remove, set, onValue, off } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, push, remove, set, onValue, off, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDWBw7KI3VG7M9FA00_DISNwVOTdAw5Rwg",
@@ -382,13 +399,14 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    let currentCrop = 'tomato';
+    let currentCrop = 'MASTER_ALL';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
     let currentAuctionRef = null;
     let currentExpenseRef = null;
+    let allCropsSummaryData = {};
 
     // Datasets
     const defaultGroundnutExpenses = [
@@ -476,6 +494,7 @@
         auctionTitle: "📦 Tomato Auction / Yield Entry",
         expenseTitle: "💸 Tomato Crop Expenses",
         showYieldTab: true,
+        status: "In Progress",
         categories: ['Fertilizer/Pesticide', 'Tomato thread', 'Staking thread', 'Staking workers', 'Staking wire', 'Staking bamboo', 'Seeds', 'Weeding', 'Labor', 'Irrigation', 'Transport', 'Machinery/Tractor']
       },
       groundnut: {
@@ -485,6 +504,7 @@
         auctionTitle: "📦 Groundnut Yield / Sales Entry",
         expenseTitle: "💸 Groundnut Crop Expenses",
         showYieldTab: true,
+        status: "In Progress",
         categories: ['Seeds', 'Fertilizer/Pesticide', 'Sowing / BBF', 'Weeding', 'Harvesting / Labor', 'Threshing', 'Transport', 'Machinery/Tractor', 'Irrigation']
       },
       bore: {
@@ -494,23 +514,20 @@
         auctionTitle: "📦 Infrastructure Income / Asset",
         expenseTitle: "💸 Borewell & Project Expenses",
         showYieldTab: false,
+        status: "Completed",
         categories: ['Bore Drilling', 'Casing Pipes', 'Submersible Pump', 'Electricals / Panel', 'Labor', 'Transport', 'Pond Lining / HDPE', 'Permits / Misc']
       }
     };
 
     window.populateCropDropdown = function() {
-        const sideSelect = document.getElementById('globalCropSelect');
         const topSelect = document.getElementById('topCropSelect');
-        let html = '';
+        let html = `<option value="MASTER_ALL">🌐 All Crops Summary</option>`;
         for (const [key, cfg] of Object.entries(cropConfigs)) {
-            html += `<option value="${key}">${cfg.name || key}</option>`;
+            let statusIcon = cfg.status === 'Completed' ? '✅' : '⏳';
+            html += `<option value="${key}">${cfg.name || key} (${statusIcon})</option>`;
         }
-        let sideHtml = html + `<option value="ADD_NEW">➕ Add New Crop...</option>`;
-        
-        sideSelect.innerHTML = sideHtml;
+        html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
         topSelect.innerHTML = html;
-
-        sideSelect.value = currentCrop;
         topSelect.value = currentCrop;
     };
 
@@ -526,6 +543,7 @@
                     auctionTitle: `📦 ${newName.trim()} Yield Entry`,
                     expenseTitle: `💸 ${newName.trim()} Expenses`,
                     showYieldTab: true,
+                    status: "In Progress",
                     categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
                 };
                 localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
@@ -539,30 +557,79 @@
         }
     };
 
+    window.updateCropStatus = function(statusVal) {
+        if (currentCrop === 'MASTER_ALL') return;
+        if (!cropConfigs[currentCrop]) return;
+        
+        cropConfigs[currentCrop].status = statusVal;
+        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        
+        // Also sync status to Firebase for cloud persistence
+        set(ref(db, `${currentCrop}_status`), statusVal);
+
+        applyStatusBadgeStyle(statusVal);
+        populateCropDropdown();
+    };
+
+    function applyStatusBadgeStyle(statusVal) {
+        const select = document.getElementById('cropStatusSelect');
+        if (statusVal === 'Completed') {
+            select.className = 'text-xs font-bold rounded-full px-2.5 py-1 focus:outline-none border status-badge-completed';
+        } else {
+            select.className = 'text-xs font-bold rounded-full px-2.5 py-1 focus:outline-none border status-badge-progress';
+        }
+    }
+
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
-        const cfg = cropConfigs[cropKey];
+        
+        const auctionNavBtn = document.getElementById('navAuctionBtn');
+        const expenseNavBtn = document.getElementById('navExpenseBtn');
+        const statusContainer = document.getElementById('cropStatusContainer');
+        const editInvBtn = document.getElementById('editInvBtn');
+        const masterBreakdownSection = document.getElementById('masterBreakdownSection');
+
+        if (cropKey === 'MASTER_ALL') {
+            document.getElementById('headerTitle').innerText = "🌐 All Crops Summary";
+            document.getElementById('dashboardTitle').innerText = "🌾 Master Farm Financial Summary";
+            statusContainer.style.display = 'none';
+            editInvBtn.style.display = 'none';
+            auctionNavBtn.style.display = 'none';
+            expenseNavBtn.style.display = 'none';
+            masterBreakdownSection.classList.remove('hidden');
+
+            if (!document.getElementById('tab-auction').classList.contains('hidden') || !document.getElementById('tab-expenses').classList.contains('hidden')) {
+                switchTab('dashboard');
+            }
+            loadMasterData();
+            return;
+        }
+
+        masterBreakdownSection.classList.add('hidden');
+        statusContainer.style.display = 'flex';
+        editInvBtn.style.display = 'inline-block';
+        expenseNavBtn.style.display = 'flex';
+
+        const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", categories: [] };
         
         document.getElementById('headerTitle').innerText = cfg.title;
         document.getElementById('dashboardTitle').innerText = cfg.dashboardTitle;
         document.getElementById('auctionFormTitle').innerText = cfg.auctionTitle;
         document.getElementById('expenseFormTitle').innerText = cfg.expenseTitle;
 
-        // Keep both dropdowns in sync
-        document.getElementById('globalCropSelect').value = cropKey;
-        document.getElementById('topCropSelect').value = cropKey;
+        document.getElementById('cropStatusSelect').value = cfg.status || 'In Progress';
+        applyStatusBadgeStyle(cfg.status || 'In Progress');
 
-        const auctionNavBtn = document.getElementById('navAuctionBtn');
         if (!cfg.showYieldTab) {
             auctionNavBtn.style.display = 'none';
-            if (document.getElementById('tab-auction').classList.contains('hidden') === false) {
+            if (!document.getElementById('tab-auction').classList.contains('hidden')) {
                 switchTab('dashboard');
             }
         } else {
             auctionNavBtn.style.display = 'flex';
         }
 
-        updateCategoryDropdown(cfg.categories);
+        updateCategoryDropdown(cfg.categories || []);
         loadCropData();
     };
 
@@ -588,6 +655,81 @@
         const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
     };
+
+    async function loadMasterData() {
+        cachedAuctionEntries = [];
+        cloudExpenses = [];
+        allCropsSummaryData = {};
+
+        for (const [key, cfg] of Object.entries(cropConfigs)) {
+            const expSnap = await get(ref(db, `${key}_expenses`));
+            const aucSnap = await get(ref(db, `${key}_auction_entries`));
+
+            let cropExpSum = 0;
+            let cropAucSum = 0;
+
+            if (expSnap.exists()) {
+                expSnap.forEach(c => {
+                    let val = c.val(); val.cropKey = key;
+                    cloudExpenses.push(val);
+                    cropExpSum += (val.amount || 0);
+                });
+            } else {
+                let defaultSet = [];
+                if (key === 'groundnut') defaultSet = defaultGroundnutExpenses;
+                else if (key === 'bore') defaultSet = defaultBoreExpenses;
+                else if (key === 'tomato') defaultSet = tomatoBackupExpenses;
+
+                defaultSet.forEach(val => {
+                    val.cropKey = key;
+                    cloudExpenses.push(val);
+                    cropExpSum += (val.amount || 0);
+                });
+            }
+
+            if (aucSnap.exists()) {
+                aucSnap.forEach(c => {
+                    let val = c.val(); val.cropKey = key;
+                    cachedAuctionEntries.push(val);
+                    cropAucSum += (val.finalAmount || 0);
+                });
+            }
+
+            allCropsSummaryData[key] = {
+                name: cfg.name,
+                status: cfg.status || 'In Progress',
+                expenses: cropExpSum,
+                earnings: cropAucSum,
+                netPL: cropAucSum - cropExpSum
+            };
+        }
+
+        renderMasterBreakdownCards();
+        renderDashboard();
+    }
+
+    function renderMasterBreakdownCards() {
+        const container = document.getElementById('masterCropCards');
+        container.innerHTML = '';
+        
+        Object.entries(allCropsSummaryData).forEach(([key, d]) => {
+            let statusBadge = d.status === 'Completed' ? '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 text-emerald-800">✅ Completed</span>' : '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-100 text-blue-800">⏳ In Progress</span>';
+            let plColor = d.netPL >= 0 ? 'text-emerald-700' : 'text-rose-700';
+
+            container.innerHTML += `
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
+                        <div class="text-slate-500 text-[10px] mt-0.5">Earnings: ₹${d.earnings.toLocaleString('en-IN')} | Expenses: ₹${d.expenses.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-slate-400">Net P/L</div>
+                        <div class="font-black ${plColor}">₹${Math.abs(d.netPL).toLocaleString('en-IN')} ${d.netPL >= 0 ? '🟢' : '🔴'}</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
     function loadCropData() {
         if (currentAuctionRef) off(currentAuctionRef);
@@ -633,6 +775,18 @@
                 renderDashboard();
             }
         });
+
+        // Load synced status from Firebase if available
+        onValue(ref(db, `${currentCrop}_status`), (snapshot) => {
+            if (snapshot.exists()) {
+                let statusVal = snapshot.val();
+                if (cropConfigs[currentCrop]) {
+                    cropConfigs[currentCrop].status = statusVal;
+                    document.getElementById('cropStatusSelect').value = statusVal;
+                    applyStatusBadgeStyle(statusVal);
+                }
+            }
+        });
     }
 
     window.calculate = function() {
@@ -665,6 +819,7 @@
     };
 
     window.saveAuctionEntry = async function() {
+        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
         const comments = document.getElementById('comments').value.trim();
@@ -704,6 +859,7 @@
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
@@ -722,6 +878,7 @@
     };
 
     window.editInvestment = async function() {
+        if (currentCrop === 'MASTER_ALL') return alert('Switch to a specific crop to edit investment override.');
         let totalSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
         let newInv = prompt("Enter overall investment amount (₹):", totalSum);
         if (newInv !== null && !isNaN(newInv)) await set(ref(db, `${currentCrop}_investment_override`), parseFloat(newInv));
@@ -749,7 +906,7 @@
         });
 
         let totalCloudExpenseSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalCloudExpenseSum;
+        let activeInvestment = (overrideInvestment !== null && currentCrop !== 'MASTER_ALL') ? overrideInvestment : totalCloudExpenseSum;
         let netProfitLoss = totalEarnings - activeInvestment;
 
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
@@ -860,7 +1017,7 @@
     window.exportCSV = function() {
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
         let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Rate,Net Amount\n`;
-        cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType}","${e.comments}",${e.totalCrates},${e.auctionPrice},${e.finalAmount}\n`; });
+        cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.auctionPrice || 0},${e.finalAmount || 0}\n`; });
         csv += '\n=== EXPENSES ===\nDate,Spent By,Category,Amount,Notes\n';
         cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
         
@@ -885,7 +1042,7 @@
 
     // Initialize crop dropdown and default view
     window.populateCropDropdown();
-    window.changeCrop('tomato');
+    window.changeCrop('MASTER_ALL');
     window.calculate();
 </script>
 
