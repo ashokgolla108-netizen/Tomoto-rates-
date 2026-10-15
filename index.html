@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Auction & Rate Calculator</title>
+    <title>Tomato Auction & Profit Dashboard</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f4f7f6; margin: 0; padding: 15px; display: flex; justify-content: center; }
@@ -29,22 +29,32 @@
 
         /* History Section */
         .history-card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; color: #333; }
-        .summary-box { background: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-align: center; font-weight: bold; color: #2e7d32; font-size: 16px; border: 1px solid #c8e6c9; }
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+        
+        /* Dashboard Summary Cards */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+        .summary-box { padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid rgba(0,0,0,0.1); }
+        .box-earnings { background: #e8f5e9; color: #2e7d32; }
+        .box-investment { background: #fff3e0; color: #e65100; }
+        .box-profit { background: #e0f2f1; color: #00695c; }
+        .box-loss { background: #ffebee; color: #c62828; }
+
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: white; }
         .badge-High { background-color: #2e7d32; }
         .badge-Medium { background-color: #f57c00; }
         .badge-Low { background-color: #c2185b; }
-        .comment-tag { font-style: italic; color: #555; font-size: 11px; }
+        .comment-tag { font-style: italic; color: #555; font-size: 10px; }
+        .profit-text { color: #2e7d32; font-weight: bold; }
+        .loss-text { color: #c62828; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>🍅 Tomato Rate Calculator</h2>
+        <h2>🍅 Tomato Profit & Rate Calculator</h2>
 
         <div class="form-group">
             <label for="entryDate">Date:</label>
@@ -95,34 +105,32 @@
             <input type="number" id="rent" value="2" oninput="calculate()">
         </div>
 
+        <div class="form-group">
+            <label for="investment">Investment / Expenses for this Batch (₹):</label>
+            <input type="number" id="investment" value="0" placeholder="e.g. Harvesting/Fertilizer cost" oninput="calculate()">
+        </div>
+
         <div class="results">
-            <div class="breakdown-title">Live Crate Summary</div>
+            <div class="breakdown-title">Live Calculation Summary</div>
             <div class="row">
                 <span>Sold Crates (Net):</span>
                 <span id="soldCrates">30</span>
             </div>
-
-            <div class="breakdown-title">Income & Expenses</div>
             <div class="row">
                 <span>Gross Sales Amount:</span>
                 <span>₹<span id="grossAmount">9000.00</span></span>
             </div>
             <div class="row">
-                <span>Total Transport:</span>
-                <span>- ₹<span id="totalTransport">775.00</span></span>
+                <span>Total Deductions (Trans/Comm/Rent):</span>
+                <span>- ₹<span id="totalDeductionsDisplay">1735.00</span></span>
             </div>
-            <div class="row">
-                <span>Total Commission:</span>
-                <span>- ₹<span id="totalCommission">900.00</span></span>
-            </div>
-            <div class="row">
-                <span>Total Rent:</span>
-                <span>- ₹<span id="totalRent">60.00</span></span>
-            </div>
-
             <div class="row total">
                 <span>Net Payable Amount:</span>
                 <span>₹<span id="finalAmount">7265.00</span></span>
+            </div>
+            <div class="row" style="font-weight: bold; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #ffab91;">
+                <span>Estimated Profit / Loss:</span>
+                <span id="liveProfitLoss">₹7265.00</span>
             </div>
         </div>
 
@@ -132,16 +140,20 @@
 
     <div class="history-card">
         <h3>📅 Shared Family Dashboard</h3>
-        <div class="summary-box" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
+        <div class="dashboard-grid">
+            <div class="summary-box box-earnings" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
+            <div class="summary-box box-investment" id="totalInvestmentSummary">Total Investment: ₹0.00</div>
+            <div class="summary-box box-profit" id="totalProfitLossSummary">Net Profit: ₹0.00</div>
+        </div>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Grade</th>
-                    <th>Comments</th>
                     <th>Crates</th>
-                    <th>Rate</th>
-                    <th>Net Amount</th>
+                    <th>Net Amt</th>
+                    <th>Invest</th>
+                    <th>Profit/Loss</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -152,7 +164,6 @@
     </div>
 </div>
 
-<!-- Firebase Modular SDK Script using Realtime Database -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
@@ -169,7 +180,6 @@
       measurementId: "G-WF60Z3SJNT"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
@@ -184,6 +194,7 @@
         const transportRate = parseFloat(document.getElementById('transportRate').value) || 0;
         const commission = parseFloat(document.getElementById('commission').value) || 0;
         const rent = parseFloat(document.getElementById('rent').value) || 0;
+        const investment = parseFloat(document.getElementById('investment').value) || 0;
 
         const soldCrates = Math.max(0, totalCrates - lessCrates);
         const grossAmount = soldCrates * auctionPrice;
@@ -192,18 +203,24 @@
         const totalRent = soldCrates * rent;
         const totalDeductions = totalTransport + totalCommission + totalRent;
         const finalAmount = grossAmount - totalDeductions;
+        const profitLoss = finalAmount - investment;
 
         document.getElementById('soldCrates').innerText = soldCrates;
-        document.getElementById('grossAmount').innerText = grossAmount.timedelta ? grossAmount.toFixed(2) : grossAmount.toFixed(2);
-        document.getElementById('totalTransport').innerText = totalTransport.toFixed(2);
-        document.getElementById('totalCommission').innerText = totalCommission.toFixed(2);
-        document.getElementById('totalRent').innerText = totalRent.toFixed(2);
+        document.getElementById('grossAmount').innerText = grossAmount.toFixed(2);
+        document.getElementById('totalDeductionsDisplay').innerText = totalDeductions.toFixed(2);
         document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
 
-        return { soldCrates, auctionPrice, finalAmount };
+        const plElement = document.getElementById('liveProfitLoss');
+        plElement.innerText = `₹${profitLoss.toFixed(2)}`;
+        if (profitLoss >= 0) {
+            plElement.className = "profit-text";
+        } else {
+            plElement.className = "loss-text";
+        }
+
+        return { soldCrates, auctionPrice, finalAmount, investment, profitLoss };
     }
 
-    // Save Entry Handler
     document.getElementById('saveBtn').addEventListener('click', async () => {
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
@@ -224,16 +241,19 @@
                 soldCrates: calc.soldCrates,
                 auctionPrice: calc.auctionPrice,
                 finalAmount: calc.finalAmount,
+                investment: calc.investment,
+                profitLoss: calc.profitLoss,
                 timestamp: Date.now()
             });
-            alert('Entry saved to Realtime Database! Your family can see it now.');
+            alert('Entry saved successfully!');
             document.getElementById('comments').value = '';
+            document.getElementById('investment').value = '0';
+            window.calculate();
         } catch (error) {
             alert("Error saving: " + error.message);
         }
     });
 
-    // Delete Entry Handler
     window.deleteEntry = async function(id) {
         if (confirm("Are you sure you want to delete this record?")) {
             try {
@@ -244,12 +264,13 @@
         }
     }
 
-    // Real-time Listener
     const entriesRef = ref(db, 'tomato_entries');
     onValue(entriesRef, (snapshot) => {
         let tbody = document.getElementById('historyTableBody');
         tbody.innerHTML = '';
         let totalEarnings = 0;
+        let totalInvestment = 0;
+        let totalProfitLoss = 0;
         let entries = [];
 
         snapshot.forEach((childSnap) => {
@@ -258,7 +279,6 @@
             entries.push(item);
         });
 
-        // Sort entries by date descending (newest first)
         entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         if (entries.length === 0) {
@@ -266,24 +286,38 @@
         } else {
             entries.forEach((item) => {
                 totalEarnings += item.finalAmount;
+                totalInvestment += (item.investment || 0);
+                let itemPL = item.profitLoss !== undefined ? item.profitLoss : (item.finalAmount - (item.investment || 0));
+                totalProfitLoss += itemPL;
 
                 let displayType = item.crateType || 'High';
                 let badgeClass = 'badge-' + displayType;
-                let commentText = item.comments || '-';
+                let plClass = itemPL >= 0 ? 'profit-text' : 'loss-text';
+                let plSign = itemPL >= 0 ? '+₹' : '-₹';
 
                 let row = `<tr>
-                    <td>${item.date}</td>
-                    <td><span class="badge ${badgeClass}">${displayType}</span></td>
-                    <td class="comment-tag">${commentText}</td>
+                    <td>${item.date}<br><span class="badge ${badgeClass}">${displayType}</span></td>
+                    <td>${item.comments || '-'}</td>
                     <td>${item.soldCrates}</td>
-                    <td>₹${item.auctionPrice}</td>
-                    <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
-                    <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Delete</button></td>
+                    <td>₹${item.finalAmount.toFixed(2)}</td>
+                    <td>₹${(item.investment || 0).toFixed(2)}</td>
+                    <td class="${plClass}">${plSign}${Math.abs(itemPL).toFixed(2)}</td>
+                    <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Del</button></td>
                 </tr>`;
                 tbody.innerHTML += row;
             });
         }
+
         document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
+        document.getElementById('totalInvestmentSummary').innerText = `Total Investment: ₹${totalInvestment.toFixed(2)}`;
+        
+        let plBox = document.getElementById('totalProfitLossSummary');
+        plBox.innerText = `Net Profit/Loss: ₹${totalProfitLoss.toFixed(2)}`;
+        if (totalProfitLoss >= 0) {
+            plBox.className = "summary-box box-profit";
+        } else {
+            plBox.className = "summary-box box-loss";
+        }
     });
 
     window.calculate();
