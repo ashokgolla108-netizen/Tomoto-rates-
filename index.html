@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Auction & Farm Expense Tracker</title>
+    <title>Tomato Auction & Expense Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -30,15 +30,15 @@
 <body class="min-h-screen pb-12">
 
   <!-- Header -->
-  <header class="bg-emerald-700 text-white py-5 shadow-lg">
+  <header class="bg-red-700 text-white py-5 shadow-lg">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
       <div>
-        <h1 class="text-lg font-bold tracking-wide">🍅 Tomato Auction & Farm Tracker</h1>
-        <p class="text-emerald-200 text-xs mt-0.5">Unified Farm Management Dashboard</p>
+        <h1 class="text-lg font-bold tracking-wide">🍅 Tomato Crop & Auction Tracker</h1>
+        <p class="text-red-200 text-xs mt-0.5">Tomato Expense & Auction Profit Dashboard</p>
       </div>
       <div class="flex gap-2">
-        <button onclick="exportCSV()" class="bg-emerald-800 hover:bg-emerald-900 text-xs text-white px-2.5 py-1.5 rounded-lg border border-emerald-600 font-medium transition flex items-center gap-1">
-          📊 CSV
+        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2.5 py-1.5 rounded-lg border border-red-600 font-medium transition flex items-center gap-1">
+          📊 Excel CSV
         </button>
         <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-1">
           💬 WhatsApp
@@ -57,11 +57,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
-            <input type="date" id="entryDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <input type="date" id="entryDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Quality / Grade</label>
-            <select id="crateType" onchange="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <select id="crateType" onchange="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
               <option value="High">High</option>
               <option value="Medium">Medium</option>
               <option value="Low">Low</option>
@@ -110,7 +110,7 @@
         <!-- Live Summary Box -->
         <div class="bg-gradient-to-br from-rose-50 to-red-50 p-3.5 rounded-xl border border-red-200 mt-2 text-sm">
           <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Crate Summary</div>
-          <div class="flex justify-content justify-between text-slate-600 text-xs mb-1">
+          <div class="flex justify-between text-slate-600 text-xs mb-1">
             <span>Sold Crates (Net):</span>
             <span id="soldCrates" class="font-bold text-slate-800">0</span>
           </div>
@@ -134,17 +134,17 @@
       </div>
     </section>
 
-    <!-- 2. Add Crop Expense Form -->
+    <!-- 2. Add Tomato Expense Form -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🌱 Add Crop Expense</h2>
+      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">💸 Add Tomato Expense</h2>
       
       <form id="expenseForm" class="space-y-3">
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Spent By</label>
             <select id="spentBySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-              <option value="Home">Home</option>
               <option value="Ashok">Ashok</option>
+              <option value="Home">Home</option>
               <option value="Dhanu">Dhanu</option>
               <option value="CUSTOM">+ Custom</option>
             </select>
@@ -152,60 +152,51 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Crop Name</label>
-            <select id="cropSelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-              <option value="Tomato">Tomato</option>
-              <option value="Groundnut">Groundnut</option>
-              <option value="Bore">Bore</option>
-              <option value="CUSTOM">+ Custom</option>
-            </select>
-            <input type="text" id="customCropInput" placeholder="Crop" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Expense Type</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Expense Category</label>
             <select id="categorySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-              <option value="Seeds">Seeds</option>
               <option value="Fertilizer/Pesticide">Fertilizer / Pesticide</option>
+              <option value="Tomoto thread">Tomato Thread</option>
+              <option value="Staking thread">Staking Thread</option>
+              <option value="Staking workers">Staking Workers</option>
+              <option value="Staking wire">Staking Wire</option>
+              <option value="Staking bamboo">Staking Bamboo</option>
+              <option value="Seeds">Seeds</option>
+              <option value="Weeding">Weeding</option>
               <option value="Labor">Labor</option>
-              <option value="Machinery/Tractor">Machinery / Tractor</option>
               <option value="Irrigation">Irrigation</option>
               <option value="Transport">Transport</option>
-              <option value="Motor/pump">Motor/pump</option>
-              <option value="Drilling">Drilling</option>
+              <option value="Machinery/Tractor">Machinery / Tractor</option>
               <option value="CUSTOM">+ Custom</option>
             </select>
             <input type="text" id="customCategoryInput" placeholder="Type" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
           </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Amount (₹)</label>
-            <input type="number" id="expenseAmount" min="1" placeholder="0" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Amount (₹)</label>
+            <input type="number" id="expenseAmount" min="1" placeholder="0" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+          </div>
+          <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
             <input type="date" id="expenseDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Note (Optional)</label>
-            <input type="text" id="expenseNotes" placeholder="Details" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Note / Brand Details (Optional)</label>
+          <input type="text" id="expenseNotes" placeholder="e.g. Balu / Nativo / Staking tree" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
         </div>
 
         <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-          + Add Expense Record
+          + Add Tomato Expense
         </button>
       </form>
     </section>
 
     <!-- 3. Colorful Harvest & Financial Dashboard -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3">🌈 Family Harvest & Profit Dashboard</h2>
+      <h2 class="text-base font-bold text-slate-700 mb-3">🌈 Tomato Harvest & Profit Dashboard</h2>
       
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
@@ -215,8 +206,8 @@
 
         <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center">
           <div>
-            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">🌱 Total Investment</div>
-            <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹5,36,439</div>
+            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">🌱 Tomato Investment</div>
+            <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹1,34,199</div>
           </div>
           <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
         </div>
@@ -227,7 +218,7 @@
         </div>
 
         <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
-          <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">📈 Overall Net Profit/Loss</div>
+          <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">📈 Overall Tomato Net Profit/Loss</div>
           <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
         </div>
       </div>
@@ -280,23 +271,23 @@
       </div>
     </section>
 
-    <!-- 5. Expense Breakdown & History -->
+    <!-- 5. Tomato Expenses History (Filtered strictly for Tomato) -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🌱 Crop Expense History & Summary</h2>
+      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Tomato Expenses Breakdown</h2>
       
       <!-- Person Summary Cards -->
       <div class="grid grid-cols-3 gap-2 mb-4" id="expenseSummaryCards">
         <!-- Populated dynamically -->
       </div>
 
-      <div class="space-y-2 max-h-72 overflow-y-auto pr-1" id="expenseList">
+      <div class="space-y-2 max-h-80 overflow-y-auto pr-1" id="expenseList">
         <!-- Records populated dynamically -->
       </div>
     </section>
 
   </main>
 
-  <!-- Firebase SDKs for Realtime Cloud Synchronization -->
+  <!-- Firebase SDKs for Realtime Synchronization -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -317,54 +308,49 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    // Embedded backup records for expenses (your 38 original records + total 536,439 baseline)
-    const backupExpenses = [
-      {"id": 1724402280000, "spentBy": "Home", "cropName": "Bore", "category": "Fertilizer/Pesticide", "amount": 850, "date": "2026-08-21", "notes": "Petrol pump repair"},
+    // Embedded 33 Tomato-only Expense Records from file (Ashok + Home)
+    const tomatoBackupExpenses = [
+      {"id": 1728800000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Tomoto thread", "amount": 1700, "date": "2026-10-13", "notes": "8kgs"},
+      {"id": 1728800010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5050, "date": "2026-10-13", "notes": "Isabion nativo ampligo osheen ultra vipul"},
+      {"id": 1728300000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8800, "date": "2026-10-07", "notes": "Grade 1 tomoto 2"},
+      {"id": 1728100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5650, "date": "2026-10-05", "notes": "Phospocop ampligo nativo micro.mix"},
+      {"id": 1728800020000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8500, "date": "2026-10-13", "notes": "10 26 26 soil application"},
+      {"id": 1727800000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5000, "date": "2026-10-02", "notes": "Simdois Pegasus atonik micro mix yellow sticker"},
+      {"id": 1727600000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 1500, "date": "2026-09-30", "notes": "Movento energy custodia"},
+      {"id": 1727500000000, "spentBy": "Home", "cropName": "Tomato", "category": "Weeding", "amount": 5400, "date": "2026-09-29", "notes": ""},
+      {"id": 1727100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 800, "date": "2026-09-24", "notes": "Boron and coragen"},
+      {"id": 1727100010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 2400, "date": "2026-09-24", "notes": "13 40 13 Nacro biotech"},
+      {"id": 1727000000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking thread", "amount": 3080, "date": "2026-09-23", "notes": "14kg"},
+      {"id": 1726700000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3400, "date": "2026-09-20", "notes": "Exponus"},
+      {"id": 1726600000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking thread", "amount": 6150, "date": "2026-09-19", "notes": "30kg"},
+      {"id": 1726600010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking workers", "amount": 3000, "date": "2026-09-19", "notes": ""},
+      {"id": 1726600020000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking wire", "amount": 2500, "date": "2026-09-19", "notes": ""},
+      {"id": 1726600030000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking bamboo", "amount": 9500, "date": "2026-09-19", "notes": ""},
+      {"id": 1726600040000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3300, "date": "2026-09-19", "notes": "Isabion biovita double"},
+      {"id": 1726300000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 2050, "date": "2026-09-15", "notes": "Amistor top adama sc 5"},
+      {"id": 1726100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5700, "date": "2026-09-13", "notes": "0 52 34"},
+      {"id": 1725900000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 919, "date": "2026-09-11", "notes": "Tapas vitainject"},
+      {"id": 1725700000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3300, "date": "2026-09-09", "notes": "Orandios ultra"},
+      {"id": 1725400000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 4300, "date": "2026-09-04", "notes": "Simidos qunatis Pegasus"},
+      {"id": 1725200000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 7350, "date": "2026-09-02", "notes": "12 61 0 , calcium nitrate, mgso4"},
+      {"id": 1727600010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 1850, "date": "2026-09-30", "notes": "M45/krill"},
       {"id": 1724402220000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 400, "date": "2026-08-21", "notes": "Bellam"},
-      {"id": 1724402160000, "spentBy": "Home", "cropName": "Groundnut", "category": "Transport", "amount": 90, "date": "2026-08-21", "notes": "28:28"},
-      {"id": 1724402100000, "spentBy": "Home", "cropName": "Groundnut", "category": "Fertilizer/Pesticide", "amount": 1200, "date": "2026-08-21", "notes": "CMS"},
-      {"id": 1724402040000, "spentBy": "Home", "cropName": "Groundnut", "category": "Fertilizer/Pesticide", "amount": 6900, "date": "2026-08-21", "notes": "28:28"},
-      {"id": 1724401980000, "spentBy": "Ashok", "cropName": "Groundnut", "category": "Transport", "amount": 800, "date": "2026-08-21", "notes": "Gypsum"},
-      {"id": 1724401920000, "spentBy": "Ashok", "cropName": "Groundnut", "category": "Fertilizer/Pesticide", "amount": 8900, "date": "2026-08-21", "notes": "Gypsum"},
       {"id": 1724401860000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 400, "date": "2026-08-18", "notes": ""},
       {"id": 1724401800000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8400, "date": "2026-08-14", "notes": "Balu"},
-      {"id": 1724401740000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Labor", "amount": 2000, "date": "2026-08-14", "notes": "Staking"},
-      {"id": 1724401680000, "spentBy": "Ashok", "cropName": "Bore", "category": "Machinery/Tractor", "amount": 3300, "date": "2026-08-14", "notes": "Charging"},
+      {"id": 1724401740000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Labor", "amount": 2000, "date": "2026-08-14", "notes": "Staking tree"},
       {"id": 1724401620000, "spentBy": "Home", "cropName": "Tomato", "category": "Seeds", "amount": 5000, "date": "2026-08-04", "notes": ""},
-      {"id": 1724401560000, "spentBy": "Home", "cropName": "Bore", "category": "Irrigation", "amount": 1000, "date": "2026-08-04", "notes": "Pipes"},
-      {"id": 1724401500000, "spentBy": "Home", "cropName": "Tomato", "category": "Transport", "amount": 300, "date": "2026-08-04", "notes": "Auto"},
-      {"id": 1724401440000, "spentBy": "Home", "cropName": "Bore", "category": "Irrigation", "amount": 1600, "date": "2026-08-04", "notes": "Pipes"},
-      {"id": 1724401380000, "spentBy": "Home", "cropName": "Bore", "category": "Irrigation", "amount": 1400, "date": "2026-08-04", "notes": "PVC"},
+      {"id": 1724401500000, "spentBy": "Home", "cropName": "Tomato", "category": "Transport", "amount": 300, "date": "2026-08-04", "notes": "Drip auto charge"},
       {"id": 1724401320000, "spentBy": "Home", "cropName": "Tomato", "category": "Irrigation", "amount": 12000, "date": "2026-08-02", "notes": "Drip"},
       {"id": 1724401260000, "spentBy": "Home", "cropName": "Tomato", "category": "Seeds", "amount": 3500, "date": "2026-07-31", "notes": "Advance"},
-      {"id": 1724401200000, "spentBy": "Home", "cropName": "Groundnut", "category": "Insurance", "amount": 3000, "date": "2026-07-31", "notes": ""},
-      {"id": 1724401140000, "spentBy": "Ashok", "cropName": "Groundnut", "category": "Insurance", "amount": 1000, "date": "2026-07-31", "notes": ""},
-      {"id": 1724401080000, "spentBy": "Ashok", "cropName": "Bore", "category": "Food/clothes", "amount": 10000, "date": "2026-07-31", "notes": ""},
-      {"id": 1724401020000, "spentBy": "Home", "cropName": "Bore", "category": "PVC pipes", "amount": 2000, "date": "2026-07-31", "notes": ""},
-      {"id": 1724400960000, "spentBy": "Home", "cropName": "Bore", "category": "Sprinkler pipes", "amount": 18000, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400900000, "spentBy": "Home", "cropName": "Tomato", "category": "Machinery/Tractor", "amount": 1000, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400840000, "spentBy": "Home", "cropName": "Groundnut", "category": "Machinery/Tractor", "amount": 4500, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400780000, "spentBy": "Home", "cropName": "Bore", "category": "Transport", "amount": 12000, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400720000, "spentBy": "Home", "cropName": "Groundnut", "category": "Transport", "amount": 300, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400660000, "spentBy": "Home", "cropName": "Bore", "category": "Transport", "amount": 1000, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400600000, "spentBy": "Home", "cropName": "Groundnut", "category": "Paisalu", "amount": 3000, "date": "2026-07-27", "notes": ""},
-      {"id": 1724400540000, "spentBy": "Home", "cropName": "Bore", "category": "Machinery/Tractor", "amount": 2600, "date": "2026-07-23", "notes": ""},
-      {"id": 1724400480000, "spentBy": "Ashok", "cropName": "Bore", "category": "Motor/pump", "amount": 1000, "date": "2026-07-22", "notes": ""},
-      {"id": 1724400420000, "spentBy": "Home", "cropName": "Groundnut", "category": "Fertilizer/Pesticide", "amount": 2400, "date": "2026-07-22", "notes": ""},
-      {"id": 1724400360000, "spentBy": "Home", "cropName": "Groundnut", "category": "Fertilizer/Pesticide", "amount": 4050, "date": "2026-07-22", "notes": ""},
-      {"id": 1724400300000, "spentBy": "Home", "cropName": "Groundnut", "category": "Seeds", "amount": 41400, "date": "2026-07-22", "notes": ""},
-      {"id": 1724400240000, "spentBy": "Ashok", "cropName": "Bore", "category": "Motor/pump", "amount": 20000, "date": "2026-07-21", "notes": ""},
-      {"id": 1724400180000, "spentBy": "Home", "cropName": "Bore", "category": "Motor/pump", "amount": 150000, "date": "2026-07-20", "notes": ""},
-      {"id": 1724400120000, "spentBy": "Ashok", "cropName": "Bore", "category": "Drilling", "amount": 17000, "date": "2026-07-21", "notes": ""},
-      {"id": 1724400060000, "spentBy": "Home", "cropName": "Bore", "category": "Drilling", "amount": 50000, "date": "2026-07-19", "notes": ""}
+      {"id": 1724400900000, "spentBy": "Home", "cropName": "Tomato", "category": "Machinery/Tractor", "amount": 1000, "date": "2026-07-27", "notes": "5 madakalu"}
     ];
 
-    let localExpenses = JSON.parse(localStorage.getItem('farm_expenses_v2')) || backupExpenses;
+    let tomatoExpenses = JSON.parse(localStorage.getItem('tomato_expenses_only_v3')) || tomatoBackupExpenses;
     let cachedAuctionEntries = [];
     let currentSortColumn = 'date';
     let currentSortAsc = false;
 
-    // Live Calculation for Auction Form
+    // Live Calculation
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
@@ -428,7 +414,7 @@
                 finalAmount: calc.finalAmount,
                 timestamp: Date.now()
             });
-            alert('Auction entry saved to Cloud!');
+            alert('Tomato auction entry saved!');
             resetAuctionForm();
         } catch (error) {
             alert("Error saving: " + error.message);
@@ -441,35 +427,31 @@
         }
     };
 
-    // Custom toggle for Expense Form
     window.toggleCustomInputs = function() {
         const spentBy = document.getElementById('spentBySelect').value;
         document.getElementById('customPersonInput').classList.toggle('hidden', spentBy !== 'CUSTOM');
-        const crop = document.getElementById('cropSelect').value;
-        document.getElementById('customCropInput').classList.toggle('hidden', crop !== 'CUSTOM');
         const cat = document.getElementById('categorySelect').value;
         document.getElementById('customCategoryInput').classList.toggle('hidden', cat !== 'CUSTOM');
     };
 
-    // Handle Expense Form Submit
+    // Add Tomato Expense
     document.getElementById('expenseForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
-        const cropName = document.getElementById('cropSelect').value === 'CUSTOM' ? document.getElementById('customCropInput').value.trim() : document.getElementById('cropSelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
         const record = {
             id: Date.now(),
             spentBy,
-            cropName,
+            cropName: "Tomato",
             category,
             amount: parseFloat(document.getElementById('expenseAmount').value),
             date: document.getElementById('expenseDate').value,
             notes: document.getElementById('expenseNotes').value.trim()
         };
 
-        localExpenses.unshift(record);
-        localStorage.setItem('farm_expenses_v2', JSON.stringify(localExpenses));
+        tomatoExpenses.unshift(record);
+        localStorage.setItem('tomato_expenses_only_v3', JSON.stringify(tomatoExpenses));
         e.target.reset();
         document.getElementById('expenseDate').valueAsDate = new Date();
         renderExpenses();
@@ -478,24 +460,24 @@
 
     window.deleteExpense = function(id) {
         if (confirm("Delete this expense?")) {
-            localExpenses = localExpenses.filter(item => item.id !== id);
-            localStorage.setItem('farm_expenses_v2', JSON.stringify(localExpenses));
+            tomatoExpenses = tomatoExpenses.filter(item => item.id !== id);
+            localStorage.setItem('tomato_expenses_only_v3', JSON.stringify(tomatoExpenses));
             renderExpenses();
             renderDashboard();
         }
     };
 
-    // Editable Investment
+    // Editable Investment Override
     window.editInvestment = async function() {
-        let totalExpenseSum = localExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let newInv = prompt("Enter total overall crop investment (₹):", totalExpenseSum);
+        let totalTomatoSum = tomatoExpenses.reduce((sum, item) => sum + item.amount, 0);
+        let newInv = prompt("Enter overall Tomato crop investment (₹):", totalTomatoSum);
         if (newInv !== null && !isNaN(newInv)) {
-            await set(ref(db, 'crop_investment_override'), parseFloat(newInv));
+            await set(ref(db, 'tomato_investment_override'), parseFloat(newInv));
         }
     };
 
     let overrideInvestment = null;
-    onValue(ref(db, 'crop_investment_override'), (snapshot) => {
+    onValue(ref(db, 'tomato_investment_override'), (snapshot) => {
         overrideInvestment = snapshot.exists() ? snapshot.val() : null;
         renderDashboard();
     });
@@ -509,16 +491,6 @@
         });
         renderDashboard();
     });
-
-    window.sortTable = function(column) {
-        if (currentSortColumn === column) {
-            currentSortAsc = !currentSortAsc;
-        } else {
-            currentSortColumn = column;
-            currentSortAsc = true;
-        }
-        renderDashboard();
-    };
 
     function renderDashboard() {
         let searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -539,9 +511,9 @@
             else if (item.crateType === 'Low') boxesLow += crates;
         });
 
-        // Investment comes directly from expense tracker total (or override)
-        let totalExpenseSum = localExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalExpenseSum;
+        // Investment strictly pulled from Tomato expenses (Ashok + Home + Dhanu)
+        let totalTomatoExpenseSum = tomatoExpenses.reduce((sum, item) => sum + item.amount, 0);
+        let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalTomatoExpenseSum;
 
         let netProfitLoss = totalEarnings - activeInvestment;
 
@@ -569,26 +541,19 @@
             document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
         }
 
-        // Table filter & sort
+        // Table filter
         let filtered = cachedAuctionEntries.filter(item => {
             let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
             let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
             return matchesSearch && matchesGrade;
         });
 
-        filtered.sort((a, b) => {
-            let valA = a[currentSortColumn];
-            let valB = b[currentSortColumn];
-            if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
-            if (valA < valB) return currentSortAsc ? -1 : 1;
-            if (valA > valB) return currentSortAsc ? 1 : -1;
-            return 0;
-        });
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         let tbody = document.getElementById('auctionTableBody');
         tbody.innerHTML = '';
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-400 py-4">No matching records found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-400 py-4">No matching auction entries.</td></tr>';
             return;
         }
 
@@ -614,24 +579,24 @@
         const listContainer = document.getElementById('expenseList');
 
         const personTotals = {};
-        localExpenses.forEach(e => {
+        tomatoExpenses.forEach(e => {
             personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount;
         });
 
-        ['Home', 'Ashok', 'Dhanu'].forEach(p => { if (!(p in personTotals)) personTotals[p] = 0; });
+        ['Ashok', 'Home', 'Dhanu'].forEach(p => { if (!(p in personTotals)) personTotals[p] = 0; });
 
         summaryCards.innerHTML = Object.keys(personTotals).map(person => `
-            bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center shadow-sm">
+            <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center shadow-sm">
                 <div class="text-[10px] uppercase font-bold text-slate-500">${person}</div>
                 <div class="text-xs font-extrabold text-slate-800 mt-0.5">₹${personTotals[person].toLocaleString('en-IN')}</div>
             </div>
         `).join('');
 
-        listContainer.innerHTML = localExpenses.slice(0, 50).map(item => `
+        listContainer.innerHTML = tomatoExpenses.map(item => `
             <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
                 <div>
-                    <div class="font-bold text-slate-800">${item.cropName} <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
-                    <div class="text-slate-500 text-[11px]">${item.category} • ${item.date} ${item.notes ? '• ' + item.notes : ''}</div>
+                    <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
+                    <div class="text-slate-500 text-[11px]">${item.date} ${item.notes ? '• ' + item.notes : ''}</div>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="font-extrabold text-slate-800">₹${item.amount.toLocaleString('en-IN')}</span>
@@ -642,32 +607,32 @@
     }
 
     window.exportCSV = function() {
-        if (cachedAuctionEntries.length === 0 && localExpenses.length === 0) return alert('No data to export!');
-        let csv = '\uFEFF=== AUCTION RECORDS ===\nDate,Grade,Comments,Crates,Rate,Net Amount\n';
+        if (cachedAuctionEntries.length === 0 && tomatoExpenses.length === 0) return alert('No data to export!');
+        let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Crates,Rate,Net Amount\n';
         cachedAuctionEntries.forEach(e => {
             csv += `"${e.date}","${e.crateType}","${e.comments}",${e.soldCrates},${e.auctionPrice},${e.finalAmount}\n`;
         });
-        csv += '\n=== EXPENSE RECORDS ===\nDate,Spent By,Crop,Category,Amount,Notes\n';
-        localExpenses.forEach(e => {
-            csv += `"${e.date}","${e.spentBy}","${e.cropName}","${e.category}",${e.amount},"${e.notes || ''}"\n`;
+        csv += '\n=== TOMATO EXPENSE RECORDS ===\nDate,Spent By,Category,Amount,Notes\n';
+        tomatoExpenses.forEach(e => {
+            csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `farm_report_${new Date().toISOString().slice(0,10)}.csv`;
+        a.download = `tomato_farm_report_${new Date().toISOString().slice(0,10)}.csv`;
         a.click();
     };
 
     window.shareToWhatsApp = function() {
         let totalEarnings = cachedAuctionEntries.reduce((sum, i) => sum + i.finalAmount, 0);
-        let totalExpenses = localExpenses.reduce((sum, i) => sum + i.amount, 0);
+        let totalExpenses = tomatoExpenses.reduce((sum, i) => sum + i.amount, 0);
         let netPL = totalEarnings - totalExpenses;
 
-        let msg = `🌾 *Farm Financial Summary*\n`;
+        let msg = `🍅 *Tomato Crop Financial Summary*\n`;
         msg += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
-        msg += `💰 *Total Earnings:* ₹${totalEarnings.toLocaleString('en-IN')}\n`;
-        msg += `🌱 *Total Investment:* ₹${totalExpenses.toLocaleString('en-IN')}\n`;
+        msg += `💰 *Total Auction Earnings:* ₹${totalEarnings.toLocaleString('en-IN')}\n`;
+        msg += `🌱 *Total Tomato Investment:* ₹${totalExpenses.toLocaleString('en-IN')}\n`;
         msg += `📈 *Net Profit/Loss:* ₹${netPL.toLocaleString('en-IN')} ${netPL >= 0 ? '🟢' : '🔴'}\n`;
 
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
