@@ -104,7 +104,7 @@
     <div id="tab-dashboard" class="space-y-5 tab-content">
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         
-        <!-- Header with Editable Crop Status -->
+        <!-- Header with Crop Status & Start Date / Aging -->
         <div class="flex justify-between items-center mb-3 border-b pb-2">
           <h2 class="text-base font-bold text-slate-700" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
           
@@ -114,6 +114,21 @@
               <option value="In Progress">⏳ In Progress</option>
               <option value="Completed">✅ Completed</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Crop Start Date & Dynamic Aging Banner -->
+        <div id="cropAgingBanner" class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 flex justify-between items-center text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📅</span>
+            <div>
+              <div class="text-[10px] font-bold uppercase text-slate-400">Crop Start Date</div>
+              <input type="date" id="cropStartDateInput" onchange="updateCropStartDate(this.value)" class="bg-transparent font-extrabold text-slate-700 border-b border-dashed border-slate-400 focus:outline-none">
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] font-bold uppercase text-slate-400">Crop Aging</div>
+            <div class="text-sm font-black text-blue-600" id="cropAgeDisplay">0 Days</div>
           </div>
         </div>
         
@@ -501,6 +516,7 @@
         expenseTitle: "💸 Tomato Crop Expenses",
         showYieldTab: true,
         status: "In Progress",
+        startDate: "2026-08-01",
         categories: ['Fertilizer/Pesticide', 'Tomato thread', 'Staking thread', 'Staking workers', 'Staking wire', 'Staking bamboo', 'Seeds', 'Weeding', 'Labor', 'Irrigation', 'Transport', 'Machinery/Tractor']
       },
       groundnut: {
@@ -511,6 +527,7 @@
         expenseTitle: "💸 Groundnut Crop Expenses",
         showYieldTab: true,
         status: "In Progress",
+        startDate: "2026-07-22",
         categories: ['Seeds', 'Fertilizer/Pesticide', 'Sowing / BBF', 'Weeding', 'Harvesting / Labor', 'Threshing', 'Transport', 'Machinery/Tractor', 'Irrigation']
       },
       bore: {
@@ -521,6 +538,7 @@
         expenseTitle: "💸 Borewell & Project Expenses",
         showYieldTab: false,
         status: "Completed",
+        startDate: "2026-07-19",
         categories: ['Bore Drilling', 'Casing Pipes', 'Submersible Pump', 'Electricals / Panel', 'Labor', 'Transport', 'Pond Lining / HDPE', 'Permits / Misc']
       }
     };
@@ -574,6 +592,7 @@
                     expenseTitle: `💸 ${newName.trim()} Expenses`,
                     showYieldTab: true,
                     status: "In Progress",
+                    startDate: new Date().toISOString().slice(0, 10),
                     categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
                 };
                 localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
@@ -608,6 +627,30 @@
         if (currentCrop === 'MASTER_ALL') loadMasterData();
     };
 
+    window.updateCropStartDate = function(startDateVal) {
+        if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
+        
+        cropConfigs[currentCrop].startDate = startDateVal;
+        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        set(ref(db, `${currentCrop}_start_date`), startDateVal);
+
+        calculateCropAge(startDateVal);
+    };
+
+    function calculateCropAge(startDateStr) {
+        if (!startDateStr) {
+            document.getElementById('cropAgeDisplay').innerText = '0 Days';
+            return 0;
+        }
+        const start = new Date(startDateStr);
+        const today = new Date();
+        const diffTime = today - start;
+        const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+        
+        document.getElementById('cropAgeDisplay').innerText = `Day ${diffDays} ⏳`;
+        return diffDays;
+    }
+
     function applyStatusBadgeStyle(statusVal) {
         const select = document.getElementById('cropStatusSelect');
         if (statusVal === 'Completed') {
@@ -628,6 +671,7 @@
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
         const boxesCardContainer = document.getElementById('boxesCardContainer');
         const qualityBarSection = document.getElementById('qualityBarSection');
+        const cropAgingBanner = document.getElementById('cropAgingBanner');
 
         if (cropKey === 'MASTER_ALL') {
             document.getElementById('headerTitle').innerText = "🌐 All Master Summary";
@@ -637,7 +681,8 @@
             auctionNavBtn.style.display = 'none';
             expenseNavBtn.style.display = 'none';
             boxesCardContainer.style.display = 'none'; 
-            qualityBarSection.style.display = 'none'; // Hide Harvest Quality Distribution in Master Summary
+            qualityBarSection.style.display = 'none';
+            cropAgingBanner.style.display = 'none';
             masterBreakdownSection.classList.remove('hidden');
 
             if (!document.getElementById('tab-auction').classList.contains('hidden') || !document.getElementById('tab-expenses').classList.contains('hidden')) {
@@ -649,12 +694,13 @@
 
         masterBreakdownSection.classList.add('hidden');
         boxesCardContainer.style.display = 'flex'; 
-        qualityBarSection.style.display = 'block'; // Show Quality Distribution for specific crop
+        qualityBarSection.style.display = 'block'; 
+        cropAgingBanner.style.display = 'flex';
         statusContainer.style.display = 'flex';
         editInvBtn.style.display = 'inline-block';
         expenseNavBtn.style.display = 'flex';
 
-        const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", categories: [] };
+        const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", startDate: new Date().toISOString().slice(0,10), categories: [] };
         
         document.getElementById('headerTitle').innerText = cfg.title;
         document.getElementById('dashboardTitle').innerText = cfg.dashboardTitle;
@@ -663,6 +709,10 @@
 
         document.getElementById('cropStatusSelect').value = cfg.status || 'In Progress';
         applyStatusBadgeStyle(cfg.status || 'In Progress');
+
+        let sDate = cfg.startDate || new Date().toISOString().slice(0, 10);
+        document.getElementById('cropStartDateInput').value = sDate;
+        calculateCropAge(sDate);
 
         if (!cfg.showYieldTab) {
             auctionNavBtn.style.display = 'none';
@@ -739,9 +789,17 @@
                 });
             }
 
+            let daysAge = 0;
+            if (cfg.startDate) {
+                const diffTime = new Date() - new Date(cfg.startDate);
+                daysAge = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+            }
+
             allCropsSummaryData[key] = {
                 name: cfg.name,
                 status: cfg.status || 'In Progress',
+                startDate: cfg.startDate || 'N/A',
+                ageDays: daysAge,
                 expenses: cropExpSum,
                 earnings: cropAucSum,
                 netPL: cropAucSum - cropExpSum
@@ -763,8 +821,8 @@
             container.innerHTML += `
                 <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
-                        <div class="text-slate-500 text-[10px] mt-0.5">Earnings: ₹${d.earnings.toLocaleString('en-IN')} | Expenses: ₹${d.expenses.toLocaleString('en-IN')}</div>
+                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge} <span class="text-[10px] text-blue-600 font-bold">(${d.ageDays} Days)</span></div>
+                        <div class="text-slate-500 text-[10px] mt-0.5">Start: ${d.startDate} | Earn: ₹${d.earnings.toLocaleString('en-IN')} | Exp: ₹${d.expenses.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="text-right">
                         <div class="text-[10px] font-bold text-slate-400">Net P/L</div>
@@ -818,6 +876,7 @@
             }
         });
 
+        // Load synced status from Firebase
         onValue(ref(db, `${currentCrop}_status`), (snapshot) => {
             if (snapshot.exists()) {
                 let statusVal = snapshot.val();
@@ -826,6 +885,18 @@
                     document.getElementById('cropStatusSelect').value = statusVal;
                     applyStatusBadgeStyle(statusVal);
                     populateCropDropdown();
+                }
+            }
+        });
+
+        // Load synced Start Date from Firebase
+        onValue(ref(db, `${currentCrop}_start_date`), (snapshot) => {
+            if (snapshot.exists()) {
+                let dateVal = snapshot.val();
+                if (cropConfigs[currentCrop]) {
+                    cropConfigs[currentCrop].startDate = dateVal;
+                    document.getElementById('cropStartDateInput').value = dateVal;
+                    calculateCropAge(dateVal);
                 }
             }
         });
