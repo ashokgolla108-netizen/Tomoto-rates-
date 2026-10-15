@@ -15,40 +15,33 @@
             --success: #2e7d32;
             --warning: #f57c00;
             --danger: #c62828;
-            --info: #0288d1;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; color: var(--text-main); }
         .container { width: 100%; max-width: 520px; }
 
-        /* Card Styles */
         .card { background: var(--card-bg); padding: 22px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.03); }
-        h2 { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; }
 
-        /* Form Controls */
         .form-group { margin-bottom: 14px; }
         label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; font-size: 13px; }
-        input, select { width: 100%; padding: 11px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; background-color: #f8fafc; transition: all 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; background-color: #fff; box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
+        input, select { width: 100%; padding: 11px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; background-color: #f8fafc; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background-color: #fff; }
 
-        /* Live Calculation Box */
         .results { background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); padding: 16px; border-radius: 12px; margin-top: 18px; border: 1px solid #ffcdd2; }
         .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #4a5568; }
         .row.total { font-weight: 700; font-size: 18px; color: var(--primary-dark); border-top: 2px dashed #ef9a9a; padding-top: 10px; margin-top: 10px; }
         .breakdown-title { font-weight: 700; color: #742a2a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
 
-        /* Buttons */
-        .btn { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 18px; box-shadow: 0 4px 12px rgba(46,125,50,0.25); transition: transform 0.1s, box-shadow 0.1s; }
+        .btn { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 18px; }
         .btn:active { transform: scale(0.98); }
         .btn-danger { background-color: #ffebee; color: var(--danger); border: 1px solid #ffcdd2; padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-danger:hover { background-color: var(--danger); color: white; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; }
 
         .sync-status { text-align: center; font-size: 12px; margin-top: 12px; color: var(--text-sub); }
         .sync-online { color: var(--success); font-weight: 600; }
 
-        /* Dashboard Grid & Cards */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
         .stat-card { padding: 14px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
         .stat-card.earnings { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); grid-column: span 2; }
@@ -57,10 +50,9 @@
         .stat-card.profit { background: linear-gradient(135deg, #00796b 0%, #004d40 100%); grid-column: span 2; }
         .stat-card.loss { background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); grid-column: span 2; }
         
-        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.9; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
         .stat-val { font-size: 18px; font-weight: 700; }
-        
-        /* Yield Progress Bar */
+
         .progress-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 15px; }
         .progress-title { font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; justify-content: space-between; }
         .progress-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #e2e8f0; }
@@ -68,15 +60,12 @@
         .bar-medium { background: var(--warning); }
         .bar-low { background: #c2185b; }
 
-        /* Filter Controls */
         .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .filter-row input, .filter-row select { font-size: 12px; padding: 8px; border-radius: 6px; }
 
-        /* Table */
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { border-bottom: 1px solid #edf2f7; padding: 10px 6px; text-align: center; }
-        th { background-color: #f7fafc; color: #4a5568; font-weight: 700; cursor: pointer; user-select: none; }
-        th:hover { background-color: #edf2f7; }
+        th { background-color: #f7fafc; color: #4a5568; font-weight: 700; cursor: pointer; }
         
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; color: white; display: inline-block; }
         .badge-High { background-color: var(--success); }
@@ -88,7 +77,6 @@
 <body>
 
 <div class="container">
-    <!-- Input Form Card -->
     <div class="card">
         <h2>🍅 Tomato Auction Entry</h2>
 
@@ -113,7 +101,7 @@
 
         <div class="form-group">
             <label for="totalCrates">Total Crates Sent:</label>
-            <input type="number" id="totalCrates" placeholder="Enter total crates" oninput="calculate()">
+            <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()">
         </div>
 
         <div class="form-group">
@@ -123,7 +111,7 @@
 
         <div class="form-group">
             <label for="auctionPrice">Auction Price per Crate (₹):</label>
-            <input type="number" id="auctionPrice" placeholder="Enter auction price" oninput="calculate()">
+            <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()">
         </div>
 
         <div class="form-group">
@@ -142,7 +130,7 @@
         </div>
 
         <div class="results">
-            <div class="breakdown-title">Live Crate Summary</div>
+            <div class="breakdown-title">LIVE CRATE SUMMARY</div>
             <div class="row">
                 <span>Sold Crates (Net):</span>
                 <span id="soldCrates">0</span>
@@ -165,7 +153,6 @@
         <div class="sync-status" id="syncStatus">Status: <span class="sync-online">🟢 Realtime Database Connected</span></div>
     </div>
 
-    <!-- Stylish Dashboard Card -->
     <div class="card">
         <h2>📊 Family Harvest Dashboard</h2>
         
@@ -194,7 +181,6 @@
             </div>
         </div>
 
-        <!-- Quality Yield Visual Bar -->
         <div class="progress-box">
             <div class="progress-title">
                 <span>Harvest Quality Breakdown</span>
@@ -207,7 +193,6 @@
             </div>
         </div>
 
-        <!-- Filters & Search -->
         <div class="filter-row">
             <input type="text" id="searchInput" placeholder="🔍 Search comments..." oninput="applyFiltersAndSort()">
             <select id="filterGrade" onchange="applyFiltersAndSort()">
@@ -238,7 +223,6 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
     import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -248,12 +232,10 @@
       projectId: "tomato-rate-tracker",
       storageBucket: "tomato-rate-tracker.firebasestorage.app",
       messagingSenderId: "982467450318",
-      appId: "1:982467450318:web:1538c54e03b50861b9879f",
-      measurementId: "G-WF60Z3SJNT"
+      appId: "1:982467450318:web:1538c54e03b50861b9879f"
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const db = getDatabase(app);
 
     document.getElementById('entryDate').valueAsDate = new Date();
@@ -282,7 +264,6 @@
         return { soldCrates, auctionPrice, finalAmount };
     }
 
-    // Reset Form Fields after saving
     function resetFormFields() {
         document.getElementById('totalCrates').value = '';
         document.getElementById('lessCrates').value = '0';
@@ -413,7 +394,6 @@
 
         let netProfitLoss = totalEarnings - window.globalInvestment;
 
-        // Dashboard Stats Updates
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Boxes`;
         
@@ -422,8 +402,30 @@
         plVal.innerText = `₹${Math.abs(netProfitLoss).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
         plBox.className = netProfitLoss >= 0 ? "stat-card profit" : "stat-card loss";
 
-        // Progress Bar Calculation
         if (totalBoxes > 0) {
             let pHigh = ((boxesHigh / totalBoxes) * 100).toFixed(0);
             let pMed = ((boxesMedium / totalBoxes) * 100).toFixed(0);
-            let pLow = ((boxesLow / totalBoxe
+            let pLow = ((boxesLow / totalBoxes) * 100).toFixed(0);
+
+            document.getElementById('barHigh').style.width = pHigh + '%';
+            document.getElementById('barMedium').style.width = pMed + '%';
+            document.getElementById('barLow').style.width = pLow + '%';
+            document.getElementById('qualityPercentText').innerText = `High ${pHigh}% | Med ${pMed}% | Low ${pLow}%`;
+        } else {
+            document.getElementById('barHigh').style.width = '0%';
+            document.getElementById('barMedium').style.width = '0%';
+            document.getElementById('barLow').style.width = '0%';
+            document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
+        }
+
+        let filtered = cachedEntries.filter(item => {
+            let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
+            let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
+            return matchesSearch && matchesGrade;
+        });
+
+        filtered.sort((a, b) => {
+            let valA = a[currentSortColumn];
+            let valB = b[currentSortColumn];
+
+            if
