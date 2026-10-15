@@ -21,27 +21,31 @@
         
         .btn { background-color: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         .btn:hover { background-color: #1b5e20; }
-        .btn-sm { background-color: #1976d2; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
-        .btn-sm:hover { background-color: #115293; }
         .btn-danger { background-color: #c62828; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; }
         .btn-danger:hover { background-color: #8e0000; }
+        .icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 5px; }
+        .icon-btn:hover { transform: scale(1.1); }
 
         .sync-status { text-align: center; font-size: 12px; margin-top: 10px; color: #555; }
         .sync-online { color: #2e7d32; font-weight: bold; }
 
-        /* History Section */
+        /* History & Dashboard Section */
         .history-card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-        th { background-color: #f2f2f2; color: #333; }
+        th { background-color: #f2f2f2; color: #333; cursor: pointer; user-select: none; }
+        th:hover { background-color: #e4e4e4; }
         
-        /* Dashboard Summary Cards */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
-        .summary-box { padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid rgba(0,0,0,0.1); }
-        .box-earnings { background: #e8f5e9; color: #2e7d32; }
-        .box-investment { background: #fff3e0; color: #e65100; display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; }
-        .box-profit { background: #e0f2f1; color: #00695c; }
-        .box-loss { background: #ffebee; color: #c62828; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .summary-box { padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(0,0,0,0.1); }
+        .box-earnings { background: #e8f5e9; color: #2e7d32; grid-column: span 2; }
+        .box-investment { background: #fff3e0; color: #e65100; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .box-boxes { background: #e3f2fd; color: #0d47a1; }
+        .box-profit { background: #e0f2f1; color: #00695c; grid-column: span 2; }
+        .box-loss { background: #ffebee; color: #c62828; grid-column: span 2; }
+
+        .filter-row { display: flex; gap: 6px; margin-bottom: 10px; }
+        .filter-row input, .filter-row select { font-size: 12px; padding: 6px; }
 
         .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: white; }
         .badge-High { background-color: #2e7d32; }
@@ -133,29 +137,44 @@
 
     <div class="history-card">
         <h3>📅 Shared Family Dashboard</h3>
+        
         <div class="dashboard-grid">
             <div class="summary-box box-earnings" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
             
             <div class="summary-box box-investment">
-                <span id="totalInvestmentDisplay">Crop Investment: ₹150000</span>
-                <button class="btn-sm" onclick="editInvestment()">Edit Investment</button>
+                <span id="totalInvestmentDisplay">Inv: ₹1,50,000</span>
+                <button class="icon-btn" onclick="editInvestment()" title="Edit Investment">✏️</button>
             </div>
 
+            <div class="summary-box box-boxes" id="totalBoxesSummary">Total Boxes: 0</div>
+
             <div class="summary-box box-profit" id="totalProfitLossSummary">Overall Net Profit: ₹0.00</div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="filter-row">
+            <input type="text" id="searchInput" placeholder="🔍 Search comments..." oninput="applyFiltersAndSort()">
+            <select id="filterGrade" onchange="applyFiltersAndSort()">
+                <option value="">All Grades</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Grade</th>
-                    <th>Crates</th>
-                    <th>Net Amt</th>
+                    <th onclick="sortTable('date')">Date ↕</th>
+                    <th onclick="sortTable('crateType')">Grade ↕</th>
+                    <th onclick="sortTable('soldCrates')">Crates ↕</th>
+                    <th onclick="sortTable('auctionPrice')">Rate ↕</th>
+                    <th onclick="sortTable('finalAmount')">Net Amt ↕</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody id="historyTableBody">
-                <tr><td colspan="5" style="color:#777;">Loading cloud entries...</td></tr>
+                <tr><td colspan="6" style="color:#777;">Loading cloud entries...</td></tr>
             </tbody>
         </table>
     </div>
@@ -207,7 +226,6 @@
         return { soldCrates, auctionPrice, finalAmount };
     }
 
-    // Editable Overall Investment Function
     window.editInvestment = async function() {
         let currentInv = window.globalInvestment || 150000;
         let newInv = prompt("Enter total overall crop investment (₹):", currentInv);
@@ -215,7 +233,6 @@
             let parsed = parseFloat(newInv);
             try {
                 await set(ref(db, 'crop_investment'), parsed);
-                alert("Investment updated successfully!");
             } catch (error) {
                 alert("Error updating investment: " + error.message);
             }
@@ -261,75 +278,112 @@
         }
     }
 
-    // Listen to Overall Investment & Entries in Realtime
     window.globalInvestment = 150000;
+    let cachedEntries = [];
+    let currentSortColumn = 'date';
+    let currentSortAsc = false;
 
     onValue(ref(db, 'crop_investment'), (snapshot) => {
         if (snapshot.exists()) {
             window.globalInvestment = snapshot.val();
         } else {
-            // Default initial investment if not set
             set(ref(db, 'crop_investment'), 150000);
             window.globalInvestment = 150000;
         }
-        document.getElementById('totalInvestmentDisplay').innerText = `Crop Investment: ₹${window.globalInvestment.toLocaleString('en-IN')}`;
-        updateDashboardTotals();
+        document.getElementById('totalInvestmentDisplay').innerText = `Inv: ₹${window.globalInvestment.toLocaleString('en-IN')}`;
+        updateDashboardAndTable();
     });
 
-    let cachedEntries = [];
-
     onValue(ref(db, 'tomato_entries'), (snapshot) => {
-        let tbody = document.getElementById('historyTableBody');
-        tbody.innerHTML = '';
         cachedEntries = [];
-
         snapshot.forEach((childSnap) => {
             let item = childSnap.val();
             item.id = childSnap.key;
             cachedEntries.push(item);
         });
-
-        cachedEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        if (cachedEntries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="color: #777;">No cloud records saved yet.</td></tr>';
-        } else {
-            cachedEntries.forEach((item) => {
-                let displayType = item.crateType || 'High';
-                let badgeClass = 'badge-' + displayType;
-                let commentText = item.comments !== '-' ? `<br><span class="comment-tag">${item.comments}</span>` : '';
-
-                let row = `<tr>
-                    <td>${item.date}<br><span class="badge ${badgeClass}">${displayType}</span>${commentText}</td>
-                    <td>${item.soldCrates} Crates</td>
-                    <td>₹${item.auctionPrice}</td>
-                    <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
-                    <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Del</button></td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-        updateDashboardTotals();
+        updateDashboardAndTable();
     });
 
-    function updateDashboardTotals() {
+    window.sortTable = function(column) {
+        if (currentSortColumn === column) {
+            currentSortAsc = !currentSortAsc;
+        } else {
+            currentSortColumn = column;
+            currentSortAsc = true;
+        }
+        updateDashboardAndTable();
+    }
+
+    window.applyFiltersAndSort = function() {
+        updateDashboardAndTable();
+    }
+
+    function updateDashboardAndTable() {
+        let searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        let gradeFilter = document.getElementById('filterGrade').value;
+
         let totalEarnings = 0;
+        let totalBoxes = 0;
+
+        // Calculate absolute totals across all records
         cachedEntries.forEach(item => {
             totalEarnings += item.finalAmount;
+            totalBoxes += (item.soldCrates || 0);
         });
 
         let netProfitLoss = totalEarnings - window.globalInvestment;
 
         document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
+        document.getElementById('totalBoxesSummary').innerText = `Total Boxes: ${totalBoxes}`;
         
         let plBox = document.getElementById('totalProfitLossSummary');
         plBox.innerText = `Overall Net Profit/Loss: ₹${Math.abs(netProfitLoss).toFixed(2)} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
-        
-        if (netProfitLoss >= 0) {
-            plBox.className = "summary-box box-profit";
-        } else {
-            plBox.className = "summary-box box-loss";
+        plBox.className = netProfitLoss >= 0 ? "summary-box box-profit" : "summary-box box-loss";
+
+        // Filter and Sort entries for the table view
+        let filtered = cachedEntries.filter(item => {
+            let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
+            let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
+            return matchesSearch && matchesGrade;
+        });
+
+        filtered.sort((a, b) => {
+            let valA = a[currentSortColumn];
+            let valB = b[currentSortColumn];
+
+            if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return currentSortAsc ? -1 : 1;
+            if (valA > valB) return currentSortAsc ? 1 : -1;
+            return 0;
+        });
+
+        let tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '';
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="color: #777;">No matching records found.</td></tr>';
+            return;
         }
+
+        filtered.forEach((item) => {
+            let displayType = item.crateType || 'High';
+            let badgeClass = 'badge-' + displayType;
+            let commentText = item.comments !== '-' ? `<br><span class="comment-tag">${item.comments}</span>` : '';
+
+            let row = `<tr>
+                <td>${item.date}</td>
+                <td><span class="badge ${badgeClass}">${displayType}</span>${commentText}</td>
+                <td>${item.soldCrates}</td>
+                <td>₹${item.auctionPrice}</td>
+                <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
+                <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Del</button></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
     }
 
     window.calculate();
