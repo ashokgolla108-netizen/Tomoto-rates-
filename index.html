@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tomato Auction & Rate Calculator</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f4f7f6; margin: 0; padding: 15px; display: flex; justify-content: center; }
@@ -23,6 +26,10 @@
         .btn:hover { background-color: #1b5e20; }
         .btn-danger { background-color: #c62828; color: white; border: none; padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; }
         .btn-danger:hover { background-color: #8e0000; }
+
+        .sync-status { text-align: center; font-size: 12px; margin-top: 10px; color: #555; }
+        .sync-online { color: #2e7d32; font-weight: bold; }
+        .sync-offline { color: #c62828; font-weight: bold; }
 
         /* History Section */
         .history-card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
@@ -123,11 +130,12 @@
             </div>
         </div>
 
-        <button class="btn" onclick="saveEntry()">💾 Save Date Entry</button>
+        <button class="btn" onclick="saveEntry()">☁️ Save to Cloud & Share</button>
+        <div class="sync-status" id="syncStatus">Status: <span class="sync-offline">Configuring Firebase...</span></div>
     </div>
 
     <div class="history-card">
-        <h3>📅 Saved History & Dashboard</h3>
+        <h3>📅 Shared Family Dashboard</h3>
         <div class="summary-box" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
         <table>
             <thead>
@@ -142,13 +150,33 @@
                 </tr>
             </thead>
             <tbody id="historyTableBody">
-                <!-- Records will load here -->
+                <tr><td colspan="7" style="color:#777;">Loading cloud entries...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
+// 🔴 REPLACE THIS BLOCK WITH YOUR FIREBASE CONFIGURATION
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+let db;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    document.getElementById('syncStatus').innerHTML = 'Status: <span class="sync-online">🟢 Live Cloud Connected</span>';
+} catch (e) {
+    document.getElementById('syncStatus').innerHTML = 'Status: <span class="sync-offline">🔴 Please add your Firebase Keys</span>';
+}
+
 document.getElementById('entryDate').valueAsDate = new Date();
 
 function getCalculations() {
@@ -176,7 +204,6 @@ function getCalculations() {
 
 function calculate() {
     const calc = getCalculations();
-
     document.getElementById('soldCrates').innerText = calc.soldCrates;
     document.getElementById('grossAmount').innerText = calc.grossAmount.toFixed(2);
     document.getElementById('totalTransport').innerText = calc.totalTransport.toFixed(2);
@@ -185,12 +212,13 @@ function calculate() {
     document.getElementById('finalAmount').innerText = calc.finalAmount.toFixed(2);
 }
 
-function getHistory() {
-    let history = localStorage.getItem('tomatoHistory');
-    return history ? JSON.parse(history) : [];
-}
-
+// Firebase Cloud Save
 function saveEntry() {
+    if (!db) {
+        alert("Firebase is not configured yet! Please add your Firebase credentials.");
+        return;
+    }
+
     const date = document.getElementById('entryDate').value;
     const crateType = document.getElementById('crateType').value;
     const comments = document.getElementById('comments').value.trim();
@@ -201,70 +229,71 @@ function saveEntry() {
     }
 
     const calc = getCalculations();
-    let history = getHistory();
 
     const newRecord = {
-        id: Date.now(),
         date: date,
         crateType: crateType,
         comments: comments || '-',
         soldCrates: calc.soldCrates,
         auctionPrice: calc.auctionPrice,
-        finalAmount: calc.finalAmount
+        finalAmount: calc.finalAmount,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    history.push(newRecord);
-    history.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    localStorage.setItem('tomatoHistory', JSON.stringify(history));
-    loadHistory();
-    alert('Entry saved successfully!');
-
-    // Reset comments for next input
-    document.getElementById('comments').value = '';
+    db.collection("tomato_entries").add(newRecord)
+    .then(() => {
+        alert('Entry saved to Cloud! Your family can see it now.');
+        document.getElementById('comments').value = '';
+    })
+    .catch((error) => {
+        alert("Error saving: " + error.message);
+    });
 }
 
+// Firebase Delete
 function deleteEntry(id) {
-    let history = getHistory();
-    history = history.filter(item => item.id !== id);
-    localStorage.setItem('tomatoHistory', JSON.stringify(history));
-    loadHistory();
+    if (confirm("Are you sure you want to delete this record?")) {
+        db.collection("tomato_entries").doc(id).delete();
+    }
 }
 
-function loadHistory() {
-    let history = getHistory();
-    let tbody = document.getElementById('historyTableBody');
-    tbody.innerHTML = '';
+// Real-time Cloud Data Listener
+if (db) {
+    db.collection("tomato_entries").orderBy("date", "desc")
+    .onSnapshot((snapshot) => {
+        let tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = '';
+        let totalEarnings = 0;
 
-    let totalEarnings = 0;
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr><td colspan="7" style="color: #777;">No cloud records saved yet.</td></tr>';
+        } else {
+            snapshot.forEach((doc) => {
+                let item = doc.data();
+                item.id = doc.id;
+                totalEarnings += item.finalAmount;
 
-    if (history.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="color: #777; text-align: center;">No saved entries yet.</td></tr>';
-    } else {
-        history.forEach(item => {
-            totalEarnings += item.finalAmount;
-            let displayType = item.crateType || 'High';
-            let badgeClass = 'badge-' + displayType;
-            let commentText = item.comments || '-';
+                let displayType = item.crateType || 'High';
+                let badgeClass = 'badge-' + displayType;
+                let commentText = item.comments || '-';
 
-            let row = `<tr>
-                <td>${item.date}</td>
-                <td><span class="badge ${badgeClass}">${displayType}</span></td>
-                <td class="comment-tag">${commentText}</td>
-                <td>${item.soldCrates}</td>
-                <td>₹${item.auctionPrice}</td>
-                <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
-                <td><button class="btn-danger" onclick="deleteEntry(${item.id})">Delete</button></td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
+                let row = `<tr>
+                    <td>${item.date}</td>
+                    <td><span class="badge ${badgeClass}">${displayType}</span></td>
+                    <td class="comment-tag">${commentText}</td>
+                    <td>${item.soldCrates}</td>
+                    <td>₹${item.auctionPrice}</td>
+                    <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
+                    <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Delete</button></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
+    });
 }
 
 calculate();
-loadHistory();
 </script>
 
 </body>
