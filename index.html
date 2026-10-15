@@ -240,6 +240,7 @@
 
     document.getElementById('entryDate').valueAsDate = new Date();
 
+    // Make calculate function globally available
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
@@ -426,6 +427,4 @@
 
         filtered.sort((a, b) => {
             let valA = a[currentSortColumn];
-            let valB = b[currentSortColumn];
-
-         
+     
