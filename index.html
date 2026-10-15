@@ -65,7 +65,7 @@
       </select>
     </div>
 
-    <!-- Navigation Links -->
+    <!-- Sidebar Navigation Links -->
     <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
       <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
         <span>📊</span> Overview Dashboard
@@ -124,7 +124,7 @@
           </div>
         </div>
 
-        <!-- Professional SVG Expense Pie Chart Section -->
+        <!-- SVG Expense Pie Chart Section -->
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-4">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">📊 Expense Breakdown by Person</h3>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -381,7 +381,7 @@
     let currentSortCol = 'date';
     let currentSortAsc = false;
 
-    // Complete 18 Groundnut Expenses from CSV
+    // ALL 18 Groundnut Expenses Hardcoded (Total: ₹1,08,690)
     const defaultGroundnutExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
       {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
@@ -403,7 +403,7 @@
       {"date":"2026-07-22","spentBy":"Home","category":"Seeds","amount":41400,"notes":"-"}
     ];
 
-    // Complete 17 Borewell Expenses from CSV
+    // ALL 17 Borewell Expenses Hardcoded (Total: ₹2,93,550)
     const defaultBoreExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Drums","amount":1800,"notes":"-"},
       {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":850,"notes":"Petrol pump repair"},
@@ -424,12 +424,41 @@
       {"date":"2026-07-19","spentBy":"Home","category":"Bore Drilling","amount":50000,"notes":"-"}
     ];
 
+    // ALL 33 Tomato Expenses Hardcoded (Total: ₹1,34,199)
     const tomatoBackupExpenses = [
       {"date":"2026-10-13","spentBy":"Ashok","category":"Tomoto thread","amount":1700,"notes":"8kgs"},
-      {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo"},
-      {"date":"2026-10-07","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8800,"notes":"Grade 1 tomato"},
-      {"date":"2026-10-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5000,"notes":"Simidos pegasus"},
-      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":5400,"notes":""}
+      {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo osheen ultra vipul"},
+      {"date":"2026-10-07","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8800,"notes":"Grade 1 tomoto 2"},
+      {"date":"2026-10-05","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5650,"notes":"Phospocop ampligo nativo micro.mix"},
+      {"date":"2026-10-13","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8500,"notes":"10 26 26 soil application"},
+      {"date":"2026-10-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5000,"notes":"Simdois Pegasus atonik micro mix yellow sticker"},
+      {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1500,"notes":"Movento energy custodia"},
+      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":5400,"notes":"-"},
+      {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":800,"notes":"Boron and coragen"},
+      {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2400,"notes":"13 40 13 Nacro biotech"},
+      {"date":"2026-09-23","spentBy":"Ashok","category":"Staking thread","amount":3080,"notes":"14kg"},
+      {"date":"2026-09-20","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3400,"notes":"Exponus"},
+      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking thread","amount":6150,"notes":"30kg"},
+      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking workers","amount":3000,"notes":"-"},
+      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking wire","amount":2500,"notes":"-"},
+      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking bamboo","amount":9500,"notes":"-"},
+      {"date":"2026-09-19","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Isabion biovita double"},
+      {"date":"2026-09-15","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2050,"notes":"Amistor top adama sc 5"},
+      {"date":"2026-09-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5700,"notes":"0 52 34"},
+      {"date":"2026-09-11","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":919,"notes":"Tapas vitainject"},
+      {"date":"2026-09-09","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Orandios ultra"},
+      {"date":"2026-09-04","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":4300,"notes":"Simidos qunatis Pegasus"},
+      {"date":"2026-09-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":7350,"notes":"12 61 0 , calcium nitrate, mgso4"},
+      {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1850,"notes":"M45/krill"},
+      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"Bellam"},
+      {"date":"2026-08-18","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"-"},
+      {"date":"2026-08-14","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8400,"notes":"Balu"},
+      {"date":"2026-08-14","spentBy":"Ashok","category":"Labor","amount":2000,"notes":"Staking tree"},
+      {"date":"2026-08-04","spentBy":"Home","category":"Seeds","amount":5000,"notes":"-"},
+      {"date":"2026-08-04","spentBy":"Home","category":"Transport","amount":300,"notes":"Drip auto charge"},
+      {"date":"2026-08-02","spentBy":"Home","category":"Irrigation","amount":12000,"notes":"Drip"},
+      {"date":"2026-07-31","spentBy":"Home","category":"Seeds","amount":3500,"notes":"Advance"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":1000,"notes":"5 madakalu"}
     ];
 
     let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
@@ -561,21 +590,20 @@
         });
 
         onValue(expenseRef, (snapshot) => {
-            cloudExpenses = [];
             let fetchedCount = snapshot.exists() ? snapshot.size : 0;
 
-            // If Firebase has incomplete data, force re-sync with full dataset
             let expectedData = [];
             if (currentCrop === 'groundnut') expectedData = defaultGroundnutExpenses;
             else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
             else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
 
+            // Force clear old cached state if count doesn't match expected dataset length
             if (expectedData.length > 0 && fetchedCount < expectedData.length) {
-                // Wipe & sync complete dataset to Firebase
                 set(expenseRef, null).then(() => {
                     expectedData.forEach(rec => push(expenseRef, rec));
                 });
             } else {
+                cloudExpenses = [];
                 snapshot.forEach((childSnap) => {
                     let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
                 });
