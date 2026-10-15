@@ -243,7 +243,7 @@
         <div class="flex justify-between items-center mb-3 pb-2 border-b">
           <h2 class="text-base font-bold text-slate-700">Auction Records</h2>
           <div class="flex gap-2">
-            <input type="text" id="searchInput" placeholder="Search..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-24">
+            <input type="text" id="searchInput" placeholder="Search date / comment..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-28">
             <select id="filterGrade" onchange="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
               <option value="">All</option>
               <option value="High">High</option>
@@ -438,9 +438,6 @@
         toggleSidebar();
     };
 
-    // Updated Live Calculation according to your rules:
-    // Transport = 25 (fixed per total crate), Rent = 4 (fixed per sold crate)
-    // Commission = 10% of rate (e.g. rate 300 -> commission 30 per sold crate)
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
@@ -579,7 +576,7 @@
     });
 
     function renderDashboard() {
-        let searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        let searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
         let gradeFilter = document.getElementById('filterGrade').value.toLowerCase();
 
         let totalEarnings = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
@@ -621,10 +618,15 @@
             document.getElementById('qualityPercentText').innerText = `High ${pHigh}% | Med ${pMed}% | Low ${pLow}%`;
         }
 
+        // Fixed Filter for Search & Grade
         let filtered = cachedAuctionEntries.filter(item => {
-            let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
+            let matchesSearch = searchQuery === "" || 
+                (item.comments && item.comments.toLowerCase().includes(searchQuery)) || 
+                (item.date && item.date.includes(searchQuery));
+            
             let itemGrade = (item.crateType || '').toLowerCase();
             let matchesGrade = gradeFilter === "" || itemGrade === gradeFilter;
+
             return matchesSearch && matchesGrade;
         });
 
