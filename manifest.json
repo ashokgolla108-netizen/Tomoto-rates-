@@ -1,0 +1,9 @@
+{
+  "name": "Yumika Luck Farm Tracker",
+  "short_name": "Yumika Luck",
+  "start_url": "/Tomoto-rates-/",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#b91c1c",
+  "icons": []
+}
