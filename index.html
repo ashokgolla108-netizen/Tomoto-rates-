@@ -12,8 +12,8 @@
         h2 { text-align: center; color: #d32f2f; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
         .form-group { margin-bottom: 12px; }
         label { display: block; font-weight: 600; margin-bottom: 4px; color: #333; font-size: 13px; }
-        input { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-        input:focus { border-color: #d32f2f; outline: none; }
+        input, select { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background-color: #fff; }
+        input:focus, select:focus { border-color: #d32f2f; outline: none; }
         .results { background-color: #fbe9e7; padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid #ffccbc; }
         .row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
         .row.total { font-weight: bold; font-size: 17px; color: #b71c1c; border-top: 1px solid #ffab91; padding-top: 6px; margin-top: 6px; }
@@ -26,10 +26,15 @@
 
         /* History Section */
         .history-card { background: #ffffff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
         th { background-color: #f2f2f2; color: #333; }
         .summary-box { background: #e8f5e9; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-align: center; font-weight: bold; color: #2e7d32; font-size: 16px; border: 1px solid #c8e6c9; }
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-High { background-color: #2e7d32; }
+        .badge-Medium { background-color: #f57c00; }
+        .badge-Low { background-color: #c2185b; }
+        .comment-tag { font-style: italic; color: #555; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -41,6 +46,20 @@
         <div class="form-group">
             <label for="entryDate">Date:</label>
             <input type="date" id="entryDate">
+        </div>
+
+        <div class="form-group">
+            <label for="crateType">Quality / Grade:</label>
+            <select id="crateType">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="comments">Comments / Type (e.g. Goli, Macha, Pandu, Dhwara):</label>
+            <input type="text" id="comments" placeholder="e.g. Goli / Macha / Pandu / Dhwara">
         </div>
 
         <div class="form-group">
@@ -108,12 +127,14 @@
     </div>
 
     <div class="history-card">
-        <h3>📅 Saved History & Total Dashboard</h3>
+        <h3>📅 Saved History & Dashboard</h3>
         <div class="summary-box" id="totalEarningsSummary">Total Net Earnings: ₹0.00</div>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
+                    <th>Grade</th>
+                    <th>Comments</th>
                     <th>Crates</th>
                     <th>Rate</th>
                     <th>Net Amount</th>
@@ -171,6 +192,9 @@ function getHistory() {
 
 function saveEntry() {
     const date = document.getElementById('entryDate').value;
+    const crateType = document.getElementById('crateType').value;
+    const comments = document.getElementById('comments').value.trim();
+
     if (!date) {
         alert('Please select a date.');
         return;
@@ -182,6 +206,8 @@ function saveEntry() {
     const newRecord = {
         id: Date.now(),
         date: date,
+        crateType: crateType,
+        comments: comments || '-',
         soldCrates: calc.soldCrates,
         auctionPrice: calc.auctionPrice,
         finalAmount: calc.finalAmount
@@ -193,6 +219,9 @@ function saveEntry() {
     localStorage.setItem('tomatoHistory', JSON.stringify(history));
     loadHistory();
     alert('Entry saved successfully!');
+
+    // Reset comments for next input
+    document.getElementById('comments').value = '';
 }
 
 function deleteEntry(id) {
@@ -210,12 +239,18 @@ function loadHistory() {
     let totalEarnings = 0;
 
     if (history.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="color: #777; text-align: center;">No saved entries yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="color: #777; text-align: center;">No saved entries yet.</td></tr>';
     } else {
         history.forEach(item => {
             totalEarnings += item.finalAmount;
+            let displayType = item.crateType || 'High';
+            let badgeClass = 'badge-' + displayType;
+            let commentText = item.comments || '-';
+
             let row = `<tr>
                 <td>${item.date}</td>
+                <td><span class="badge ${badgeClass}">${displayType}</span></td>
+                <td class="comment-tag">${commentText}</td>
                 <td>${item.soldCrates}</td>
                 <td>₹${item.auctionPrice}</td>
                 <td style="font-weight: bold; color: #2e7d32;">₹${item.finalAmount.toFixed(2)}</td>
