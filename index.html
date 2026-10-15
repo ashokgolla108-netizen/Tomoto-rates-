@@ -87,10 +87,10 @@
 
         <div class="form-group">
             <label for="crateType">Quality / Grade:</label>
-            <select id="crateType">
-                <option value="High">High Quality</option>
-                <option value="Medium">Medium Quality</option>
-                <option value="Low">Low Quality</option>
+            <select id="crateType" onchange="calculate()">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
             </select>
         </div>
 
@@ -300,8 +300,8 @@
         }
 
         const calc = window.calculate();
-        if (calc.soldCrates <= 0 && calc.auctionPrice <= 0) {
-            alert('Please enter total crates and auction price.');
+        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) {
+            alert('Please enter valid total crates and auction price.');
             return;
         }
 
@@ -428,4 +428,4 @@
             let valA = a[currentSortColumn];
             let valB = b[currentSortColumn];
 
-            if
+         
