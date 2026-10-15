@@ -34,7 +34,7 @@
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
       <div>
         <h1 class="text-lg font-bold tracking-wide">🍅 Tomato Crop & Auction Tracker</h1>
-        <p class="text-red-200 text-xs mt-0.5">Tomato Expense & Auction Profit Dashboard</p>
+        <p class="text-red-200 text-xs mt-0.5">Unified Realtime Family Cloud Dashboard</p>
       </div>
       <div class="flex gap-2">
         <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2.5 py-1.5 rounded-lg border border-red-600 font-medium transition flex items-center gap-1">
@@ -129,7 +129,7 @@
         </div>
 
         <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
-          ☁️ Save Auction Entry
+          ☁️ Save Auction Entry to Cloud
         </button>
       </div>
     </section>
@@ -189,7 +189,7 @@
         </div>
 
         <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-          + Add Tomato Expense
+          ☁️ Add Expense to Cloud
         </button>
       </form>
     </section>
@@ -271,11 +271,10 @@
       </div>
     </section>
 
-    <!-- 5. Tomato Expenses History (Filtered strictly for Tomato) -->
+    <!-- 5. Tomato Expenses History -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
       <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Tomato Expenses Breakdown</h2>
       
-      <!-- Person Summary Cards -->
       <div class="grid grid-cols-3 gap-2 mb-4" id="expenseSummaryCards">
         <!-- Populated dynamically -->
       </div>
@@ -287,7 +286,7 @@
 
   </main>
 
-  <!-- Firebase SDKs for Realtime Synchronization -->
+  <!-- Firebase Realtime Synchronization Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -308,47 +307,45 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    // Embedded 33 Tomato-only Expense Records from file (Ashok + Home)
+    // Embedded Backup Tomato Expense Records
     const tomatoBackupExpenses = [
-      {"id": 1728800000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Tomoto thread", "amount": 1700, "date": "2026-10-13", "notes": "8kgs"},
-      {"id": 1728800010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5050, "date": "2026-10-13", "notes": "Isabion nativo ampligo osheen ultra vipul"},
-      {"id": 1728300000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8800, "date": "2026-10-07", "notes": "Grade 1 tomoto 2"},
-      {"id": 1728100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5650, "date": "2026-10-05", "notes": "Phospocop ampligo nativo micro.mix"},
-      {"id": 1728800020000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8500, "date": "2026-10-13", "notes": "10 26 26 soil application"},
-      {"id": 1727800000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5000, "date": "2026-10-02", "notes": "Simdois Pegasus atonik micro mix yellow sticker"},
-      {"id": 1727600000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 1500, "date": "2026-09-30", "notes": "Movento energy custodia"},
-      {"id": 1727500000000, "spentBy": "Home", "cropName": "Tomato", "category": "Weeding", "amount": 5400, "date": "2026-09-29", "notes": ""},
-      {"id": 1727100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 800, "date": "2026-09-24", "notes": "Boron and coragen"},
-      {"id": 1727100010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 2400, "date": "2026-09-24", "notes": "13 40 13 Nacro biotech"},
-      {"id": 1727000000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking thread", "amount": 3080, "date": "2026-09-23", "notes": "14kg"},
-      {"id": 1726700000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3400, "date": "2026-09-20", "notes": "Exponus"},
-      {"id": 1726600000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking thread", "amount": 6150, "date": "2026-09-19", "notes": "30kg"},
-      {"id": 1726600010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking workers", "amount": 3000, "date": "2026-09-19", "notes": ""},
-      {"id": 1726600020000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking wire", "amount": 2500, "date": "2026-09-19", "notes": ""},
-      {"id": 1726600030000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Staking bamboo", "amount": 9500, "date": "2026-09-19", "notes": ""},
-      {"id": 1726600040000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3300, "date": "2026-09-19", "notes": "Isabion biovita double"},
-      {"id": 1726300000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 2050, "date": "2026-09-15", "notes": "Amistor top adama sc 5"},
-      {"id": 1726100000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 5700, "date": "2026-09-13", "notes": "0 52 34"},
-      {"id": 1725900000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 919, "date": "2026-09-11", "notes": "Tapas vitainject"},
-      {"id": 1725700000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 3300, "date": "2026-09-09", "notes": "Orandios ultra"},
-      {"id": 1725400000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 4300, "date": "2026-09-04", "notes": "Simidos qunatis Pegasus"},
-      {"id": 1725200000000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 7350, "date": "2026-09-02", "notes": "12 61 0 , calcium nitrate, mgso4"},
-      {"id": 1727600010000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 1850, "date": "2026-09-30", "notes": "M45/krill"},
-      {"id": 1724402220000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 400, "date": "2026-08-21", "notes": "Bellam"},
-      {"id": 1724401860000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 400, "date": "2026-08-18", "notes": ""},
-      {"id": 1724401800000, "spentBy": "Home", "cropName": "Tomato", "category": "Fertilizer/Pesticide", "amount": 8400, "date": "2026-08-14", "notes": "Balu"},
-      {"id": 1724401740000, "spentBy": "Ashok", "cropName": "Tomato", "category": "Labor", "amount": 2000, "date": "2026-08-14", "notes": "Staking tree"},
-      {"id": 1724401620000, "spentBy": "Home", "cropName": "Tomato", "category": "Seeds", "amount": 5000, "date": "2026-08-04", "notes": ""},
-      {"id": 1724401500000, "spentBy": "Home", "cropName": "Tomato", "category": "Transport", "amount": 300, "date": "2026-08-04", "notes": "Drip auto charge"},
-      {"id": 1724401320000, "spentBy": "Home", "cropName": "Tomato", "category": "Irrigation", "amount": 12000, "date": "2026-08-02", "notes": "Drip"},
-      {"id": 1724401260000, "spentBy": "Home", "cropName": "Tomato", "category": "Seeds", "amount": 3500, "date": "2026-07-31", "notes": "Advance"},
-      {"id": 1724400900000, "spentBy": "Home", "cropName": "Tomato", "category": "Machinery/Tractor", "amount": 1000, "date": "2026-07-27", "notes": "5 madakalu"}
+      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Tomoto thread", "amount": 1700, "notes": "8kgs"},
+      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5050, "notes": "Isabion nativo ampligo osheen ultra vipul"},
+      {"date": "2026-10-07", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 8800, "notes": "Grade 1 tomoto 2"},
+      {"date": "2026-10-05", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5650, "notes": "Phospocop ampligo nativo micro.mix"},
+      {"date": "2026-10-13", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 8500, "notes": "10 26 26 soil application"},
+      {"date": "2026-10-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5000, "notes": "Simdois Pegasus atonik micro mix yellow sticker"},
+      {"date": "2026-09-30", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 1500, "notes": "Movento energy custodia"},
+      {"date": "2026-09-29", "spentBy": "Home", "category": "Weeding", "amount": 5400, "notes": ""},
+      {"date": "2026-09-24", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 800, "notes": "Boron and coragen"},
+      {"date": "2026-09-24", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2400, "notes": "13 40 13 Nacro biotech"},
+      {"date": "2026-09-23", "spentBy": "Ashok", "category": "Staking thread", "amount": 3080, "notes": "14kg"},
+      {"date": "2026-09-20", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3400, "notes": "Exponus"},
+      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking thread", "amount": 6150, "notes": "30kg"},
+      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking workers", "amount": 3000, "notes": ""},
+      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking wire", "amount": 2500, "notes": ""},
+      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking bamboo", "amount": 9500, "notes": ""},
+      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3300, "notes": "Isabion biovita double"},
+      {"date": "2026-09-15", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2050, "notes": "Amistor top adama sc 5"},
+      {"date": "2026-09-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5700, "notes": "0 52 34"},
+      {"date": "2026-09-11", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 919, "notes": "Tapas vitainject"},
+      {"date": "2026-09-09", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3300, "notes": "Orandios ultra"},
+      {"date": "2026-09-04", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 4300, "notes": "Simidos qunatis Pegasus"},
+      {"date": "2026-09-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 7350, "notes": "12 61 0 , calcium nitrate, mgso4"},
+      {"date": "2026-09-30", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 1850, "notes": "M45/krill"},
+      {"date": "2026-08-21", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 400, "notes": "Bellam"},
+      {"date": "2026-08-18", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 400, "notes": ""},
+      {"date": "2026-08-14", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 8400, "notes": "Balu"},
+      {"date": "2026-08-14", "spentBy": "Ashok", "category": "Labor", "amount": 2000, "notes": "Staking tree"},
+      {"date": "2026-08-04", "spentBy": "Home", "category": "Seeds", "amount": 5000, "notes": ""},
+      {"date": "2026-08-04", "spentBy": "Home", "category": "Transport", "amount": 300, "notes": "Drip auto charge"},
+      {"date": "2026-08-02", "spentBy": "Home", "category": "Irrigation", "amount": 12000, "notes": "Drip"},
+      {"date": "2026-07-31", "spentBy": "Home", "category": "Seeds", "amount": 3500, "notes": "Advance"},
+      {"date": "2026-07-27", "spentBy": "Home", "category": "Machinery/Tractor", "amount": 1000, "notes": "5 madakalu"}
     ];
 
-    let tomatoExpenses = JSON.parse(localStorage.getItem('tomato_expenses_only_v3')) || tomatoBackupExpenses;
     let cachedAuctionEntries = [];
-    let currentSortColumn = 'date';
-    let currentSortAsc = false;
+    let cloudExpenses = [];
 
     // Live Calculation
     window.calculate = function() {
@@ -393,16 +390,9 @@
         const crateType = document.getElementById('crateType').value;
         const comments = document.getElementById('comments').value.trim();
 
-        if (!date) {
-            alert('Please select a date.');
-            return;
-        }
-
+        if (!date) return alert('Please select a date.');
         const calc = window.calculate();
-        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) {
-            alert('Please enter valid total crates and auction price.');
-            return;
-        }
+        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return alert('Please enter valid crates and auction price.');
 
         try {
             await push(ref(db, 'tomato_auction_entries'), {
@@ -414,7 +404,7 @@
                 finalAmount: calc.finalAmount,
                 timestamp: Date.now()
             });
-            alert('Tomato auction entry saved!');
+            alert('Auction entry saved to Cloud!');
             resetAuctionForm();
         } catch (error) {
             alert("Error saving: " + error.message);
@@ -434,43 +424,39 @@
         document.getElementById('customCategoryInput').classList.toggle('hidden', cat !== 'CUSTOM');
     };
 
-    // Add Tomato Expense
-    document.getElementById('expenseForm').addEventListener('submit', (e) => {
+    // Save Expense to Firebase Realtime Database
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
-        const record = {
-            id: Date.now(),
-            spentBy,
-            cropName: "Tomato",
-            category,
-            amount: parseFloat(document.getElementById('expenseAmount').value),
-            date: document.getElementById('expenseDate').value,
-            notes: document.getElementById('expenseNotes').value.trim()
-        };
-
-        tomatoExpenses.unshift(record);
-        localStorage.setItem('tomato_expenses_only_v3', JSON.stringify(tomatoExpenses));
-        e.target.reset();
-        document.getElementById('expenseDate').valueAsDate = new Date();
-        renderExpenses();
-        renderDashboard();
+        try {
+            await push(ref(db, 'tomato_expenses'), {
+                date: document.getElementById('expenseDate').value,
+                spentBy: spentBy,
+                category: category,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                notes: document.getElementById('expenseNotes').value.trim() || '-',
+                timestamp: Date.now()
+            });
+            alert('Expense saved to Cloud!');
+            e.target.reset();
+            document.getElementById('expenseDate').valueAsDate = new Date();
+        } catch (error) {
+            alert("Error saving expense: " + error.message);
+        }
     });
 
-    window.deleteExpense = function(id) {
-        if (confirm("Delete this expense?")) {
-            tomatoExpenses = tomatoExpenses.filter(item => item.id !== id);
-            localStorage.setItem('tomato_expenses_only_v3', JSON.stringify(tomatoExpenses));
-            renderExpenses();
-            renderDashboard();
+    window.deleteExpense = async function(id) {
+        if (confirm("Delete this expense record from Cloud?")) {
+            await remove(ref(db, 'tomato_expenses/' + id));
         }
     };
 
     // Editable Investment Override
     window.editInvestment = async function() {
-        let totalTomatoSum = tomatoExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let newInv = prompt("Enter overall Tomato crop investment (₹):", totalTomatoSum);
+        let totalSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
+        let newInv = prompt("Enter overall Tomato crop investment (₹):", totalSum);
         if (newInv !== null && !isNaN(newInv)) {
             await set(ref(db, 'tomato_investment_override'), parseFloat(newInv));
         }
@@ -482,6 +468,7 @@
         renderDashboard();
     });
 
+    // Realtime Listener for Auction Entries
     onValue(ref(db, 'tomato_auction_entries'), (snapshot) => {
         cachedAuctionEntries = [];
         snapshot.forEach((childSnap) => {
@@ -489,6 +476,25 @@
             item.id = childSnap.key;
             cachedAuctionEntries.push(item);
         });
+        renderDashboard();
+    });
+
+    // Realtime Listener for Expenses (populates initial backup if empty)
+    onValue(ref(db, 'tomato_expenses'), (snapshot) => {
+        cloudExpenses = [];
+        if (!snapshot.exists()) {
+            // Seed initial 33 Tomato backup records to cloud if database is fresh
+            tomatoBackupExpenses.forEach(rec => {
+                push(ref(db, 'tomato_expenses'), rec);
+            });
+        } else {
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val();
+                item.id = childSnap.key;
+                cloudExpenses.push(item);
+            });
+        }
+        renderExpenses();
         renderDashboard();
     });
 
@@ -511,9 +517,9 @@
             else if (item.crateType === 'Low') boxesLow += crates;
         });
 
-        // Investment strictly pulled from Tomato expenses (Ashok + Home + Dhanu)
-        let totalTomatoExpenseSum = tomatoExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalTomatoExpenseSum;
+        // Investment comes directly from Cloud Expense Total
+        let totalCloudExpenseSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
+        let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalCloudExpenseSum;
 
         let netProfitLoss = totalEarnings - activeInvestment;
 
@@ -579,7 +585,7 @@
         const listContainer = document.getElementById('expenseList');
 
         const personTotals = {};
-        tomatoExpenses.forEach(e => {
+        cloudExpenses.forEach(e => {
             personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount;
         });
 
@@ -592,41 +598,41 @@
             </div>
         `).join('');
 
-        listContainer.innerHTML = tomatoExpenses.map(item => `
+        listContainer.innerHTML = cloudExpenses.map(item => `
             <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
                 <div>
                     <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
-                    <div class="text-slate-500 text-[11px]">${item.date} ${item.notes ? '• ' + item.notes : ''}</div>
+                    <div class="text-slate-500 text-[11px]">${item.date} ${item.notes && item.notes !== '-' ? '• ' + item.notes : ''}</div>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="font-extrabold text-slate-800">₹${item.amount.toLocaleString('en-IN')}</span>
-                    <button onclick="deleteExpense(${item.id})" class="text-slate-400 hover:text-red-500 font-bold">✕</button>
+                    <button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold">✕</button>
                 </div>
             </div>
         `).join('');
     }
 
     window.exportCSV = function() {
-        if (cachedAuctionEntries.length === 0 && tomatoExpenses.length === 0) return alert('No data to export!');
+        if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
         let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Crates,Rate,Net Amount\n';
         cachedAuctionEntries.forEach(e => {
             csv += `"${e.date}","${e.crateType}","${e.comments}",${e.soldCrates},${e.auctionPrice},${e.finalAmount}\n`;
         });
         csv += '\n=== TOMATO EXPENSE RECORDS ===\nDate,Spent By,Category,Amount,Notes\n';
-        tomatoExpenses.forEach(e => {
+        cloudExpenses.forEach(e => {
             csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `tomato_farm_report_${new Date().toISOString().slice(0,10)}.csv`;
+        a.download = `tomato_farm_cloud_report_${new Date().toISOString().slice(0,10)}.csv`;
         a.click();
     };
 
     window.shareToWhatsApp = function() {
         let totalEarnings = cachedAuctionEntries.reduce((sum, i) => sum + i.finalAmount, 0);
-        let totalExpenses = tomatoExpenses.reduce((sum, i) => sum + i.amount, 0);
+        let totalExpenses = cloudExpenses.reduce((sum, i) => sum + i.amount, 0);
         let netPL = totalEarnings - totalExpenses;
 
         let msg = `🍅 *Tomato Crop Financial Summary*\n`;
@@ -638,7 +644,6 @@
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    renderExpenses();
     window.calculate();
 </script>
 
