@@ -65,7 +65,7 @@
       </select>
     </div>
 
-    <!-- Properly Aligned Sidebar Navigation Links -->
+    <!-- Navigation Links -->
     <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
       <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
         <span>📊</span> Overview Dashboard
@@ -381,30 +381,55 @@
     let currentSortCol = 'date';
     let currentSortAsc = false;
 
-    // Complete Preloaded Backup Data for Groundnut & Borewell
+    // Complete 18 Groundnut Expenses from CSV
     const defaultGroundnutExpenses = [
-      {"date": "2026-08-21", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 850, "notes": "Groundnut micronutrients"},
-      {"date": "2026-08-21", "spentBy": "Home", "category": "Transport", "amount": 90, "notes": "Seed transport"},
-      {"date": "2026-08-21", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 1200, "notes": "Groundnut base fertilizer"},
-      {"date": "2026-09-10", "spentBy": "Ashok", "category": "Seeds", "amount": 4500, "notes": "Certified groundnut seeds"},
-      {"date": "2026-09-12", "spentBy": "Home", "category": "Sowing / BBF", "amount": 3200, "notes": "Broad Bed & Furrow setup"},
-      {"date": "2026-09-25", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2800, "notes": "Gypsum & 0:52:34"}
+      {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
+      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
+      {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":10000,"notes":"2nd weeding"},
+      {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":4300,"notes":"1st yatakallu"},
+      {"date":"2026-08-28","spentBy":"Ashok","category":"Seeds","amount":3350,"notes":"Ground trees failure"},
+      {"date":"2026-09-22","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1200,"notes":"CMS"},
+      {"date":"2026-08-21","spentBy":"Home","category":"Transport","amount":90,"notes":"28:28"},
+      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":6900,"notes":"28:28"},
+      {"date":"2026-08-21","spentBy":"Ashok","category":"Transport","amount":800,"notes":"Gypsum/ growth pesticides"},
+      {"date":"2026-08-21","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8900,"notes":"Gypsum/ growth pesticides"},
+      {"date":"2026-07-31","spentBy":"Home","category":"Insurance","amount":3000,"notes":"-"},
+      {"date":"2026-07-31","spentBy":"Ashok","category":"Insurance","amount":1000,"notes":"-"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":4500,"notes":"Seeds"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":300,"notes":"Seeds"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Paisalu","amount":3000,"notes":"-"},
+      {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":2400,"notes":"-"},
+      {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":4050,"notes":"-"},
+      {"date":"2026-07-22","spentBy":"Home","category":"Seeds","amount":41400,"notes":"-"}
     ];
 
+    // Complete 17 Borewell Expenses from CSV
     const defaultBoreExpenses = [
-      {"date": "2026-07-25", "spentBy": "Ashok", "category": "Bore Drilling", "amount": 50000, "notes": "Drilling point charges"},
-      {"date": "2026-07-28", "spentBy": "Ashok", "category": "Submersible Pump", "amount": 150000, "notes": "Motor and pump set"},
-      {"date": "2026-08-05", "spentBy": "Home", "category": "Casing Pipes", "amount": 35000, "notes": "PVC pipes and fittings"},
-      {"date": "2026-08-15", "spentBy": "Ashok", "category": "Electricals / Panel", "amount": 18000, "notes": "Starter panel and cabling"},
-      {"date": "2026-10-01", "spentBy": "Home", "category": "Pond Lining / HDPE", "amount": 45000, "notes": "Farm pond HDPE sheet materials"}
+      {"date":"2026-09-29","spentBy":"Ashok","category":"Drums","amount":1800,"notes":"-"},
+      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":850,"notes":"Petrol pump repair"},
+      {"date":"2026-08-14","spentBy":"Ashok","category":"Machinery/Tractor","amount":3300,"notes":"Charging pump"},
+      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1000,"notes":"Konapuram pipe fittings"},
+      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1600,"notes":"Pipes"},
+      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1400,"notes":"PVC pitting"},
+      {"date":"2026-07-31","spentBy":"Ashok","category":"Food/clothes","amount":10000,"notes":"-"},
+      {"date":"2026-07-31","spentBy":"Home","category":"Casing Pipes","amount":2000,"notes":"PVC pipes"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Sprinkler pipes","amount":18000,"notes":"-"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":12000,"notes":"PVC pipes"},
+      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":1000,"notes":"Thimmayya Auto motor /pump"},
+      {"date":"2026-07-23","spentBy":"Home","category":"Machinery/Tractor","amount":2600,"notes":"-"},
+      {"date":"2026-07-22","spentBy":"Ashok","category":"Submersible Pump","amount":1000,"notes":"-"},
+      {"date":"2026-07-21","spentBy":"Ashok","category":"Submersible Pump","amount":20000,"notes":"-"},
+      {"date":"2026-07-20","spentBy":"Home","category":"Submersible Pump","amount":150000,"notes":"-"},
+      {"date":"2026-07-21","spentBy":"Ashok","category":"Bore Drilling","amount":17000,"notes":"-"},
+      {"date":"2026-07-19","spentBy":"Home","category":"Bore Drilling","amount":50000,"notes":"-"}
     ];
 
     const tomatoBackupExpenses = [
-      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Tomoto thread", "amount": 1700, "notes": "8kgs"},
-      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5050, "notes": "Isabion nativo ampligo"},
-      {"date": "2026-10-07", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 8800, "notes": "Grade 1 tomato"},
-      {"date": "2026-10-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5000, "notes": "Simidos pegasus"},
-      {"date": "2026-09-29", "spentBy": "Home", "category": "Weeding", "amount": 5400, "notes": ""}
+      {"date":"2026-10-13","spentBy":"Ashok","category":"Tomoto thread","amount":1700,"notes":"8kgs"},
+      {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo"},
+      {"date":"2026-10-07","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8800,"notes":"Grade 1 tomato"},
+      {"date":"2026-10-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5000,"notes":"Simidos pegasus"},
+      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":5400,"notes":""}
     ];
 
     let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
@@ -537,19 +562,26 @@
 
         onValue(expenseRef, (snapshot) => {
             cloudExpenses = [];
-            if (!snapshot.exists()) {
-                let seedData = [];
-                if (currentCrop === 'tomato') seedData = tomatoBackupExpenses;
-                else if (currentCrop === 'groundnut') seedData = defaultGroundnutExpenses;
-                else if (currentCrop === 'bore') seedData = defaultBoreExpenses;
-                seedData.forEach(rec => push(ref(db, `${currentCrop}_expenses`), rec));
+            let fetchedCount = snapshot.exists() ? snapshot.size : 0;
+
+            // If Firebase has incomplete data, force re-sync with full dataset
+            let expectedData = [];
+            if (currentCrop === 'groundnut') expectedData = defaultGroundnutExpenses;
+            else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
+            else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
+
+            if (expectedData.length > 0 && fetchedCount < expectedData.length) {
+                // Wipe & sync complete dataset to Firebase
+                set(expenseRef, null).then(() => {
+                    expectedData.forEach(rec => push(expenseRef, rec));
+                });
             } else {
                 snapshot.forEach((childSnap) => {
                     let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
                 });
+                renderExpenses();
+                renderDashboard();
             }
-            renderExpenses();
-            renderDashboard();
         });
     }
 
@@ -732,7 +764,7 @@
 
         Object.entries(personTotals).forEach(([person, amount], index) => {
             if (amount <= 0) return;
-            const percent = (amount / totalInvestment) * 100;
+            const percent = totalInvestment > 0 ? (amount / totalInvestment) * 100 : 0;
             const color = colors[index % colors.length];
             svgContent += `<circle cx="16" cy="16" r="15.9155" fill="transparent" stroke="${color}" stroke-width="6" stroke-dasharray="${percent} 100" stroke-dashoffset="${-accumulatedPercent}"></circle>`;
             legendContent += `<div class="flex items-center justify-between gap-3"><div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background-color: ${color};"></span><span class="font-semibold text-slate-700">${person}</span></div><span class="font-bold text-slate-900">₹${amount.toLocaleString('en-IN')} (${percent.toFixed(1)}%)</span></div>`;
