@@ -540,7 +540,18 @@
 
       <!-- Spray History Records Table -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3 pb-2 border-b">📋 Spray & Fertilizer History</h2>
+        <div class="flex justify-between items-center mb-3 pb-2 border-b">
+          <h2 class="text-base font-bold text-slate-700">📋 Spray & Fertilizer History</h2>
+          <div>
+            <select id="filterSprayType" onchange="renderSprayLogs()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
+              <option value="ALL">All Types</option>
+              <option value="Fertilizer">Fertilizer</option>
+              <option value="Fungicide">Fungicide</option>
+              <option value="Pesticide">Pesticide</option>
+              <option value="Micronutrient / Other">Micronutrient / Other</option>
+            </select>
+          </div>
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
@@ -1245,7 +1256,6 @@
             let consumed = consumedMap[item.name] || 0;
             let remaining = item.qty - consumed;
 
-            // Only add to dropdown if remaining > 0
             if (remaining > 0) {
                 select.innerHTML += `<option value="${item.name}">${item.name} (${item.category}) - Avail: ${remaining} ${item.unit}</option>`;
             }
@@ -1300,8 +1310,9 @@
         if (confirm("Delete this spray record?")) await remove(ref(db, `${currentCrop}_spray_logs/${id}`));
     };
 
-    function renderSprayLogs() {
+    window.renderSprayLogs = function() {
         const tbody = document.getElementById('sprayTableBody');
+        const typeFilter = document.getElementById('filterSprayType').value;
         tbody.innerHTML = '';
 
         if (cloudSprayLogs.length === 0) {
@@ -1309,8 +1320,18 @@
             return;
         }
 
-        let sortedLogs = [...cloudSprayLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+        let filteredLogs = cloudSprayLogs.filter(log => {
+            if (typeFilter === 'ALL') return true;
+            return (log.type || '').toLowerCase() === typeFilter.toLowerCase();
+        });
+
+        let sortedLogs = [...filteredLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
         const startDate = cropConfigs[currentCrop]?.startDate || new Date().toISOString().slice(0, 10);
+
+        if (sortedLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-slate-400 py-4">No records match this filter.</td></tr>';
+            return;
+        }
 
         sortedLogs.forEach(log => {
             let diffTime = new Date(log.date) - new Date(startDate);
