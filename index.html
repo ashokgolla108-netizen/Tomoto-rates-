@@ -96,10 +96,10 @@
             <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
-          <!-- Professional Box Count Card with Sub-counts -->
+          <!-- Total Boxes Card (using Total Crates Sent without deductions) -->
           <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between">
             <div>
-              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Boxes Sold</div>
+              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Boxes</div>
               <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Boxes</div>
             </div>
             <div class="mt-2 pt-2 border-t border-blue-400/30 flex justify-between text-[10px] font-semibold opacity-95">
@@ -252,7 +252,7 @@
               <tr class="bg-slate-50 text-slate-600 select-none">
                 <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Date ↕</th>
                 <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Grade ↕</th>
-                <th onclick="sortAuctionTable('soldCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Crates ↕</th>
+                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Crates ↕</th>
                 <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Rate ↕</th>
                 <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Net Amt ↕</th>
                 <th class="p-2 text-center">Action</th>
@@ -448,23 +448,35 @@
         document.getElementById('grossAmount').innerText = grossAmount.toFixed(2);
         document.getElementById('totalDeductionsDisplay').innerText = totalDeductions.toFixed(2);
         document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
-        return { soldCrates, auctionPrice, finalAmount };
+        return { totalCrates, soldCrates, auctionPrice, finalAmount };
     };
 
     window.saveAuctionEntry = async function() {
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
         const comments = document.getElementById('comments').value.trim();
+        const totalCratesInput = parseFloat(document.getElementById('totalCrates').value) || 0;
+        const lessCratesInput = parseFloat(document.getElementById('lessCrates').value) || 0;
+
         if (!date) return alert('Please select a date.');
         const calc = window.calculate();
         if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return alert('Please enter valid crates and price.');
 
         try {
             await push(ref(db, 'tomato_auction_entries'), {
-                date, crateType, comments: comments || '-', soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, finalAmount: calc.finalAmount, timestamp: Date.now()
+                date, 
+                crateType, 
+                comments: comments || '-', 
+                totalCrates: totalCratesInput,
+                lessCrates: lessCratesInput,
+                soldCrates: calc.soldCrates, 
+                auctionPrice: calc.auctionPrice, 
+                finalAmount: calc.finalAmount, 
+                timestamp: Date.now()
             });
             alert('Auction entry saved to Cloud!');
             document.getElementById('totalCrates').value = '';
+            document.getElementById('lessCrates').value = '0';
             document.getElementById('auctionPrice').value = '';
             document.getElementById('comments').value = '';
             window.calculate();
@@ -524,7 +536,13 @@
     onValue(ref(db, 'tomato_auction_entries'), (snapshot) => {
         cachedAuctionEntries = [];
         snapshot.forEach((childSnap) => {
-            let item = childSnap.val(); item.id = childSnap.key; cachedAuctionEntries.push(item);
+            let item = childSnap.val(); 
+            item.id = childSnap.key; 
+            // Fallback for older entries where totalCrates wasn't explicitly stored separately
+            if (item.totalCrates === undefined) {
+                item.totalCrates = item.soldCrates + (item.lessCrates || 0);
+            }
+            cachedAuctionEntries.push(item);
         });
         renderDashboard();
     });
@@ -549,7 +567,8 @@
         let totalEarnings = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
         cachedAuctionEntries.forEach(item => {
             totalEarnings += item.finalAmount;
-            let crates = (item.soldCrates || 0);
+            // Use Total Crates Sent for box count totals as requested
+            let crates = (item.totalCrates !== undefined ? item.totalCrates : item.soldCrates);
             totalBoxes += crates;
             let type = (item.crateType || '').toLowerCase();
             if (type === 'high') boxesHigh += crates;
@@ -564,7 +583,7 @@
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalInvestmentDisplay').innerText = `₹${activeInvestment.toLocaleString('en-IN')}`;
         
-        // Update Total Boxes and Sub-counts in Dashboard
+        // Update Total Boxes and Sub-counts in Dashboard (using Total Crates Sent)
         document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Boxes`;
         document.getElementById('subCountHigh').innerText = boxesHigh;
         document.getElementById('subCountMedium').innerText = boxesMedium;
@@ -614,11 +633,12 @@
         filtered.forEach((item) => {
             let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
             let commentText = item.comments !== '-' ? `<span class="comment-tag">${item.comments}</span>` : '';
+            let displayCrates = item.totalCrates !== undefined ? item.totalCrates : item.soldCrates;
             tbody.innerHTML += `
                 <tr>
                     <td class="p-2 text-center">${item.date}</td>
                     <td class="p-2 text-center"><span class="badge ${badgeClass}">${item.crateType}</span>${commentText}</td>
-                    <td class="p-2 text-center">${item.soldCrates}</td>
+                    <td class="p-2 text-center">${displayCrates}</td>
                     <td class="p-2 text-center">₹${item.auctionPrice}</td>
                     <td class="p-2 text-center font-bold text-emerald-700">₹${item.finalAmount.toFixed(2)}</td>
                     <td class="p-2 text-center"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
@@ -699,8 +719,11 @@
 
     window.exportCSV = function() {
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
-        let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Crates,Rate,Net Amount\n';
-        cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType}","${e.comments}",${e.soldCrates},${e.auctionPrice},${e.finalAmount}\n`; });
+        let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Total Crates,Rate,Net Amount\n';
+        cachedAuctionEntries.forEach(e => { 
+            let dCrates = e.totalCrates !== undefined ? e.totalCrates : e.soldCrates;
+            csv += `"${e.date}","${e.crateType}","${e.comments}",${dCrates},${e.auctionPrice},${e.finalAmount}\n`; 
+        });
         csv += '\n=== TOMATO EXPENSE RECORDS ===\nDate,Spent By,Category,Amount,Notes\n';
         cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
         
