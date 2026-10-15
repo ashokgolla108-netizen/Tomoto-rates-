@@ -380,10 +380,10 @@
     let cloudExpenses = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
-    let activeAuctionListener = null;
-    let activeExpenseListener = null;
+    let currentAuctionRef = null;
+    let currentExpenseRef = null;
 
-    // Hardcoded datasets
+    // Hardcoded Datasets for automatic overwrite
     const defaultGroundnutExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
       {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
@@ -575,14 +575,14 @@
     };
 
     function loadCropData() {
-        // Detach previous listeners to prevent cross-crop data leakage
-        if (activeAuctionListener) off(ref(db, `${currentCrop}_auction_entries`), 'value', activeAuctionListener);
-        if (activeExpenseListener) off(ref(db, `${currentCrop}_expenses`), 'value', activeExpenseListener);
+        // Unsubscribe existing listeners
+        if (currentAuctionRef) off(currentAuctionRef);
+        if (currentExpenseRef) off(currentExpenseRef);
 
-        const auctionRef = ref(db, `${currentCrop}_auction_entries`);
-        const expenseRef = ref(db, `${currentCrop}_expenses`);
+        currentAuctionRef = ref(db, `${currentCrop}_auction_entries`);
+        currentExpenseRef = ref(db, `${currentCrop}_expenses`);
 
-        onValue(auctionRef, (snapshot) => {
+        onValue(currentAuctionRef, (snapshot) => {
             cachedAuctionEntries = [];
             snapshot.forEach((childSnap) => {
                 let item = childSnap.val(); 
@@ -593,23 +593,30 @@
             renderDashboard();
         });
 
-        onValue(expenseRef, (snapshot) => {
-            let fetchedCount = snapshot.exists() ? snapshot.size : 0;
+        onValue(currentExpenseRef, (snapshot) => {
+            cloudExpenses = [];
+            let items = [];
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val(); 
+                item.id = childSnap.key; 
+                items.push(item);
+            });
+
+            // Detect if this crop node contains dirty/mismatched Tomato data
+            let hasTomatoDataInNonTomato = (currentCrop !== 'tomato') && items.some(i => (i.category && i.category.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('isabion')));
 
             let expectedData = [];
             if (currentCrop === 'groundnut') expectedData = defaultGroundnutExpenses;
             else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
             else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
 
-            if (expectedData.length > 0 && fetchedCount < expectedData.length) {
-                set(expenseRef, null).then(() => {
-                    expectedData.forEach(rec => push(expenseRef, rec));
+            if (hasTomatoDataInNonTomato || items.length === 0) {
+                // Wipe incorrect node and force write correct dataset
+                set(currentExpenseRef, null).then(() => {
+                    expectedData.forEach(rec => push(currentExpenseRef, rec));
                 });
             } else {
-                cloudExpenses = [];
-                snapshot.forEach((childSnap) => {
-                    let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
-                });
+                cloudExpenses = items;
                 renderExpenses();
                 renderDashboard();
             }
