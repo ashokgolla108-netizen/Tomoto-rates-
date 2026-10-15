@@ -21,24 +21,31 @@
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Header with Hamburger Menu & Crop Selector -->
-  <header class="bg-red-700 text-white py-4 shadow-lg sticky top-0 z-40">
-    <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
-      <div class="flex items-center gap-3">
+  <!-- Header with Hamburger Menu, Top Right Crop Selector & Actions -->
+  <header class="bg-red-700 text-white py-3 shadow-lg sticky top-0 z-40">
+    <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
+      <div class="flex items-center gap-2">
         <button onclick="toggleSidebar()" class="p-1.5 rounded-lg hover:bg-red-800 text-white focus:outline-none">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <div>
-          <h1 class="text-sm font-bold tracking-wide truncate max-w-[180px]" id="headerTitle">🍅 Tomato Farm Tracker</h1>
-          <p class="text-red-200 text-[10px]" id="headerSubtitle">Overview Dashboard</p>
+          <h1 class="text-xs font-bold tracking-wide truncate max-w-[120px] sm:max-w-[160px]" id="headerTitle">🍅 Tomato Farm</h1>
+          <p class="text-red-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2 py-1.5 rounded-lg border border-red-600 font-medium transition">
+
+      <!-- Top Right Actions & Quick Crop Selector -->
+      <div class="flex items-center gap-1.5">
+        <!-- TOP RIGHT CROP SELECTOR -->
+        <select id="topCropSelect" onchange="handleCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[130px] truncate">
+          <!-- Dynamically populated -->
+        </select>
+
+        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2 py-1.5 rounded-lg border border-red-600 font-medium transition hidden sm:inline-block">
           📊 CSV
         </button>
         <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition">
-          💬 WhatsApp
+          💬
         </button>
       </div>
     </div>
@@ -383,7 +390,7 @@
     let currentAuctionRef = null;
     let currentExpenseRef = null;
 
-    // Hardcoded Datasets for automatic overwrite
+    // Datasets
     const defaultGroundnutExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
       {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
@@ -463,8 +470,8 @@
 
     let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
       tomato: {
-        name: "🍅 Tomato Crop",
-        title: "🍅 Tomato Farm Tracker",
+        name: "🍅 Tomato",
+        title: "🍅 Tomato Farm",
         dashboardTitle: "🌈 Tomato Harvest & Profit Overview",
         auctionTitle: "📦 Tomato Auction / Yield Entry",
         expenseTitle: "💸 Tomato Crop Expenses",
@@ -472,8 +479,8 @@
         categories: ['Fertilizer/Pesticide', 'Tomato thread', 'Staking thread', 'Staking workers', 'Staking wire', 'Staking bamboo', 'Seeds', 'Weeding', 'Labor', 'Irrigation', 'Transport', 'Machinery/Tractor']
       },
       groundnut: {
-        name: "🥜 Groundnut Crop",
-        title: "🥜 Groundnut Farm Tracker",
+        name: "🥜 Groundnut",
+        title: "🥜 Groundnut Farm",
         dashboardTitle: "📊 Groundnut Harvest & Profit Overview",
         auctionTitle: "📦 Groundnut Yield / Sales Entry",
         expenseTitle: "💸 Groundnut Crop Expenses",
@@ -481,8 +488,8 @@
         categories: ['Seeds', 'Fertilizer/Pesticide', 'Sowing / BBF', 'Weeding', 'Harvesting / Labor', 'Threshing', 'Transport', 'Machinery/Tractor', 'Irrigation']
       },
       bore: {
-        name: "💧 Borewell & Infrastructure",
-        title: "💧 Borewell & Infrastructure",
+        name: "💧 Borewell",
+        title: "💧 Borewell & Infra",
         dashboardTitle: "📊 Borewell & Infrastructure Summary",
         auctionTitle: "📦 Infrastructure Income / Asset",
         expenseTitle: "💸 Borewell & Project Expenses",
@@ -492,14 +499,19 @@
     };
 
     window.populateCropDropdown = function() {
-        const select = document.getElementById('globalCropSelect');
+        const sideSelect = document.getElementById('globalCropSelect');
+        const topSelect = document.getElementById('topCropSelect');
         let html = '';
         for (const [key, cfg] of Object.entries(cropConfigs)) {
             html += `<option value="${key}">${cfg.name || key}</option>`;
         }
-        html += `<option value="ADD_NEW">➕ Add New Crop / Project...</option>`;
-        select.innerHTML = html;
-        select.value = currentCrop;
+        let sideHtml = html + `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        
+        sideSelect.innerHTML = sideHtml;
+        topSelect.innerHTML = html;
+
+        sideSelect.value = currentCrop;
+        topSelect.value = currentCrop;
     };
 
     window.handleCropDropdownChange = function(val) {
@@ -536,6 +548,10 @@
         document.getElementById('auctionFormTitle').innerText = cfg.auctionTitle;
         document.getElementById('expenseFormTitle').innerText = cfg.expenseTitle;
 
+        // Keep both dropdowns in sync
+        document.getElementById('globalCropSelect').value = cropKey;
+        document.getElementById('topCropSelect').value = cropKey;
+
         const auctionNavBtn = document.getElementById('navAuctionBtn');
         if (!cfg.showYieldTab) {
             auctionNavBtn.style.display = 'none';
@@ -571,11 +587,9 @@
         document.getElementById('tab-' + tabName).classList.remove('hidden');
         const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
-        toggleSidebar();
     };
 
     function loadCropData() {
-        // Unsubscribe existing listeners
         if (currentAuctionRef) off(currentAuctionRef);
         if (currentExpenseRef) off(currentExpenseRef);
 
@@ -602,7 +616,6 @@
                 items.push(item);
             });
 
-            // Detect if this crop node contains dirty/mismatched Tomato data
             let hasTomatoDataInNonTomato = (currentCrop !== 'tomato') && items.some(i => (i.category && i.category.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('isabion')));
 
             let expectedData = [];
@@ -611,7 +624,6 @@
             else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
 
             if (hasTomatoDataInNonTomato || items.length === 0) {
-                // Wipe incorrect node and force write correct dataset
                 set(currentExpenseRef, null).then(() => {
                     expectedData.forEach(rec => push(currentExpenseRef, rec));
                 });
