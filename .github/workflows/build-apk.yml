@@ -1,0 +1,38 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Bubblewrap CLI (Google's PWA-to-APK Tool)
+        run: npm install -g @bubblewrap/cli
+
+      - name: Generate TWA Android Project
+        run: |
+          bubblewrap init --manifest=https://ashokgolla108-netizen.github.io/Tomoto-rates-/manifest.json --directory=android-app || true
+
+      - name: Build APK via Gradle
+        working-directory: ./android-app
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yumika-luck-apk
+          path: android-app/app/build/outputs/apk/release/*.apk
