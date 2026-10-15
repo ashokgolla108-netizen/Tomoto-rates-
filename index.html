@@ -100,9 +100,12 @@
       </div>
     </nav>
 
-    <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400 flex justify-between items-center">
-      <span>Firebase Synced 🟢</span>
-      <button id="deleteCropSidebarBtn" onclick="deleteCurrentCropPrompt()" class="text-red-600 font-bold hover:underline text-xs hidden">🗑️ Delete Crop</button>
+    <!-- Sidebar Footer with Delete Current Crop Option -->
+    <div class="p-4 border-t border-slate-100 flex flex-col gap-2">
+      <div class="text-center text-xs text-slate-400">Firebase Synced 🟢</div>
+      <button id="deleteCropSidebarBtn" onclick="deleteCurrentCropPrompt()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2 rounded-xl text-xs transition border border-rose-200 hidden">
+        🗑️ Delete Current Crop
+      </button>
     </div>
   </aside>
 
@@ -412,11 +415,13 @@
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b">
           <h2 class="text-base font-bold text-slate-700" id="expenseListTitle">Expenses Breakdown</h2>
-          <div class="flex gap-1.5 items-center">
+          <div class="flex gap-2 items-center">
             <select id="filterExpensePerson" onchange="renderExpenses()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
               <option value="ALL">All Persons</option>
             </select>
-            <button onclick="manageSpentByNames()" class="text-xs text-red-600 font-bold hover:underline" title="Manage Spent By Names">⚙️</button>
+            <button onclick="manageSpentByNames()" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded text-xs transition border border-red-200">
+              ⚙️ Manage Names
+            </button>
           </div>
         </div>
         
@@ -624,83 +629,6 @@
     let currentSprayRef = null;
     let currentStockRef = null;
     let allCropsSummaryData = {};
-
-    const defaultGroundnutExpenses = [
-      {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
-      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
-      {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":10000,"notes":"2nd weeding"},
-      {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":4300,"notes":"1st yatakallu"},
-      {"date":"2026-08-28","spentBy":"Ashok","category":"Seeds","amount":3350,"notes":"Ground trees failure"},
-      {"date":"2026-09-22","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1200,"notes":"CMS"},
-      {"date":"2026-08-21","spentBy":"Home","category":"Transport","amount":90,"notes":"28:28"},
-      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":6900,"notes":"28:28"},
-      {"date":"2026-08-21","spentBy":"Ashok","category":"Transport","amount":800,"notes":"Gypsum/ growth pesticides"},
-      {"date":"2026-08-21","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8900,"notes":"Gypsum/ growth pesticides"},
-      {"date":"2026-07-31","spentBy":"Home","category":"Insurance","amount":3000,"notes":"-"},
-      {"date":"2026-07-31","spentBy":"Ashok","category":"Insurance","amount":1000,"notes":"-"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":4500,"notes":"Seeds"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":300,"notes":"Seeds"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Paisalu","amount":3000,"notes":"-"},
-      {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":2400,"notes":"-"},
-      {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":4050,"notes":"-"},
-      {"date":"2026-07-22","spentBy":"Home","category":"Seeds","amount":41400,"notes":"-"}
-    ];
-
-    const defaultBoreExpenses = [
-      {"date":"2026-09-29","spentBy":"Ashok","category":"Drums","amount":1800,"notes":"-"},
-      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":850,"notes":"Petrol pump repair"},
-      {"date":"2026-08-14","spentBy":"Ashok","category":"Machinery/Tractor","amount":3300,"notes":"Charging pump"},
-      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1000,"notes":"Konapuram pipe fittings"},
-      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1600,"notes":"Pipes"},
-      {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1400,"notes":"PVC pitting"},
-      {"date":"2026-07-31","spentBy":"Ashok","category":"Food/clothes","amount":10000,"notes":"-"},
-      {"date":"2026-07-31","spentBy":"Home","category":"Casing Pipes","amount":2000,"notes":"PVC pipes"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Sprinkler pipes","amount":18000,"notes":"-"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":12000,"notes":"PVC pipes"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":1000,"notes":"Thimmayya Auto motor /pump"},
-      {"date":"2026-07-23","spentBy":"Home","category":"Machinery/Tractor","amount":2600,"notes":"-"},
-      {"date":"2026-07-22","spentBy":"Ashok","category":"Submersible Pump","amount":1000,"notes":"-"},
-      {"date":"2026-07-21","spentBy":"Ashok","category":"Submersible Pump","amount":20000,"notes":"-"},
-      {"date":"2026-07-20","spentBy":"Home","category":"Submersible Pump","amount":150000,"notes":"-"},
-      {"date":"2026-07-21","spentBy":"Ashok","category":"Bore Drilling","amount":17000,"notes":"-"},
-      {"date":"2026-07-19","spentBy":"Home","category":"Bore Drilling","amount":50000,"notes":"-"}
-    ];
-
-    const tomatoBackupExpenses = [
-      {"date":"2026-10-13","spentBy":"Ashok","category":"Tomoto thread","amount":1700,"notes":"8kgs"},
-      {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo osheen ultra vipul"},
-      {"date":"2026-10-07","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8800,"notes":"Grade 1 tomoto 2"},
-      {"date":"2026-10-05","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5650,"notes":"Phospocop ampligo nativo micro.mix"},
-      {"date":"2026-10-13","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8500,"notes":"10 26 26 soil application"},
-      {"date":"2026-10-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5000,"notes":"Simdois Pegasus atonik micro mix yellow sticker"},
-      {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1500,"notes":"Movento energy custodia"},
-      {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":5400,"notes":"-"},
-      {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":800,"notes":"Boron and coragen"},
-      {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2400,"notes":"13 40 13 Nacro biotech"},
-      {"date":"2026-09-23","spentBy":"Ashok","category":"Staking thread","amount":3080,"notes":"14kg"},
-      {"date":"2026-09-20","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3400,"notes":"Exponus"},
-      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking thread","amount":6150,"notes":"30kg"},
-      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking workers","amount":3000,"notes":"-"},
-      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking wire","amount":2500,"notes":"-"},
-      {"date":"2026-09-19","spentBy":"Ashok","category":"Staking bamboo","amount":9500,"notes":"-"},
-      {"date":"2026-09-19","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Isabion biovita double"},
-      {"date":"2026-09-15","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2050,"notes":"Amistor top adama sc 5"},
-      {"date":"2026-09-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5700,"notes":"0 52 34"},
-      {"date":"2026-09-11","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":919,"notes":"Tapas vitainject"},
-      {"date":"2026-09-09","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Orandios ultra"},
-      {"date":"2026-09-04","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":4300,"notes":"Simidos qunatis Pegasus"},
-      {"date":"2026-09-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":7350,"notes":"12 61 0 , calcium nitrate, mgso4"},
-      {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1850,"notes":"M45/krill"},
-      {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"Bellam"},
-      {"date":"2026-08-18","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"-"},
-      {"date":"2026-08-14","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8400,"notes":"Balu"},
-      {"date":"2026-08-14","spentBy":"Ashok","category":"Labor","amount":2000,"notes":"Staking tree"},
-      {"date":"2026-08-04","spentBy":"Home","category":"Seeds","amount":5000,"notes":"-"},
-      {"date":"2026-08-04","spentBy":"Home","category":"Transport","amount":300,"notes":"Drip auto charge"},
-      {"date":"2026-08-02","spentBy":"Home","category":"Irrigation","amount":12000,"notes":"Drip"},
-      {"date":"2026-07-31","spentBy":"Home","category":"Seeds","amount":3500,"notes":"Advance"},
-      {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":1000,"notes":"5 madakalu"}
-    ];
 
     let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
       tomato: {
@@ -1056,17 +984,6 @@
                     cloudExpenses.push(val);
                     cropExpSum += (val.amount || 0);
                 });
-            } else {
-                let defaultSet = [];
-                if (key === 'groundnut') defaultSet = defaultGroundnutExpenses;
-                else if (key === 'bore') defaultSet = defaultBoreExpenses;
-                else if (key === 'tomato') defaultSet = tomatoBackupExpenses;
-
-                defaultSet.forEach(val => {
-                    val.cropKey = key;
-                    cloudExpenses.push(val);
-                    cropExpSum += (val.amount || 0);
-                });
             }
 
             if (aucSnap.exists()) {
@@ -1145,7 +1062,7 @@
             renderDashboard();
         });
 
-        onValue(currentExpenseRef, (snapshot) => {
+        onValue(currentExpenseRef, async (snapshot) => {
             cloudExpenses = [];
             let items = [];
             snapshot.forEach((childSnap) => {
@@ -1154,15 +1071,92 @@
                 items.push(item);
             });
 
-            let expectedData = [];
-            if (currentCrop === 'groundnut') expectedData = defaultGroundnutExpenses;
-            else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
-            else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
+            if (items.length === 0) {
+                let initialSeed = [];
+                if (currentCrop === 'groundnut') {
+                    initialSeed = [
+                        {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
+                        {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
+                        {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":10000,"notes":"2nd weeding"},
+                        {"date":"2026-09-27","spentBy":"Ashok","category":"Weeding","amount":4300,"notes":"1st yatakallu"},
+                        {"date":"2026-08-28","spentBy":"Ashok","category":"Seeds","amount":3350,"notes":"Ground trees failure"},
+                        {"date":"2026-09-22","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1200,"notes":"CMS"},
+                        {"date":"2026-08-21","spentBy":"Home","category":"Transport","amount":90,"notes":"28:28"},
+                        {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":6900,"notes":"28:28"},
+                        {"date":"2026-08-21","spentBy":"Ashok","category":"Transport","amount":800,"notes":"Gypsum/ growth pesticides"},
+                        {"date":"2026-08-21","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8900,"notes":"Gypsum/ growth pesticides"},
+                        {"date":"2026-07-31","spentBy":"Home","category":"Insurance","amount":3000,"notes":"-"},
+                        {"date":"2026-07-31","spentBy":"Ashok","category":"Insurance","amount":1000,"notes":"-"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":4500,"notes":"Seeds"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":300,"notes":"Seeds"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Paisalu","amount":3000,"notes":"-"},
+                        {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":2400,"notes":"-"},
+                        {"date":"2026-07-22","spentBy":"Home","category":"Fertilizer/Pesticide","amount":4050,"notes":"-"},
+                        {"date":"2026-07-22","spentBy":"Home","category":"Seeds","amount":41400,"notes":"-"}
+                    ];
+                } else if (currentCrop === 'bore') {
+                    initialSeed = [
+                        {"date":"2026-09-29","spentBy":"Ashok","category":"Drums","amount":1800,"notes":"-"},
+                        {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":850,"notes":"Petrol pump repair"},
+                        {"date":"2026-08-14","spentBy":"Ashok","category":"Machinery/Tractor","amount":3300,"notes":"Charging pump"},
+                        {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1000,"notes":"Konapuram pipe fittings"},
+                        {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1600,"notes":"Pipes"},
+                        {"date":"2026-08-04","spentBy":"Home","category":"Irrigation","amount":1400,"notes":"PVC pitting"},
+                        {"date":"2026-07-31","spentBy":"Ashok","category":"Food/clothes","amount":10000,"notes":"-"},
+                        {"date":"2026-07-31","spentBy":"Home","category":"Casing Pipes","amount":2000,"notes":"PVC pipes"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Sprinkler pipes","amount":18000,"notes":"-"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":12000,"notes":"PVC pipes"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Transport","amount":1000,"notes":"Thimmayya Auto motor /pump"},
+                        {"date":"2026-07-23","spentBy":"Home","category":"Machinery/Tractor","amount":2600,"notes":"-"},
+                        {"date":"2026-07-22","spentBy":"Ashok","category":"Submersible Pump","amount":1000,"notes":"-"},
+                        {"date":"2026-07-21","spentBy":"Ashok","category":"Submersible Pump","amount":20000,"notes":"-"},
+                        {"date":"2026-07-20","spentBy":"Home","category":"Submersible Pump","amount":150000,"notes":"-"},
+                        {"date":"2026-07-21","spentBy":"Ashok","category":"Bore Drilling","amount":17000,"notes":"-"},
+                        {"date":"2026-07-19","spentBy":"Home","category":"Bore Drilling","amount":50000,"notes":"-"}
+                    ];
+                } else if (currentCrop === 'tomato') {
+                    initialSeed = [
+                        {"date":"2026-10-13","spentBy":"Ashok","category":"Tomoto thread","amount":1700,"notes":"8kgs"},
+                        {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo osheen ultra vipul"},
+                        {"date":"2026-10-07","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":8800,"notes":"Grade 1 tomoto 2"},
+                        {"date":"2026-10-05","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5650,"notes":"Phospocop ampligo nativo micro.mix"},
+                        {"date":"2026-10-13","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8500,"notes":"10 26 26 soil application"},
+                        {"date":"2026-10-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5000,"notes":"Simdois Pegasus atonik micro mix yellow sticker"},
+                        {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1500,"notes":"Movento energy custodia"},
+                        {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":5400,"notes":"-"},
+                        {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":800,"notes":"Boron and coragen"},
+                        {"date":"2026-09-24","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2400,"notes":"13 40 13 Nacro biotech"},
+                        {"date":"2026-09-23","spentBy":"Ashok","category":"Staking thread","amount":3080,"notes":"14kg"},
+                        {"date":"2026-09-20","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3400,"notes":"Exponus"},
+                        {"date":"2026-09-19","spentBy":"Ashok","category":"Staking thread","amount":6150,"notes":"30kg"},
+                        {"date":"2026-09-19","spentBy":"Ashok","category":"Staking workers","amount":3000,"notes":"-"},
+                        {"date":"2026-09-19","spentBy":"Ashok","category":"Staking wire","amount":2500,"notes":"-"},
+                        {"date":"2026-09-19","spentBy":"Ashok","category":"Staking bamboo","amount":9500,"notes":"-"},
+                        {"date":"2026-09-19","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Isabion biovita double"},
+                        {"date":"2026-09-15","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":2050,"notes":"Amistor top adama sc 5"},
+                        {"date":"2026-09-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5700,"notes":"0 52 34"},
+                        {"date":"2026-09-11","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":919,"notes":"Tapas vitainject"},
+                        {"date":"2026-09-09","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":3300,"notes":"Orandios ultra"},
+                        {"date":"2026-09-04","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":4300,"notes":"Simidos qunatis Pegasus"},
+                        {"date":"2026-09-02","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":7350,"notes":"12 61 0 , calcium nitrate, mgso4"},
+                        {"date":"2026-09-30","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":1850,"notes":"M45/krill"},
+                        {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"Bellam"},
+                        {"date":"2026-08-18","spentBy":"Home","category":"Fertilizer/Pesticide","amount":400,"notes":"-"},
+                        {"date":"2026-08-14","spentBy":"Home","category":"Fertilizer/Pesticide","amount":8400,"notes":"Balu"},
+                        {"date":"2026-08-14","spentBy":"Ashok","category":"Labor","amount":2000,"notes":"Staking tree"},
+                        {"date":"2026-08-04","spentBy":"Home","category":"Seeds","amount":5000,"notes":"-"},
+                        {"date":"2026-08-04","spentBy":"Home","category":"Transport","amount":300,"notes":"Drip auto charge"},
+                        {"date":"2026-08-02","spentBy":"Home","category":"Irrigation","amount":12000,"notes":"Drip"},
+                        {"date":"2026-07-31","spentBy":"Home","category":"Seeds","amount":3500,"notes":"Advance"},
+                        {"date":"2026-07-27","spentBy":"Home","category":"Machinery/Tractor","amount":1000,"notes":"5 madakalu"}
+                    ];
+                }
 
-            if (items.length === 0 && expectedData.length > 0) {
-                set(currentExpenseRef, null).then(() => {
-                    expectedData.forEach(rec => push(currentExpenseRef, rec));
-                });
+                if (initialSeed.length > 0) {
+                    for (const rec of initialSeed) {
+                        await push(currentExpenseRef, rec);
+                    }
+                }
             } else {
                 cloudExpenses = items;
                 renderExpenses();
@@ -1631,7 +1625,6 @@
 
     window.exportCSV = function() {
         if (currentCrop === 'MASTER_ALL') {
-            // Master export all
             let csv = `\uFEFF=== ALL CROPS MASTER REPORT ===\n`;
             for (const [key, d] of Object.entries(allCropsSummaryData)) {
                 csv += `\nCrop: ${d.name}, Status: ${d.status}, Earnings: ₹${d.earnings}, Expenses: ₹${d.expenses}, Net P/L: ₹${d.netPL}\n`;
