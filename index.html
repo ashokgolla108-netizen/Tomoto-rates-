@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Crop & Auction Tracker</title>
+    <title>Farm Crop & Auction Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -21,7 +21,7 @@
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Header with Hamburger Menu -->
+  <!-- Header with Hamburger Menu & Crop Selector -->
   <header class="bg-red-700 text-white py-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
@@ -29,7 +29,7 @@
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <div>
-          <h1 class="text-base font-bold tracking-wide">🍅 Tomato Farm Tracker</h1>
+          <h1 class="text-base font-bold tracking-wide" id="headerTitle">🍅 Tomato Farm Tracker</h1>
           <p class="text-red-200 text-[10px] mt-0.5" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
@@ -51,18 +51,26 @@
   <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-2xl z-50 transform -translate-x-full flex flex-col">
     <div class="bg-red-700 text-white p-5 flex justify-between items-center">
       <div>
-        <h2 class="font-bold text-lg">🌾 Farm Menu</h2>
-        <p class="text-xs text-red-200">Anantapur District</p>
+        <h2 class="font-bold text-lg">🌾 Anantapur Farm</h2>
+        <p class="text-xs text-red-200">Cloud Tracker</p>
       </div>
       <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold">✕</button>
     </div>
     
+    <!-- Crop Selector in Sidebar -->
+    <div class="p-4 bg-slate-50 border-b border-slate-100">
+      <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Select Crop / Project</label>
+      <select id="globalCropSelect" onchange="handleCropDropdownChange(this.value)" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-red-500">
+        <!-- Dynamically populated -->
+      </select>
+    </div>
+
     <nav class="p-4 space-y-2 flex-1">
       <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-dashboard">
         📊 Overview Dashboard
       </button>
       <button onclick="switchTab('auction')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-auction">
-        🍅 Auction Management
+        📦 Auction / Yield Management
       </button>
       <button onclick="switchTab('expenses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-expenses">
         💸 Crop Expenses
@@ -80,29 +88,29 @@
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3">🌈 Tomato Harvest & Profit Overview</h2>
+        <h2 class="text-base font-bold text-slate-700 mb-3" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
         
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
-            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">💰 Total Net Earnings</div>
+            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="earningsLabel">💰 Total Net Earnings</div>
             <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
           </div>
 
           <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center">
             <div>
-              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">🌱 Tomato Investment</div>
-              <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹1,34,199</div>
+              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5" id="investmentLabel">🌱 Total Investment</div>
+              <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹0</div>
             </div>
             <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
           <!-- Total Boxes Card -->
-          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between" id="boxesCardContainer">
             <div>
-              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Boxes</div>
-              <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Boxes</div>
+              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
+              <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Units</div>
             </div>
-            <div class="mt-2 pt-2 border-t border-blue-400/30 flex justify-between text-[10px] font-semibold opacity-95">
+            <div class="mt-2 pt-2 border-t border-blue-400/30 flex justify-between text-[10px] font-semibold opacity-95" id="boxesSubCounts">
               <span>🟢 High: <strong id="subCountHigh">0</strong></span>
               <span>🟡 Med: <strong id="subCountMedium">0</strong></span>
               <span>🔴 Low: <strong id="subCountLow">0</strong></span>
@@ -110,7 +118,7 @@
           </div>
 
           <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
-            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">📈 Overall Tomato Net Profit/Loss</div>
+            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="plLabel">📈 Overall Net Profit/Loss</div>
             <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
           </div>
         </div>
@@ -131,7 +139,7 @@
         </div>
 
         <!-- Quality Progress Bar -->
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3" id="qualityBarSection">
           <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
             <span>🎨 Harvest Quality Distribution</span>
             <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
@@ -145,11 +153,11 @@
       </div>
     </div>
 
-    <!-- TAB 2: AUCTION MANAGEMENT -->
+    <!-- TAB 2: AUCTION / YIELD MANAGEMENT -->
     <div id="tab-auction" class="space-y-5 tab-content hidden">
       <!-- Add Auction Entry -->
-      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Add Tomato Auction Entry</h2>
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5" id="auctionFormSection">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
 
         <div class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
@@ -157,7 +165,7 @@
               <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
               <input type="date" id="entryDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
             </div>
-            <div>
+            <div id="gradeInputContainer">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Quality / Grade</label>
               <select id="crateType" onchange="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
                 <option value="High">High</option>
@@ -168,33 +176,33 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Comments / Type (e.g. Goli, Macha, Pandu, Dhwara)</label>
-            <input type="text" id="comments" placeholder="e.g. Goli / Macha / Pandu / Dhwara" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1" id="commentsLabel">Comments / Type (e.g. Goli, Macha, Variety)</label>
+            <input type="text" id="comments" placeholder="e.g. Goli / Variety details" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Total Crates Sent</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" id="cratesLabel">Total Units / Crates</label>
               <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
             </div>
-            <div>
+            <div id="lessCratesContainer">
               <label class="block text-xs font-semibold text-slate-600 mb-1">Less Crates (Deduction)</label>
               <input type="number" id="lessCrates" value="0" placeholder="0" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-3" id="pricingInputsContainer">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Auction Price / Crate (₹)</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Auction Price / Unit (₹)</label>
               <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Transport / Crate [Fixed] (₹)</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Transport / Unit [Fixed] (₹)</label>
               <input type="number" id="transportRate" value="25" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-none">
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-3" id="deductionInputsContainer">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Commission % [Fixed 10%]</label>
               <div class="relative">
@@ -208,42 +216,42 @@
             </div>
           </div>
 
-          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-3.5 rounded-xl border border-red-200 mt-2 text-sm">
-            <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Crate Summary</div>
-            <div class="flex justify-between text-slate-600 text-xs mb-1">
-              <span>Sold Crates (Net):</span>
+          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-3.5 rounded-xl border border-red-200 mt-2 text-sm" id="liveSummaryBox">
+            <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Calculation Summary</div>
+            <div class="flex justify-between text-slate-600 text-xs mb-1" id="netSoldDisplayRow">
+              <span>Sold Quantity (Net):</span>
               <span id="soldCrates" class="font-bold text-slate-800">0</span>
             </div>
             <div class="flex justify-between text-slate-600 text-xs mb-1">
               <span>Gross Sales Amount:</span>
               <span>₹<span id="grossAmount">0.00</span></span>
             </div>
-            <div class="flex justify-between text-slate-600 text-xs mb-1">
+            <div class="flex justify-between text-slate-600 text-xs mb-1" id="commDisplayRow">
               <span>Commission Rate (10%):</span>
-              <span>₹<span id="calcCommissionPerCrate">0.00</span> / crate</span>
+              <span>₹<span id="calcCommissionPerCrate">0.00</span> / unit</span>
             </div>
-            <div class="flex justify-between text-slate-600 text-xs mb-1">
+            <div class="flex justify-between text-slate-600 text-xs mb-1" id="deductionsDisplayRow">
               <span>Total Deductions:</span>
               <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
             </div>
             <div class="flex justify-between font-bold text-red-900 text-base border-t border-red-200 pt-2 mt-1">
-              <span>Net Payable Amount:</span>
+              <span id="netPayableLabel">Net Payable Amount:</span>
               <span>₹<span id="finalAmount">0.00</span></span>
             </div>
           </div>
 
           <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
-            ☁️ Save Auction Entry to Cloud
+            ☁️ Save Entry to Cloud
           </button>
         </div>
       </section>
 
-      <!-- Auction History Table with Sorting Headers -->
+      <!-- Records Table -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b">
-          <h2 class="text-base font-bold text-slate-700">Auction Records</h2>
+          <h2 class="text-base font-bold text-slate-700" id="tableTitle">Auction Records</h2>
           <div class="flex gap-2">
-            <input type="text" id="searchInput" placeholder="Search date / comment..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-28">
+            <input type="text" id="searchInput" placeholder="Search..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-24">
             <select id="filterGrade" onchange="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
               <option value="">All</option>
               <option value="High">High</option>
@@ -258,15 +266,15 @@
             <thead>
               <tr class="bg-slate-50 text-slate-600 select-none">
                 <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Date ↕</th>
-                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Grade ↕</th>
-                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Crates ↕</th>
+                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thGrade">Grade ↕</th>
+                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thCrates">Units ↕</th>
                 <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Rate ↕</th>
                 <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Net Amt ↕</th>
                 <th class="p-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody id="auctionTableBody">
-              <tr><td colspan="6" class="text-center text-slate-400 py-4">No auction entries yet.</td></tr>
+              <tr><td colspan="6" class="text-center text-slate-400 py-4">No records yet.</td></tr>
             </tbody>
           </table>
         </div>
@@ -277,7 +285,7 @@
     <div id="tab-expenses" class="space-y-5 tab-content hidden">
       <!-- Add Expense Form -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">💸 Add Tomato Expense</h2>
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="expenseFormTitle">💸 Add Expense</h2>
         
         <form id="expenseForm" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
@@ -295,19 +303,7 @@
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Expense Category</label>
               <select id="categorySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-                <option value="Fertilizer/Pesticide">Fertilizer / Pesticide</option>
-                <option value="Tomoto thread">Tomato Thread</option>
-                <option value="Staking thread">Staking Thread</option>
-                <option value="Staking workers">Staking Workers</option>
-                <option value="Staking wire">Staking Wire</option>
-                <option value="Staking bamboo">Staking Bamboo</option>
-                <option value="Seeds">Seeds</option>
-                <option value="Weeding">Weeding</option>
-                <option value="Labor">Labor</option>
-                <option value="Irrigation">Irrigation</option>
-                <option value="Transport">Transport</option>
-                <option value="Machinery/Tractor">Machinery / Tractor</option>
-                <option value="CUSTOM">+ Custom</option>
+                <!-- Dynamically populated -->
               </select>
               <input type="text" id="customCategoryInput" placeholder="Type" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
             </div>
@@ -326,7 +322,7 @@
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Note / Brand Details (Optional)</label>
-            <input type="text" id="expenseNotes" placeholder="e.g. Balu / Nativo / Staking tree" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            <input type="text" id="expenseNotes" placeholder="e.g. Notes / fertilizer brand" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
           </div>
 
           <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
@@ -338,7 +334,7 @@
       <!-- Expense List with Name Filter -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b">
-          <h2 class="text-base font-bold text-slate-700">Tomato Expenses</h2>
+          <h2 class="text-base font-bold text-slate-700" id="expenseListTitle">Expenses Breakdown</h2>
           <div>
             <select id="filterExpensePerson" onchange="renderExpenses()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
               <option value="ALL">All Persons</option>
@@ -357,7 +353,7 @@
 
   </main>
 
-  <!-- Firebase & Navigation Script -->
+  <!-- Firebase & Multi-Crop Logic Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -378,46 +374,106 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    const tomatoBackupExpenses = [
-      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Tomoto thread", "amount": 1700, "notes": "8kgs"},
-      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5050, "notes": "Isabion nativo ampligo osheen ultra vipul"},
-      {"date": "2026-10-07", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 8800, "notes": "Grade 1 tomoto 2"},
-      {"date": "2026-10-05", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5650, "notes": "Phospocop ampligo nativo micro.mix"},
-      {"date": "2026-10-13", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 8500, "notes": "10 26 26 soil application"},
-      {"date": "2026-10-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5000, "notes": "Simdois Pegasus atonik micro mix yellow sticker"},
-      {"date": "2026-09-30", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 1500, "notes": "Movento energy custodia"},
-      {"date": "2026-09-29", "spentBy": "Home", "category": "Weeding", "amount": 5400, "notes": ""},
-      {"date": "2026-09-24", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 800, "notes": "Boron and coragen"},
-      {"date": "2026-09-24", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2400, "notes": "13 40 13 Nacro biotech"},
-      {"date": "2026-09-23", "spentBy": "Ashok", "category": "Staking thread", "amount": 3080, "notes": "14kg"},
-      {"date": "2026-09-20", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3400, "notes": "Exponus"},
-      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking thread", "amount": 6150, "notes": "30kg"},
-      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking workers", "amount": 3000, "notes": ""},
-      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking wire", "amount": 2500, "notes": ""},
-      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Staking bamboo", "amount": 9500, "notes": ""},
-      {"date": "2026-09-19", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3300, "notes": "Isabion biovita double"},
-      {"date": "2026-09-15", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2050, "notes": "Amistor top adama sc 5"},
-      {"date": "2026-09-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5700, "notes": "0 52 34"},
-      {"date": "2026-09-11", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 919, "notes": "Tapas vitainject"},
-      {"date": "2026-09-09", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 3300, "notes": "Orandios ultra"},
-      {"date": "2026-09-04", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 4300, "notes": "Simidos qunatis Pegasus"},
-      {"date": "2026-09-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 7350, "notes": "12 61 0 , calcium nitrate, mgso4"},
-      {"date": "2026-09-30", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 1850, "notes": "M45/krill"},
-      {"date": "2026-08-21", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 400, "notes": "Bellam"},
-      {"date": "2026-08-18", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 400, "notes": ""},
-      {"date": "2026-08-14", "spentBy": "Home", "category": "Fertilizer/Pesticide", "amount": 8400, "notes": "Balu"},
-      {"date": "2026-08-14", "spentBy": "Ashok", "category": "Labor", "amount": 2000, "notes": "Staking tree"},
-      {"date": "2026-08-04", "spentBy": "Home", "category": "Seeds", "amount": 5000, "notes": ""},
-      {"date": "2026-08-04", "spentBy": "Home", "category": "Transport", "amount": 300, "notes": "Drip auto charge"},
-      {"date": "2026-08-02", "spentBy": "Home", "category": "Irrigation", "amount": 12000, "notes": "Drip"},
-      {"date": "2026-07-31", "spentBy": "Home", "category": "Seeds", "amount": 3500, "notes": "Advance"},
-      {"date": "2026-07-27", "spentBy": "Home", "category": "Machinery/Tractor", "amount": 1000, "notes": "5 madakalu"}
-    ];
-
+    let currentCrop = 'tomato';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
+
+    // Built-in crops & custom crops stored in localStorage
+    let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
+      tomato: {
+        name: "🍅 Tomato Crop",
+        title: "🍅 Tomato Farm Tracker",
+        dashboardTitle: "🌈 Tomato Harvest & Profit Overview",
+        auctionTitle: "📦 Tomato Auction / Yield Entry",
+        expenseTitle: "💸 Tomato Crop Expenses",
+        showYieldTab: true,
+        categories: ['Fertilizer/Pesticide', 'Tomato thread', 'Staking thread', 'Staking workers', 'Staking wire', 'Staking bamboo', 'Seeds', 'Weeding', 'Labor', 'Irrigation', 'Transport', 'Machinery/Tractor']
+      },
+      groundnut: {
+        name: "🥜 Groundnut Crop",
+        title: "🥜 Groundnut Farm Tracker",
+        dashboardTitle: "📊 Groundnut Harvest & Profit Overview",
+        auctionTitle: "📦 Groundnut Yield / Sales Entry",
+        expenseTitle: "💸 Groundnut Crop Expenses",
+        showYieldTab: true,
+        categories: ['Seeds', 'Fertilizer/Pesticide', 'Sowing / BBF', 'Weeding', 'Harvesting / Labor', 'Threshing', 'Transport', 'Machinery/Tractor', 'Irrigation']
+      },
+      bore: {
+        name: "💧 Borewell & Infrastructure",
+        title: "💧 Borewell & Infrastructure",
+        dashboardTitle: "📊 Borewell & Infrastructure Summary",
+        auctionTitle: "📦 Infrastructure Income / Asset",
+        expenseTitle: "💸 Borewell & Project Expenses",
+        showYieldTab: false,
+        categories: ['Bore Drilling', 'Casing Pipes', 'Submersible Pump', 'Electricals / Panel', 'Labor', 'Transport', 'Pond Lining / HDPE', 'Permits / Misc']
+      }
+    };
+
+    window.populateCropDropdown = function() {
+        const select = document.getElementById('globalCropSelect');
+        let html = '';
+        for (const [key, cfg] of Object.entries(cropConfigs)) {
+            html += `<option value="${key}">${cfg.name || key}</option>`;
+        }
+        html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        select.innerHTML = html;
+        select.value = currentCrop;
+    };
+
+    window.handleCropDropdownChange = function(val) {
+        if (val === 'ADD_NEW') {
+            let newName = prompt("Enter new crop or project name (e.g. Chilli, Onion, Cotton):");
+            if (newName && newName.trim() !== "") {
+                let key = newName.trim().toLowerCase().replace(/\s+/g, '_');
+                cropConfigs[key] = {
+                    name: `🌱 ${newName.trim()}`,
+                    title: `🌱 ${newName.trim()} Tracker`,
+                    dashboardTitle: `📊 ${newName.trim()} Overview`,
+                    auctionTitle: `📦 ${newName.trim()} Yield Entry`,
+                    expenseTitle: `💸 ${newName.trim()} Expenses`,
+                    showYieldTab: true,
+                    categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
+                };
+                localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+                populateCropDropdown();
+                changeCrop(key);
+            } else {
+                populateCropDropdown(); // reset select
+            }
+        } else {
+            changeCrop(val);
+        }
+    };
+
+    window.changeCrop = function(cropKey) {
+        currentCrop = cropKey;
+        const cfg = cropConfigs[cropKey];
+        
+        document.getElementById('headerTitle').innerText = cfg.title;
+        document.getElementById('dashboardTitle').innerText = cfg.dashboardTitle;
+        document.getElementById('auctionFormTitle').innerText = cfg.auctionTitle;
+        document.getElementById('expenseFormTitle').innerText = cfg.expenseTitle;
+
+        const auctionNavBtn = document.getElementById('btn-auction');
+        if (!cfg.showYieldTab) {
+            auctionNavBtn.style.display = 'none';
+            if (document.getElementById('tab-auction').classList.contains('hidden') === false) {
+                switchTab('dashboard');
+            }
+        } else {
+            auctionNavBtn.style.display = 'flex';
+        }
+
+        updateCategoryDropdown(cfg.categories);
+        loadCropData();
+    };
+
+    function updateCategoryDropdown(cats) {
+        const catSelect = document.getElementById('categorySelect');
+        catSelect.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="CUSTOM">+ Custom</option>';
+    }
 
     window.toggleSidebar = function() {
         const sidebar = document.getElementById('sidebar');
@@ -433,10 +489,35 @@
     window.switchTab = function(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
-        const subtitles = { dashboard: "Overview Dashboard", auction: "Auction Management", expenses: "Crop Expenses" };
+        const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
         toggleSidebar();
     };
+
+    function loadCropData() {
+        const auctionRef = ref(db, `${currentCrop}_auction_entries`);
+        const expenseRef = ref(db, `${currentCrop}_expenses`);
+
+        onValue(auctionRef, (snapshot) => {
+            cachedAuctionEntries = [];
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val(); 
+                item.id = childSnap.key; 
+                if (item.totalCrates === undefined) item.totalCrates = item.soldCrates || 0;
+                cachedAuctionEntries.push(item);
+            });
+            renderDashboard();
+        });
+
+        onValue(expenseRef, (snapshot) => {
+            cloudExpenses = [];
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
+            });
+            renderExpenses();
+            renderDashboard();
+        });
+    }
 
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
@@ -476,40 +557,27 @@
 
         if (!date) return alert('Please select a date.');
         const calc = window.calculate();
-        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return alert('Please enter valid crates and price.');
+        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return alert('Please enter valid quantity and price.');
 
         try {
-            await push(ref(db, 'tomato_auction_entries'), {
-                date, 
-                crateType, 
-                comments: comments || '-', 
-                totalCrates: totalCratesInput,
-                lessCrates: lessCratesInput,
-                soldCrates: calc.soldCrates, 
-                auctionPrice: calc.auctionPrice, 
-                finalAmount: calc.finalAmount, 
-                timestamp: Date.now()
+            await push(ref(db, `${currentCrop}_auction_entries`), {
+                date, crateType, comments: comments || '-', totalCrates: totalCratesInput, lessCrates: lessCratesInput, soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, finalAmount: calc.finalAmount, timestamp: Date.now()
             });
-            alert('Auction entry saved to Cloud!');
+            alert('Entry saved to Cloud!');
             document.getElementById('totalCrates').value = '';
-            document.getElementById('lessCrates').value = '0';
             document.getElementById('auctionPrice').value = '';
             document.getElementById('comments').value = '';
             window.calculate();
-        } catch (error) { alert("Error saving: " + error.message); }
+        } catch (error) { alert("Error: " + error.message); }
     };
 
     window.deleteAuctionEntry = async function(id) {
-        if (confirm("Delete this auction record?")) await remove(ref(db, 'tomato_auction_entries/' + id));
+        if (confirm("Delete this record?")) await remove(ref(db, `${currentCrop}_auction_entries/${id}`));
     };
 
     window.sortAuctionTable = function(column) {
-        if (currentSortCol === column) {
-            currentSortAsc = !currentSortAsc;
-        } else {
-            currentSortCol = column;
-            currentSortAsc = true;
-        }
+        if (currentSortCol === column) currentSortAsc = !currentSortAsc;
+        else { currentSortCol = column; currentSortAsc = true; }
         renderDashboard();
     };
 
@@ -524,7 +592,7 @@
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
         try {
-            await push(ref(db, 'tomato_expenses'), {
+            await push(ref(db, `${currentCrop}_expenses`), {
                 date: document.getElementById('expenseDate').value, spentBy, category, amount: parseFloat(document.getElementById('expenseAmount').value), notes: document.getElementById('expenseNotes').value.trim() || '-', timestamp: Date.now()
             });
             alert('Expense saved to Cloud!');
@@ -534,44 +602,18 @@
     });
 
     window.deleteExpense = async function(id) {
-        if (confirm("Delete this expense record?")) await remove(ref(db, 'tomato_expenses/' + id));
+        if (confirm("Delete this expense?")) await remove(ref(db, `${currentCrop}_expenses/${id}`));
     };
 
     window.editInvestment = async function() {
         let totalSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
-        let newInv = prompt("Enter overall Tomato crop investment (₹):", totalSum);
-        if (newInv !== null && !isNaN(newInv)) await set(ref(db, 'tomato_investment_override'), parseFloat(newInv));
+        let newInv = prompt("Enter overall investment amount (₹):", totalSum);
+        if (newInv !== null && !isNaN(newInv)) await set(ref(db, `${currentCrop}_investment_override`), parseFloat(newInv));
     };
 
     let overrideInvestment = null;
-    onValue(ref(db, 'tomato_investment_override'), (snapshot) => {
+    onValue(ref(db, `${currentCrop}_investment_override`), (snapshot) => {
         overrideInvestment = snapshot.exists() ? snapshot.val() : null;
-        renderDashboard();
-    });
-
-    onValue(ref(db, 'tomato_auction_entries'), (snapshot) => {
-        cachedAuctionEntries = [];
-        snapshot.forEach((childSnap) => {
-            let item = childSnap.val(); 
-            item.id = childSnap.key; 
-            if (item.totalCrates === undefined) {
-                item.totalCrates = item.soldCrates + (item.lessCrates || 0);
-            }
-            cachedAuctionEntries.push(item);
-        });
-        renderDashboard();
-    });
-
-    onValue(ref(db, 'tomato_expenses'), (snapshot) => {
-        cloudExpenses = [];
-        if (!snapshot.exists()) {
-            tomatoBackupExpenses.forEach(rec => push(ref(db, 'tomato_expenses'), rec));
-        } else {
-            snapshot.forEach((childSnap) => {
-                let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
-            });
-        }
-        renderExpenses();
         renderDashboard();
     });
 
@@ -597,7 +639,7 @@
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalInvestmentDisplay').innerText = `₹${activeInvestment.toLocaleString('en-IN')}`;
         
-        document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Boxes`;
+        document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Units`;
         document.getElementById('subCountHigh').innerText = boxesHigh;
         document.getElementById('subCountMedium').innerText = boxesMedium;
         document.getElementById('subCountLow').innerText = boxesLow;
@@ -608,31 +650,15 @@
 
         renderExpensePieChart(cloudExpenses, activeInvestment);
 
-        if (totalBoxes > 0) {
-            let pHigh = ((boxesHigh / totalBoxes) * 100).toFixed(0);
-            let pMed = ((boxesMedium / totalBoxes) * 100).toFixed(0);
-            let pLow = ((boxesLow / totalBoxes) * 100).toFixed(0);
-            document.getElementById('barHigh').style.width = pHigh + '%';
-            document.getElementById('barMedium').style.width = pMed + '%';
-            document.getElementById('barLow').style.width = pLow + '%';
-            document.getElementById('qualityPercentText').innerText = `High ${pHigh}% | Med ${pMed}% | Low ${pLow}%`;
-        }
-
-        // Fixed Filter for Search & Grade
         let filtered = cachedAuctionEntries.filter(item => {
-            let matchesSearch = searchQuery === "" || 
-                (item.comments && item.comments.toLowerCase().includes(searchQuery)) || 
-                (item.date && item.date.includes(searchQuery));
-            
+            let matchesSearch = searchQuery === "" || (item.comments && item.comments.toLowerCase().includes(searchQuery)) || (item.date && item.date.includes(searchQuery));
             let itemGrade = (item.crateType || '').toLowerCase();
             let matchesGrade = gradeFilter === "" || itemGrade === gradeFilter;
-
             return matchesSearch && matchesGrade;
         });
 
         filtered.sort((a, b) => {
-            let valA = a[currentSortCol];
-            let valB = b[currentSortCol];
+            let valA = a[currentSortCol], valB = b[currentSortCol];
             if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
             if (valA < valB) return currentSortAsc ? -1 : 1;
             if (valA > valB) return currentSortAsc ? 1 : -1;
@@ -642,7 +668,7 @@
         let tbody = document.getElementById('auctionTableBody');
         tbody.innerHTML = '';
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-400 py-4">No matching auction entries.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-400 py-4">No records found.</td></tr>';
             return;
         }
 
@@ -665,35 +691,17 @@
     function renderExpensePieChart(expenses, totalInvestment) {
         const personTotals = {};
         expenses.forEach(e => { personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount; });
-        
         document.getElementById('pieChartTotalAmount').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
 
         const colors = ['#e11d48', '#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-        let accumulatedPercent = 0;
-        let svgContent = '';
-        let legendContent = '';
+        let accumulatedPercent = 0, svgContent = '', legendContent = '';
 
-        const entries = Object.entries(personTotals);
-        entries.forEach(([person, amount], index) => {
+        Object.entries(personTotals).forEach(([person, amount], index) => {
             if (amount <= 0) return;
             const percent = (amount / totalInvestment) * 100;
             const color = colors[index % colors.length];
-            
-            const strokeDasharray = `${percent} 100`;
-            const strokeDashoffset = -accumulatedPercent;
-
-            svgContent += `<circle cx="16" cy="16" r="15.9155" fill="transparent" stroke="${color}" stroke-width="6" stroke-dasharray="${strokeDasharray}" stroke-dashoffset="${strokeDashoffset}"></circle>`;
-            
-            legendContent += `
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-3 h-3 rounded-full" style="background-color: ${color};"></span>
-                        <span class="font-semibold text-slate-700">${person}</span>
-                    </div>
-                    <span class="font-bold text-slate-900">₹${amount.toLocaleString('en-IN')} (${percent.toFixed(1)}%)</span>
-                </div>
-            `;
-
+            svgContent += `<circle cx="16" cy="16" r="15.9155" fill="transparent" stroke="${color}" stroke-width="6" stroke-dasharray="${percent} 100" stroke-dashoffset="${-accumulatedPercent}"></circle>`;
+            legendContent += `<div class="flex items-center justify-between gap-3"><div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full" style="background-color: ${color};"></span><span class="font-semibold text-slate-700">${person}</span></div><span class="font-bold text-slate-900">₹${amount.toLocaleString('en-IN')} (${percent.toFixed(1)}%)</span></div>`;
             accumulatedPercent += percent;
         });
 
@@ -735,17 +743,14 @@
 
     window.exportCSV = function() {
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
-        let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Total Crates,Rate,Net Amount\n';
-        cachedAuctionEntries.forEach(e => { 
-            let dCrates = e.totalCrates !== undefined ? e.totalCrates : e.soldCrates;
-            csv += `"${e.date}","${e.crateType}","${e.comments}",${dCrates},${e.auctionPrice},${e.finalAmount}\n`; 
-        });
-        csv += '\n=== TOMATO EXPENSE RECORDS ===\nDate,Spent By,Category,Amount,Notes\n';
+        let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Rate,Net Amount\n`;
+        cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType}","${e.comments}",${e.totalCrates},${e.auctionPrice},${e.finalAmount}\n`; });
+        csv += '\n=== EXPENSES ===\nDate,Spent By,Category,Amount,Notes\n';
         cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
         
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `tomato_farm_report_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+        const a = document.createElement('a'); a.href = url; a.download = `${currentCrop}_farm_report_${new Date().toISOString().slice(0,10)}.csv`; a.click();
     };
 
     window.shareToWhatsApp = function() {
@@ -753,15 +758,18 @@
         let totalExpenses = cloudExpenses.reduce((sum, i) => sum + i.amount, 0);
         let netPL = totalEarnings - totalExpenses;
 
-        let msg = `🍅 *Tomato Crop Financial Summary*\n`;
+        let msg = `🌾 *${currentCrop.toUpperCase()} Farm Financial Summary*\n`;
         msg += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
-        msg += `💰 *Total Auction Earnings:* ₹${totalEarnings.toLocaleString('en-IN')}\n`;
-        msg += `🌱 *Total Tomato Investment:* ₹${totalExpenses.toLocaleString('en-IN')}\n`;
+        msg += `💰 *Total Earnings:* ₹${totalEarnings.toLocaleString('en-IN')}\n`;
+        msg += `🌱 *Total Investment:* ₹${totalExpenses.toLocaleString('en-IN')}\n`;
         msg += `📈 *Net Profit/Loss:* ₹${netPL.toLocaleString('en-IN')} ${netPL >= 0 ? '🟢' : '🔴'}\n`;
 
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
+    // Initialize crop dropdown and default view
+    window.populateCropDropdown();
+    window.changeCrop('tomato');
     window.calculate();
 </script>
 
