@@ -40,7 +40,7 @@
         .summary-box { padding: 10px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 13px; border: 1px solid rgba(0,0,0,0.1); }
         .box-earnings { background: #e8f5e9; color: #2e7d32; grid-column: span 2; }
         .box-investment { background: #fff3e0; color: #e65100; display: flex; justify-content: center; align-items: center; gap: 6px; }
-        .box-boxes { background: #e3f2fd; color: #0d47a1; }
+        .box-boxes { background: #e3f2fd; color: #0d47a1; grid-column: span 2; line-height: 1.5; }
         .box-profit { background: #e0f2f1; color: #00695c; grid-column: span 2; }
         .box-loss { background: #ffebee; color: #c62828; grid-column: span 2; }
 
@@ -324,17 +324,29 @@
 
         let totalEarnings = 0;
         let totalBoxes = 0;
+        let boxesHigh = 0;
+        let boxesMedium = 0;
+        let boxesLow = 0;
 
         // Calculate absolute totals across all records
         cachedEntries.forEach(item => {
             totalEarnings += item.finalAmount;
-            totalBoxes += (item.soldCrates || 0);
+            let crates = (item.soldCrates || 0);
+            totalBoxes += crates;
+
+            if (item.crateType === 'High') boxesHigh += crates;
+            else if (item.crateType === 'Medium') boxesMedium += crates;
+            else if (item.crateType === 'Low') boxesLow += crates;
         });
 
         let netProfitLoss = totalEarnings - window.globalInvestment;
 
         document.getElementById('totalEarningsSummary').innerText = `Total Net Earnings: ₹${totalEarnings.toFixed(2)}`;
-        document.getElementById('totalBoxesSummary').innerText = `Total Boxes: ${totalBoxes}`;
+        
+        // Update Total Boxes and Quality Breakdown
+        document.getElementById('totalBoxesSummary').innerHTML = 
+            `📦 Total Boxes: <b>${totalBoxes}</b><br>` +
+            `<span style="font-size: 11px; font-weight: normal;">(High: ${boxesHigh} | Med: ${boxesMedium} | Low: ${boxesLow})</span>`;
         
         let plBox = document.getElementById('totalProfitLossSummary');
         plBox.innerText = `Overall Net Profit/Loss: ₹${Math.abs(netProfitLoss).toFixed(2)} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
