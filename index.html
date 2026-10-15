@@ -12,9 +12,9 @@
         }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; }
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; color: white; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-High { background: #10b981; }
-        .badge-Medium { background: #f59e0b; }
-        .badge-Low { background: #ec4899; }
+        .badge-high, .badge-High { background: #10b981; }
+        .badge-medium, .badge-Medium { background: #f59e0b; }
+        .badge-low, .badge-Low { background: #ec4899; }
         .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 2px; display: block; }
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
@@ -96,9 +96,17 @@
             <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
-          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm">
-            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Boxes Sold</div>
-            <div class="text-base font-extrabold" id="totalBoxesSummary">0 Boxes</div>
+          <!-- Professional Box Count Card with Sub-counts -->
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Boxes Sold</div>
+              <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Boxes</div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-blue-400/30 flex justify-between text-[10px] font-semibold opacity-95">
+              <span>🟢 High: <strong id="subCountHigh">0</strong></span>
+              <span>🟡 Med: <strong id="subCountMedium">0</strong></span>
+              <span>🔴 Low: <strong id="subCountLow">0</strong></span>
+            </div>
           </div>
 
           <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
@@ -112,17 +120,13 @@
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">📊 Expense Breakdown by Person</h3>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
             <div class="w-40 h-40 relative flex items-center justify-center">
-              <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90" id="expensePieChart">
-                <!-- Dynamically generated Slices -->
-              </svg>
+              <svg viewBox="0 0 32 32" class="w-full h-full transform -rotate-90" id="expensePieChart"></svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
                 <span class="text-[10px] uppercase font-bold text-slate-400">Total</span>
                 <span class="text-xs font-extrabold text-slate-700" id="pieChartTotalAmount">₹0</span>
               </div>
             </div>
-            <div id="pieChartLegend" class="space-y-1.5 text-xs">
-              <!-- Dynamically generated Legend -->
-            </div>
+            <div id="pieChartLegend" class="space-y-1.5 text-xs"></div>
           </div>
         </div>
 
@@ -540,16 +544,17 @@
 
     function renderDashboard() {
         let searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        let gradeFilter = document.getElementById('filterGrade').value;
+        let gradeFilter = document.getElementById('filterGrade').value.toLowerCase();
 
         let totalEarnings = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
         cachedAuctionEntries.forEach(item => {
             totalEarnings += item.finalAmount;
             let crates = (item.soldCrates || 0);
             totalBoxes += crates;
-            if (item.crateType === 'High') boxesHigh += crates;
-            else if (item.crateType === 'Medium') boxesMedium += crates;
-            else if (item.crateType === 'Low') boxesLow += crates;
+            let type = (item.crateType || '').toLowerCase();
+            if (type === 'high') boxesHigh += crates;
+            else if (type === 'medium') boxesMedium += crates;
+            else if (type === 'low') boxesLow += crates;
         });
 
         let totalCloudExpenseSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
@@ -558,7 +563,12 @@
 
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalInvestmentDisplay').innerText = `₹${activeInvestment.toLocaleString('en-IN')}`;
+        
+        // Update Total Boxes and Sub-counts in Dashboard
         document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Boxes`;
+        document.getElementById('subCountHigh').innerText = boxesHigh;
+        document.getElementById('subCountMedium').innerText = boxesMedium;
+        document.getElementById('subCountLow').innerText = boxesLow;
         
         let plBox = document.getElementById('totalProfitLossSummary');
         plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-800 p-4 rounded-xl text-white col-span-2 shadow-sm";
@@ -577,9 +587,11 @@
             document.getElementById('qualityPercentText').innerText = `High ${pHigh}% | Med ${pMed}% | Low ${pLow}%`;
         }
 
+        // Fixed Filter for Grade (Case-insensitive)
         let filtered = cachedAuctionEntries.filter(item => {
             let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
-            let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
+            let itemGrade = (item.crateType || '').toLowerCase();
+            let matchesGrade = gradeFilter === "" || itemGrade === gradeFilter;
             return matchesSearch && matchesGrade;
         });
 
@@ -600,7 +612,7 @@
         }
 
         filtered.forEach((item) => {
-            let badgeClass = 'badge-' + item.crateType;
+            let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
             let commentText = item.comments !== '-' ? `<span class="comment-tag">${item.comments}</span>` : '';
             tbody.innerHTML += `
                 <tr>
@@ -631,7 +643,6 @@
             const percent = (amount / totalInvestment) * 100;
             const color = colors[index % colors.length];
             
-            // SVG Circle Dasharray technique for Pie Slices
             const strokeDasharray = `${percent} 100`;
             const strokeDashoffset = -accumulatedPercent;
 
