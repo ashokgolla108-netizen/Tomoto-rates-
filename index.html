@@ -412,46 +412,105 @@
       </section>
     </div>
 
-    <!-- TAB 4: FERTILIZER & SPRAY LOG -->
+    <!-- TAB 4: FERTILIZER, SPRAY LOG & STOCK INVENTORY -->
     <div id="tab-sprays" class="space-y-5 tab-content hidden">
+      
+      <!-- Inventory / Stock Manager Section -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🧪 Record Fertilizer or Spray Application</h2>
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
         
-        <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
+        <form id="stockForm" onsubmit="addStockItem(event)" class="space-y-3 mb-4">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Input Type</label>
-              <select id="sprayType" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Item / Product Name</label>
+              <input type="text" id="stockName" placeholder="e.g. Nativo, 19:19:19" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+              <select id="stockCategory" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
                 <option value="Fertilizer">Fertilizer</option>
                 <option value="Fungicide">Fungicide</option>
                 <option value="Pesticide">Pesticide</option>
                 <option value="Micronutrient / Other">Micronutrient / Other</option>
               </select>
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Product / Chemical Name</label>
-              <input type="text" id="sprayProduct" placeholder="e.g. 19:19:19, Nativo" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-            </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Quantity</label>
-              <input type="number" step="any" id="sprayQty" placeholder="e.g. 5" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Total Purchased Qty</label>
+              <input type="number" step="any" id="stockQty" placeholder="e.g. 10" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Unit</label>
-              <select id="sprayUnit" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+              <select id="stockUnit" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
                 <option value="kg">kg</option>
-                <option value="g">grams (g)</option>
-                <option value="L">Liters (L)</option>
+                <option value="g">g</option>
+                <option value="L">L</option>
                 <option value="ml">ml</option>
                 <option value="bags">bags</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Total Cost (₹)</label>
+              <input type="number" step="any" id="stockCost" placeholder="e.g. 1500" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-sm transition">
+            ➕ Add Item to Stock Inventory
+          </button>
+        </form>
+
+        <!-- Stock Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600">
+                <th class="p-2 text-left">Product</th>
+                <th class="p-2 text-center">Category</th>
+                <th class="p-2 text-center">Purchased</th>
+                <th class="p-2 text-center">Remaining Balance</th>
+                <th class="p-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="stockTableBody">
+              <tr><td colspan="5" class="text-center text-slate-400 py-3">No stock items added yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Spray & Fertilizer Application Form -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
+        
+        <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Input Type</label>
+              <select id="sprayType" onchange="toggleCustomSprayType(this.value)" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="Fertilizer">Fertilizer</option>
+                <option value="Fungicide">Fungicide</option>
+                <option value="Pesticide">Pesticide</option>
+                <option value="Micronutrient / Other">Micronutrient / Other</option>
+                <option value="CUSTOM">+ Custom</option>
+              </select>
+              <input type="text" id="customSprayTypeInput" placeholder="Enter custom type" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Product (From Inventory)</label>
+              <select id="sprayProductSelect" onchange="onStockProductSelected(this.value)" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="">-- Select Inventory Product --</option>
               </select>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Quantity Used</label>
+              <input type="number" step="any" id="sprayQty" placeholder="e.g. 5" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Application Method</label>
               <select id="sprayMethod" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
@@ -461,14 +520,15 @@
                 <option value="Drenching">Drenching</option>
               </select>
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Date Applied</label>
-              <input type="date" id="sprayDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Date Applied</label>
+            <input type="date" id="sprayDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
           </div>
 
           <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
-            ☁️ Save Spray Entry to Cloud
+            ☁️ Save & Deduct from Stock
           </button>
         </form>
       </section>
@@ -484,7 +544,7 @@
                 <th class="p-2 text-center">Crop Age</th>
                 <th class="p-2 text-center">Category</th>
                 <th class="p-2 text-left">Product</th>
-                <th class="p-2 text-center">Qty</th>
+                <th class="p-2 text-center">Qty Used</th>
                 <th class="p-2 text-center">Method</th>
                 <th class="p-2 text-center">Action</th>
               </tr>
@@ -525,11 +585,13 @@
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
     let cloudSprayLogs = [];
+    let cloudStockItems = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
     let currentAuctionRef = null;
     let currentExpenseRef = null;
     let currentSprayRef = null;
+    let currentStockRef = null;
     let allCropsSummaryData = {};
 
     // Datasets
@@ -945,10 +1007,12 @@
         if (currentAuctionRef) off(currentAuctionRef);
         if (currentExpenseRef) off(currentExpenseRef);
         if (currentSprayRef) off(currentSprayRef);
+        if (currentStockRef) off(currentStockRef);
 
         currentAuctionRef = ref(db, `${currentCrop}_auction_entries`);
         currentExpenseRef = ref(db, `${currentCrop}_expenses`);
         currentSprayRef = ref(db, `${currentCrop}_spray_logs`);
+        currentStockRef = ref(db, `${currentCrop}_stock_inventory`);
 
         onValue(currentAuctionRef, (snapshot) => {
             cachedAuctionEntries = [];
@@ -986,6 +1050,16 @@
             }
         });
 
+        onValue(currentStockRef, (snapshot) => {
+            cloudStockItems = [];
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val();
+                item.id = childSnap.key;
+                cloudStockItems.push(item);
+            });
+            renderStockInventory();
+        });
+
         onValue(currentSprayRef, (snapshot) => {
             cloudSprayLogs = [];
             snapshot.forEach((childSnap) => {
@@ -994,6 +1068,7 @@
                 cloudSprayLogs.push(item);
             });
             renderSprayLogs();
+            renderStockInventory(); 
         });
 
         onValue(ref(db, `${currentCrop}_status`), (snapshot) => {
@@ -1088,6 +1163,10 @@
         document.getElementById('customCategoryInput').classList.toggle('hidden', document.getElementById('categorySelect').value !== 'CUSTOM');
     };
 
+    window.toggleCustomSprayType = function(val) {
+        document.getElementById('customSprayTypeInput').classList.toggle('hidden', val !== 'CUSTOM');
+    };
+
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
@@ -1108,23 +1187,103 @@
         if (confirm("Delete this expense?")) await remove(ref(db, `${currentCrop}_expenses/${id}`));
     };
 
+    // Stock Inventory Functions
+    window.addStockItem = async function(e) {
+        e.preventDefault();
+        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+
+        const name = document.getElementById('stockName').value.trim();
+        const category = document.getElementById('stockCategory').value;
+        const qty = parseFloat(document.getElementById('stockQty').value) || 0;
+        const unit = document.getElementById('stockUnit').value;
+        const cost = parseFloat(document.getElementById('stockCost').value) || 0;
+
+        try {
+            await push(ref(db, `${currentCrop}_stock_inventory`), {
+                name, category, qty, unit, cost, timestamp: Date.now()
+            });
+            alert('Stock item added!');
+            document.getElementById('stockName').value = '';
+            document.getElementById('stockQty').value = '';
+            document.getElementById('stockCost').value = '';
+        } catch (error) { alert("Error: " + error.message); }
+    };
+
+    window.deleteStockItem = async function(id) {
+        if (confirm("Delete this stock item?")) await remove(ref(db, `${currentCrop}_stock_inventory/${id}`));
+    };
+
+    window.onStockProductSelected = function(productName) {
+        let item = cloudStockItems.find(s => s.name === productName);
+        if (item) {
+            document.getElementById('sprayType').value = item.category;
+            document.getElementById('customSprayTypeInput').classList.add('hidden');
+        }
+    };
+
+    function renderStockInventory() {
+        const tbody = document.getElementById('stockTableBody');
+        const select = document.getElementById('sprayProductSelect');
+        tbody.innerHTML = '';
+        select.innerHTML = '<option value="">-- Select Inventory Product --</option>';
+
+        if (cloudStockItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-slate-400 py-3">No stock items added yet.</td></tr>';
+            return;
+        }
+
+        const consumedMap = {};
+        cloudSprayLogs.forEach(log => {
+            consumedMap[log.product] = (consumedMap[log.product] || 0) + parseFloat(log.qty || 0);
+        });
+
+        cloudStockItems.forEach(item => {
+            let consumed = consumedMap[item.name] || 0;
+            let remaining = item.qty - consumed;
+            let statusBadge = '';
+            if (remaining <= 0) {
+                statusBadge = '<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700">Out of Stock 🔴</span>';
+            } else if (remaining <= item.qty * 0.2) {
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700">${remaining} ${item.unit} (Low) 🟡</span>`;
+            } else {
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">${remaining} ${item.unit} 🟢</span>`;
+            }
+
+            select.innerHTML += `<option value="${item.name}">${item.name} (${item.category}) - Avail: ${remaining} ${item.unit}</option>`;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="p-2 font-bold">${item.name}</td>
+                    <td class="p-2 text-center">${item.category}</td>
+                    <td class="p-2 text-center">${item.qty} ${item.unit}</td>
+                    <td class="p-2 text-center">${statusBadge}</td>
+                    <td class="p-2 text-center"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
+                </tr>
+            `;
+        });
+    }
+
     window.addSprayLog = async function(e) {
         e.preventDefault();
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
 
-        const type = document.getElementById('sprayType').value;
-        const product = document.getElementById('sprayProduct').value.trim();
-        const qty = document.getElementById('sprayQty').value;
-        const unit = document.getElementById('sprayUnit').value;
+        const rawType = document.getElementById('sprayType').value;
+        const type = rawType === 'CUSTOM' ? document.getElementById('customSprayTypeInput').value.trim() : rawType;
+        const product = document.getElementById('sprayProductSelect').value;
+        const qty = parseFloat(document.getElementById('sprayQty').value) || 0;
         const method = document.getElementById('sprayMethod').value;
         const date = document.getElementById('sprayDate').value;
 
+        if (!product) return alert('Please select a product from inventory.');
+        if (!type) return alert('Please enter or select a valid input type.');
+
+        let stockItem = cloudStockItems.find(s => s.name === product);
+
         try {
             await push(ref(db, `${currentCrop}_spray_logs`), {
-                type, product, qty, unit, method, date, timestamp: Date.now()
+                type, product, qty, unit: stockItem ? stockItem.unit : 'kg', method, date, timestamp: Date.now()
             });
-            alert('Spray / Fertilizer log saved to Cloud!');
-            document.getElementById('sprayProduct').value = '';
+            alert('Spray / Fertilizer log saved and deducted from stock!');
             document.getElementById('sprayQty').value = '';
             document.getElementById('sprayDate').valueAsDate = new Date();
         } catch (error) { alert("Error: " + error.message); }
@@ -1151,9 +1310,10 @@
             let das = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
             let badgeClass = 'badge-other';
-            if (log.type === 'Fertilizer') badgeClass = 'badge-fertilizer';
-            else if (log.type === 'Fungicide') badgeClass = 'badge-fungicide';
-            else if (log.type === 'Pesticide') badgeClass = 'badge-pesticide';
+            let tLower = (log.type || '').toLowerCase();
+            if (tLower.includes('fertilizer')) badgeClass = 'badge-fertilizer';
+            else if (tLower.includes('fungicide')) badgeClass = 'badge-fungicide';
+            else if (tLower.includes('pesticide')) badgeClass = 'badge-pesticide';
 
             tbody.innerHTML += `
                 <tr>
