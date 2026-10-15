@@ -35,6 +35,34 @@
 </head>
 <body class="min-h-screen pb-12">
 
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-100">
+      <div class="w-16 h-16 bg-red-50 text-red-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🍀</div>
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-800">Yumika Luck Tracker</h2>
+        <p class="text-xs text-slate-500 mt-1">Please sign in to continue</p>
+      </div>
+
+      <div class="space-y-3 pt-2 text-left">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">User ID</label>
+          <input type="text" id="loginUser" placeholder="e.g. Ashok or Yumika" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+          <input type="password" id="loginPass" placeholder="Enter password" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+        </div>
+        <div id="loginError" class="text-xs text-rose-600 font-semibold text-center hidden">Invalid User ID or Password!</div>
+      </div>
+
+      <button onclick="handleLogin()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
+        Sign In 🚀
+      </button>
+      <div class="text-[11px] text-slate-400">Secured Cloud Farm System</div>
+    </div>
+  </div>
+
   <!-- Header with Hamburger Menu & Top Right Active Crop Selector -->
   <header class="bg-red-700 text-white py-3 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
@@ -48,11 +76,12 @@
         </div>
       </div>
 
-      <!-- Top Right Active Crop Selector -->
+      <!-- Top Right Active Crop Selector & Role Badge -->
       <div class="flex items-center gap-1.5">
         <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
           <!-- Dynamically populated -->
         </select>
+        <button onclick="logout()" id="roleBadgeBtn" class="bg-red-900 text-[10px] font-bold px-2 py-1.5 rounded-lg border border-red-600 text-red-200" title="Click to Logout">Role</button>
       </div>
     </div>
   </header>
@@ -65,7 +94,7 @@
     <div class="bg-red-700 text-white p-5 flex justify-between items-center">
       <div>
         <h2 class="font-bold text-lg">🍀 Yumika luck</h2>
-        <p class="text-xs text-red-200">Cloud Tracker</p>
+        <p class="text-xs text-red-200" id="sidebarUserRoleText">Cloud Tracker</p>
       </div>
       <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold p-1">✕</button>
     </div>
@@ -231,10 +260,10 @@
         <!-- Bottom Page Crop-Specific Share & Export Buttons -->
         <div class="mt-5 pt-4 border-t border-slate-200 flex gap-3">
           <button onclick="shareToWhatsApp()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
-            <span>💬</span> Share via WhatsApp
+            <span>💬</span> Share Report
           </button>
           <button onclick="exportCSV()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5">
-            <span>📥</span> Export Crop Report (CSV)
+            <span>📥</span> Export Report (CSV)
           </button>
         </div>
 
@@ -243,7 +272,7 @@
 
     <!-- TAB 2: AUCTION / YIELD MANAGEMENT -->
     <div id="tab-auction" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5" id="auctionFormSection">
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 editor-only" id="auctionFormSection">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
 
         <div class="space-y-3">
@@ -360,7 +389,7 @@
                 <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thCrates">Units ↕</th>
                 <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Rate ↕</th>
                 <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Net Amt ↕</th>
-                <th class="p-2 text-center">Action</th>
+                <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
             <tbody id="auctionTableBody">
@@ -373,7 +402,7 @@
 
     <!-- TAB 3: CROP EXPENSES -->
     <div id="tab-expenses" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 editor-only">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="expenseFormTitle">💸 Add Expense</h2>
         
         <form id="expenseForm" class="space-y-3">
@@ -425,7 +454,7 @@
             <select id="filterExpensePerson" onchange="renderExpenses()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
               <option value="ALL">All Persons</option>
             </select>
-            <button onclick="manageSpentByNames()" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded text-xs transition border border-red-200">
+            <button onclick="manageSpentByNames()" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded text-xs transition border border-red-200 editor-only">
               ⚙️ Manage Names
             </button>
           </div>
@@ -444,7 +473,7 @@
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
         
-        <form id="stockForm" onsubmit="addStockItem(event)" class="space-y-3 mb-4">
+        <form id="stockForm" onsubmit="addStockItem(event)" class="space-y-3 mb-4 editor-only">
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-semibold text-slate-600 mb-1">Item / Product Name</label>
@@ -494,7 +523,7 @@
                 <th class="p-2 text-center">Category</th>
                 <th class="p-2 text-center">Purchased</th>
                 <th class="p-2 text-center">Remaining Balance</th>
-                <th class="p-2 text-center">Action</th>
+                <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
             <tbody id="stockTableBody">
@@ -505,7 +534,7 @@
       </section>
 
       <!-- Spray & Fertilizer Application Form -->
-      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 editor-only">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
         
         <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
@@ -588,7 +617,7 @@
                 <th class="p-2 text-left">Product</th>
                 <th class="p-2 text-center">Qty Used</th>
                 <th class="p-2 text-center">Method</th>
-                <th class="p-2 text-center">Action</th>
+                <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
             <tbody id="sprayTableBody">
@@ -622,6 +651,58 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
     document.getElementById('sprayDate').valueAsDate = new Date();
+
+    let currentUser = localStorage.getItem('farm_logged_user') || null;
+
+    window.handleLogin = function() {
+        let uInput = document.getElementById('loginUser').value.trim();
+        let pInput = document.getElementById('loginPass').value.trim();
+        let errDiv = document.getElementById('loginError');
+
+        if ((uInput.toLowerCase() === 'ashok' && pInput === '7457') || (uInput.toLowerCase() === 'yumika' && pInput === '1234')) {
+            currentUser = uInput.charAt(0).toUpperCase() + uInput.slice(1).toLowerCase();
+            localStorage.setItem('farm_logged_user', currentUser);
+            document.getElementById('loginModal').classList.add('hidden');
+            applyUserPermissions();
+        } else {
+            errDiv.classList.remove('hidden');
+        }
+    };
+
+    window.logout = function() {
+        localStorage.removeItem('farm_logged_user');
+        currentUser = null;
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginModal').classList.remove('hidden');
+    };
+
+    function applyUserPermissions() {
+        const badgeBtn = document.getElementById('roleBadgeBtn');
+        const roleText = document.getElementById('sidebarUserRoleText');
+        const editorOnlyElements = document.querySelectorAll('.editor-only');
+
+        if (currentUser === 'Ashok') {
+            badgeBtn.innerText = '👤 Ashok (Full Edit)';
+            roleText.innerText = 'Full Editor (Ashok)';
+            editorOnlyElements.forEach(el => el.classList.remove('hidden'));
+            document.getElementById('cropStatusSelect').disabled = false;
+            document.getElementById('cropStartDateInput').disabled = false;
+            document.getElementById('cropEndDateInput').disabled = false;
+        } else {
+            badgeBtn.innerText = '👁️ Yumika (Read Only)';
+            roleText.innerText = 'Viewer (Read Only)';
+            editorOnlyElements.forEach(el => el.classList.add('hidden'));
+            document.getElementById('cropStatusSelect').disabled = true;
+            document.getElementById('cropStartDateInput').disabled = true;
+            document.getElementById('cropEndDateInput').disabled = true;
+        }
+    }
+
+    if (currentUser) {
+        document.getElementById('loginModal').classList.add('hidden');
+        applyUserPermissions();
+    }
 
     let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'MASTER_ALL';
     let masterFilter = 'Overall';
@@ -695,7 +776,7 @@
                         <span class="font-bold text-slate-700 truncate max-w-[120px]">${cfg.name}</span>
                         <div class="flex gap-1">
                             <button onclick="changeCrop('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold">View</button>
-                            <button onclick="updateCropStatusDirect('${key}', 'In Progress')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold" title="Restore">Restore</button>
+                            ${currentUser === 'Ashok' ? `<button onclick="updateCropStatusDirect('${key}', 'In Progress')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold" title="Restore">Restore</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -703,7 +784,9 @@
                 html += `<option value="${key}">${cfg.name || key}</option>`;
             }
         }
-        html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        if (currentUser === 'Ashok') {
+            html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        }
         
         topSelect.innerHTML = html;
         if (currentCrop !== 'MASTER_ALL' && cropConfigs[currentCrop]?.status === 'Completed') {
@@ -716,6 +799,7 @@
 
     window.handleTopCropDropdownChange = function(val) {
         if (val === 'ADD_NEW') {
+            if (currentUser !== 'Ashok') return alert('Read-only user cannot add crops.');
             let newName = prompt("Enter new crop or project name (e.g. Chilli, Onion, Cotton):");
             if (newName && newName.trim() !== "") {
                 let key = newName.trim().toLowerCase().replace(/\s+/g, '_');
@@ -743,11 +827,13 @@
     };
 
     window.updateCropStatus = function(statusVal) {
+        if (currentUser !== 'Ashok') return;
         if (currentCrop === 'MASTER_ALL') return;
         updateCropStatusDirect(currentCrop, statusVal);
     };
 
     window.updateCropStatusDirect = function(cropKey, statusVal) {
+        if (currentUser !== 'Ashok') return;
         if (!cropConfigs[cropKey]) return;
         
         cropConfigs[cropKey].status = statusVal;
@@ -773,6 +859,7 @@
     };
 
     window.updateCropStartDate = function(startDateVal) {
+        if (currentUser !== 'Ashok') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].startDate = startDateVal;
         localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
@@ -781,6 +868,7 @@
     };
 
     window.updateCropEndDate = function(endDateVal) {
+        if (currentUser !== 'Ashok') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].endDate = endDateVal;
         localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
@@ -891,7 +979,12 @@
         statusContainer.style.display = 'flex';
         expenseNavBtn.style.display = 'flex';
         spraysNavBtn.style.display = 'flex';
-        deleteCropSidebarBtn.classList.remove('hidden');
+        
+        if (currentUser === 'Ashok') {
+            deleteCropSidebarBtn.classList.remove('hidden');
+        } else {
+            deleteCropSidebarBtn.classList.add('hidden');
+        }
 
         const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", startDate: new Date().toISOString().slice(0,10), endDate: "", categories: [] };
         
@@ -923,6 +1016,7 @@
     };
 
     window.deleteCurrentCropPrompt = async function() {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete crops.');
         if (currentCrop === 'MASTER_ALL') return;
         let cfg = cropConfigs[currentCrop];
         if (confirm(`Are you sure you want to delete "${cfg ? cfg.name : currentCrop}" and all its records? This cannot be undone.`)) {
@@ -955,6 +1049,7 @@
     }
 
     window.manageSpentByNames = function() {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot manage names.');
         let currentList = globalSpentNames.join(', ');
         let input = prompt("Edit or remove Spent By names (comma-separated):", currentList);
         if (input !== null) {
@@ -987,7 +1082,7 @@
         const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses", sprays: "Fertilizer & Spray Log" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
         if (document.getElementById('sidebar').classList.contains('translate-x-0')) {
-            toggleSidebar(); // Auto hide sidebar on click
+            toggleSidebar();
         }
     };
 
@@ -1058,7 +1153,7 @@
         let filteredEntries = Object.entries(allCropsSummaryData).filter(([key, d]) => {
             if (masterFilter === 'Completed') return d.status === 'Completed';
             if (masterFilter === 'In Progress') return d.status === 'In Progress';
-            return true; // Overall
+            return true;
         });
 
         if (filteredEntries.length === 0) {
@@ -1297,6 +1392,7 @@
     };
 
     window.saveAuctionEntry = async function() {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot add entries.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
@@ -1321,6 +1417,7 @@
     };
 
     window.deleteAuctionEntry = async function(id) {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete entries.');
         if (confirm("Delete this record?")) await remove(ref(db, `${currentCrop}_auction_entries/${id}`));
     };
 
@@ -1345,6 +1442,7 @@
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot add expenses.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
@@ -1366,12 +1464,13 @@
     });
 
     window.deleteExpense = async function(id) {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete expenses.');
         if (confirm("Delete this expense?")) await remove(ref(db, `${currentCrop}_expenses/${id}`));
     };
 
-    // Stock Inventory Functions
     window.addStockItem = async function(e) {
         e.preventDefault();
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot add stock.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
 
         const name = document.getElementById('stockName').value.trim();
@@ -1396,6 +1495,7 @@
     };
 
     window.deleteStockItem = async function(id) {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete stock.');
         if (confirm("Delete this stock item?")) await remove(ref(db, `${currentCrop}_stock_inventory/${id}`));
     };
 
@@ -1441,13 +1541,15 @@
                 statusBadge = `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">${remaining} ${item.unit} 🟢</span>`;
             }
 
+            let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+
             tbody.innerHTML += `
                 <tr>
                     <td class="p-2 font-bold">${item.name}</td>
                     <td class="p-2 text-center">${item.category}</td>
                     <td class="p-2 text-center">${item.qty} ${item.unit}</td>
                     <td class="p-2 text-center">${statusBadge}</td>
-                    <td class="p-2 text-center"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
+                    ${delBtnHtml}
                 </tr>
             `;
         });
@@ -1455,6 +1557,7 @@
 
     window.addSprayLog = async function(e) {
         e.preventDefault();
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot add spray logs.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
 
         const rawType = document.getElementById('sprayType').value;
@@ -1479,6 +1582,7 @@
     };
 
     window.deleteSprayLog = async function(id) {
+        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete spray logs.');
         if (confirm("Delete this spray record?")) await remove(ref(db, `${currentCrop}_spray_logs/${id}`));
     };
 
@@ -1515,6 +1619,8 @@
             else if (tLower.includes('fungicide')) badgeClass = 'badge-fungicide';
             else if (tLower.includes('pesticide')) badgeClass = 'badge-pesticide';
 
+            let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+
             tbody.innerHTML += `
                 <tr>
                     <td class="p-2 text-center">${log.date}</td>
@@ -1523,7 +1629,7 @@
                     <td class="p-2 text-left font-bold">${log.product}</td>
                     <td class="p-2 text-center">${log.qty} ${log.unit}</td>
                     <td class="p-2 text-center">${log.method}</td>
-                    <td class="p-2 text-center"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
+                    ${delBtnHtml}
                 </tr>
             `;
         });
@@ -1587,6 +1693,8 @@
                     let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
                     let commentText = item.comments !== '-' ? `<span class="comment-tag">${item.comments}</span>` : '';
                     let displayCrates = item.totalCrates !== undefined ? item.totalCrates : item.soldCrates;
+                    let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-2 text-center">${item.date}</td>
@@ -1594,7 +1702,7 @@
                             <td class="p-2 text-center">${displayCrates}</td>
                             <td class="p-2 text-center">₹${item.auctionPrice}</td>
                             <td class="p-2 text-center font-bold text-emerald-700">₹${item.finalAmount.toFixed(2)}</td>
-                            <td class="p-2 text-center"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
+                            ${delBtnHtml}
                         </tr>`;
                 });
             }
@@ -1671,18 +1779,21 @@
 
         let filteredExpenses = cloudExpenses.filter(e => personFilter === 'ALL' || e.spentBy.toLowerCase() === personFilter.toLowerCase());
 
-        listContainer.innerHTML = filteredExpenses.map(item => `
-            <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-                <div>
-                    <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
-                    <div class="text-slate-500 text-[11px]">${item.date} ${item.notes && item.notes !== '-' ? '• ' + item.notes : ''}</div>
+        listContainer.innerHTML = filteredExpenses.map(item => {
+            let delBtnHtml = currentUser === 'Ashok' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
+            return `
+                <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                    <div>
+                        <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
+                        <div class="text-slate-500 text-[11px]">${item.date} ${item.notes && item.notes !== '-' ? '• ' + item.notes : ''}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-slate-800">₹${item.amount.toLocaleString('en-IN')}</span>
+                        ${delBtnHtml}
+                    </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="font-extrabold text-slate-800">₹${item.amount.toLocaleString('en-IN')}</span>
-                    <button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold">✕</button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     window.exportCSV = function() {
@@ -1735,7 +1846,6 @@
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // Initialize crop dropdown and last selected crop view
     window.populateCropDropdown();
     window.changeCrop(currentCrop);
     window.calculate();
