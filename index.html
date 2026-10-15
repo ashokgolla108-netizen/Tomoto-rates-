@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomato Auction & Rate Calculator</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f4f7f6; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .card { background: #ffffff; padding: 20px; border-radius: 12px; max-width: 450px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #d32f2f; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #333; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        input:focus { border-color: #d32f2f; outline: none; }
+        .results { background-color: #fbe9e7; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #ffccbc; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px; }
+        .row.total { font-weight: bold; font-size: 18px; color: #b71c1c; border-top: 1px solid #ffab91; padding-top: 8px; margin-top: 8px; }
+        .breakdown-title { font-weight: bold; color: #424242; margin-top: 10px; margin-bottom: 5px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🍅 Tomato Rate Calculator</h2>
+
+    <div class="form-group">
+        <label for="totalCrates">Total Crates Sent:</label>
+        <input type="number" id="totalCrates" value="31" oninput="calculate()">
+    </div>
+
+    <div class="form-group">
+        <label for="lessCrates">Less Crates (Deduction):</label>
+        <input type="number" id="lessCrates" value="1" oninput="calculate()">
+    </div>
+
+    <div class="form-group">
+        <label for="auctionPrice">Auction Price per Crate (₹):</label>
+        <input type="number" id="auctionPrice" value="300" oninput="calculate()">
+    </div>
+
+    <div class="form-group">
+        <label for="transportRate">Transport Cost per Crate (₹):</label>
+        <input type="number" id="transportRate" value="25" oninput="calculate()">
+    </div>
+
+    <div class="form-group">
+        <label for="commission">Auction Commission per Crate (₹):</label>
+        <input type="number" id="commission" value="30" oninput="calculate()">
+    </div>
+
+    <div class="form-group">
+        <label for="rent">Market Rent per Crate (₹) [Fixed]:</label>
+        <input type="number" id="rent" value="2" oninput="calculate()">
+    </div>
+
+    <div class="results">
+        <div class="breakdown-title">Crate Summary</div>
+        <div class="row">
+            <span>Sold Crates (Net):</span>
+            <span id="soldCrates">30</span>
+        </div>
+
+        <div class="breakdown-title">Income & Expenses</div>
+        <div class="row">
+            <span>Gross Sales Amount:</span>
+            <span>₹<span id="grossAmount">9000.00</span></span>
+        </div>
+        <div class="row">
+            <span>Transport (31 crates × ₹25):</span>
+            <span>- ₹<span id="totalTransport">775.00</span></span>
+        </div>
+        <div class="row">
+            <span>Commission (30 crates × ₹30):</span>
+            <span>- ₹<span id="totalCommission">900.00</span></span>
+        </div>
+        <div class="row">
+            <span>Market Rent (30 crates × ₹2):</span>
+            <span>- ₹<span id="totalRent">60.00</span></span>
+        </div>
+
+        <div class="row total">
+            <span>Net Payable Amount:</span>
+            <span>₹<span id="finalAmount">7265.00</span></span>
+        </div>
+        <div class="row" style="font-weight: 600; color: #2e7d32; font-size: 15px;">
+            <span>Effective Earnings per Crate:</span>
+            <span>₹<span id="perCrateNet">234.35</span></span>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculate() {
+    const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
+    const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
+    const auctionPrice = parseFloat(document.getElementById('auctionPrice').value) || 0;
+    const transportRate = parseFloat(document.getElementById('transportRate').value) || 0;
+    const commission = parseFloat(document.getElementById('commission').value) || 0;
+    const rent = parseFloat(document.getElementById('rent').value) || 0;
+
+    // Calculations
+    const soldCrates = Math.max(0, totalCrates - lessCrates);
+    const grossAmount = soldCrates * auctionPrice;
+    
+    // Transport charged on total crates (including less crates)
+    const totalTransport = totalCrates * transportRate;
+    
+    // Deductions calculated on sold crates
+    const totalCommission = soldCrates * commission;
+    const totalRent = soldCrates * rent;
+
+    const totalDeductions = totalTransport + totalCommission + totalRent;
+    const finalAmount = grossAmount - totalDeductions;
+    
+    const perCrateNet = totalCrates > 0 ? (finalAmount / totalCrates) : 0;
+
+    // Display outputs
+    document.getElementById('soldCrates').innerText = soldCrates;
+    document.getElementById('grossAmount').innerText = grossAmount.toFixed(2);
+    document.getElementById('totalTransport').innerText = totalTransport.toFixed(2);
+    document.getElementById('totalCommission').innerText = totalCommission.toFixed(2);
+    document.getElementById('totalRent').innerText = totalRent.toFixed(2);
+    document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
+    document.getElementById('perCrateNet').innerText = perCrateNet.toFixed(2);
+}
+
+// Initial calculation run
+calculate();
+</script>
+
+</body>
+</html>
