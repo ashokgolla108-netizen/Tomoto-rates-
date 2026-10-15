@@ -357,7 +357,7 @@
   <!-- Firebase & Multi-Crop Logic Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, push, remove, set, onValue, off } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDWBw7KI3VG7M9FA00_DISNwVOTdAw5Rwg",
@@ -380,8 +380,10 @@
     let cloudExpenses = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
+    let activeAuctionListener = null;
+    let activeExpenseListener = null;
 
-    // ALL 18 Groundnut Expenses Hardcoded (Total: ₹1,08,690)
+    // Hardcoded datasets
     const defaultGroundnutExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":500,"notes":"Karate"},
       {"date":"2026-09-29","spentBy":"Home","category":"Weeding","amount":13000,"notes":"1st weeding"},
@@ -403,7 +405,6 @@
       {"date":"2026-07-22","spentBy":"Home","category":"Seeds","amount":41400,"notes":"-"}
     ];
 
-    // ALL 17 Borewell Expenses Hardcoded (Total: ₹2,93,550)
     const defaultBoreExpenses = [
       {"date":"2026-09-29","spentBy":"Ashok","category":"Drums","amount":1800,"notes":"-"},
       {"date":"2026-08-21","spentBy":"Home","category":"Fertilizer/Pesticide","amount":850,"notes":"Petrol pump repair"},
@@ -424,7 +425,6 @@
       {"date":"2026-07-19","spentBy":"Home","category":"Bore Drilling","amount":50000,"notes":"-"}
     ];
 
-    // ALL 33 Tomato Expenses Hardcoded (Total: ₹1,34,199)
     const tomatoBackupExpenses = [
       {"date":"2026-10-13","spentBy":"Ashok","category":"Tomoto thread","amount":1700,"notes":"8kgs"},
       {"date":"2026-10-13","spentBy":"Ashok","category":"Fertilizer/Pesticide","amount":5050,"notes":"Isabion nativo ampligo osheen ultra vipul"},
@@ -575,6 +575,10 @@
     };
 
     function loadCropData() {
+        // Detach previous listeners to prevent cross-crop data leakage
+        if (activeAuctionListener) off(ref(db, `${currentCrop}_auction_entries`), 'value', activeAuctionListener);
+        if (activeExpenseListener) off(ref(db, `${currentCrop}_expenses`), 'value', activeExpenseListener);
+
         const auctionRef = ref(db, `${currentCrop}_auction_entries`);
         const expenseRef = ref(db, `${currentCrop}_expenses`);
 
@@ -597,7 +601,6 @@
             else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
             else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
 
-            // Force clear old cached state if count doesn't match expected dataset length
             if (expectedData.length > 0 && fetchedCount < expectedData.length) {
                 set(expenseRef, null).then(() => {
                     expectedData.forEach(rec => push(expenseRef, rec));
