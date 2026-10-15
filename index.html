@@ -123,7 +123,7 @@
             <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
           </div>
 
-          <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center">
+          <div id="investmentCard" class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center col-span-2">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5" id="investmentLabel">🌱 Total Investment</div>
               <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹0</div>
@@ -131,8 +131,8 @@
             <button id="editInvBtn" onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
-          <!-- Total Boxes Card -->
-          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between" id="boxesCardContainer">
+          <!-- Total Boxes Card (Hidden in Master Summary View) -->
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between col-span-2" id="boxesCardContainer">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
               <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Units</div>
@@ -152,7 +152,7 @@
 
         <!-- Master Crop Breakdown Cards (Shown in All Crops Summary View) -->
         <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Active Crops Summary</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 All Crops Breakdown (Completed & In Progress)</h3>
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
@@ -531,7 +531,7 @@
         const topSelect = document.getElementById('topCropSelect');
         const archivedList = document.getElementById('archivedCropsList');
         
-        let html = `<option value="MASTER_ALL">🌐 Active Crops Summary</option>`;
+        let html = `<option value="MASTER_ALL">🌐 All Crops Master Summary</option>`;
         let archivedHtml = '';
         let hasArchived = false;
 
@@ -556,7 +556,6 @@
         
         topSelect.innerHTML = html;
         if (currentCrop !== 'MASTER_ALL' && cropConfigs[currentCrop]?.status === 'Completed') {
-            // Keep completed crop visible in dropdown if currently viewing it
             topSelect.innerHTML = `<option value="${currentCrop}">${cropConfigs[currentCrop].name} (Completed)</option>` + html;
         }
         topSelect.value = currentCrop;
@@ -622,21 +621,23 @@
 
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
-        toggleSidebar(); // close sidebar if opened
+        if (document.getElementById('sidebar').classList.contains('translate-x-0')) toggleSidebar();
 
         const auctionNavBtn = document.getElementById('navAuctionBtn');
         const expenseNavBtn = document.getElementById('navExpenseBtn');
         const statusContainer = document.getElementById('cropStatusContainer');
         const editInvBtn = document.getElementById('editInvBtn');
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
+        const boxesCardContainer = document.getElementById('boxesCardContainer');
 
         if (cropKey === 'MASTER_ALL') {
-            document.getElementById('headerTitle').innerText = "🌐 Active Summary";
-            document.getElementById('dashboardTitle').innerText = "🌾 Active Crops Master Summary";
+            document.getElementById('headerTitle').innerText = "🌐 All Master Summary";
+            document.getElementById('dashboardTitle').innerText = "🌾 Farm Overall Master Summary";
             statusContainer.style.display = 'none';
             editInvBtn.style.display = 'none';
             auctionNavBtn.style.display = 'none';
             expenseNavBtn.style.display = 'none';
+            boxesCardContainer.style.display = 'none'; // Hide Total Harvest Units in Master Summary
             masterBreakdownSection.classList.remove('hidden');
 
             if (!document.getElementById('tab-auction').classList.contains('hidden') || !document.getElementById('tab-expenses').classList.contains('hidden')) {
@@ -647,6 +648,7 @@
         }
 
         masterBreakdownSection.classList.add('hidden');
+        boxesCardContainer.style.display = 'flex'; // Show Total Harvest Units for specific crop
         statusContainer.style.display = 'flex';
         editInvBtn.style.display = 'inline-block';
         expenseNavBtn.style.display = 'flex';
@@ -703,8 +705,7 @@
         allCropsSummaryData = {};
 
         for (const [key, cfg] of Object.entries(cropConfigs)) {
-            if ((cfg.status || 'In Progress') === 'Completed') continue; // Only aggregate In Progress crops for active summary
-
+            // Includes ALL crops (Completed & In Progress) in Master Summary
             const expSnap = await get(ref(db, `${key}_expenses`));
             const aucSnap = await get(ref(db, `${key}_auction_entries`));
 
@@ -756,12 +757,13 @@
         container.innerHTML = '';
         
         Object.entries(allCropsSummaryData).forEach(([key, d]) => {
+            let statusBadge = d.status === 'Completed' ? '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 text-emerald-800">✅ Completed</span>' : '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-100 text-blue-800">⏳ In Progress</span>';
             let plColor = d.netPL >= 0 ? 'text-emerald-700' : 'text-rose-700';
 
             container.innerHTML += `
                 <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} <span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-100 text-blue-800">⏳ In Progress</span></div>
+                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
                         <div class="text-slate-500 text-[10px] mt-0.5">Earnings: ₹${d.earnings.toLocaleString('en-IN')} | Expenses: ₹${d.expenses.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="text-right">
