@@ -23,7 +23,7 @@
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Header with Hamburger Menu, Top Right Crop Selector & Actions -->
+  <!-- Header with Hamburger Menu, Top Right Active Crop Selector & Actions -->
   <header class="bg-red-700 text-white py-3 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
@@ -36,11 +36,10 @@
         </div>
       </div>
 
-      <!-- Top Right Crop Selector & Quick WhatsApp -->
+      <!-- Top Right Active Crop Selector & Quick WhatsApp -->
       <div class="flex items-center gap-1.5">
-        <!-- CROP SELECTOR (Master Summary + Individual Crops) -->
-        <select id="topCropSelect" onchange="handleCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
-          <!-- Dynamically populated -->
+        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
+          <!-- Dynamically populated (Only In Progress + Master Summary) -->
         </select>
 
         <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition" title="Share via WhatsApp">
@@ -77,6 +76,16 @@
 
       <hr class="my-3 border-slate-200">
 
+      <!-- Archived Crops Section -->
+      <div>
+        <div class="text-[11px] font-bold uppercase text-slate-400 px-3 mb-1.5">📁 Archived (Completed) Crops</div>
+        <div id="archivedCropsList" class="space-y-1">
+          <p class="text-xs text-slate-400 px-3 py-1 italic">No archived crops</p>
+        </div>
+      </div>
+
+      <hr class="my-3 border-slate-200">
+
       <!-- Export Button inside Sidebar Navigation -->
       <button onclick="exportCSV()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition border border-emerald-200">
         <span>📥</span> Export Farm Data (CSV)
@@ -95,11 +104,10 @@
     <div id="tab-dashboard" class="space-y-5 tab-content">
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         
-        <!-- Header with Crop Status -->
+        <!-- Header with Editable Crop Status -->
         <div class="flex justify-between items-center mb-3 border-b pb-2">
           <h2 class="text-base font-bold text-slate-700" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
           
-          <!-- Crop Status Selector / Display -->
           <div id="cropStatusContainer" class="flex items-center gap-1.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase">Status:</span>
             <select id="cropStatusSelect" onchange="updateCropStatus(this.value)" class="text-xs font-bold rounded-full px-2.5 py-1 focus:outline-none border cursor-pointer">
@@ -144,7 +152,7 @@
 
         <!-- Master Crop Breakdown Cards (Shown in All Crops Summary View) -->
         <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Crop Wise Summary</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Active Crops Summary</h3>
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
@@ -521,17 +529,42 @@
 
     window.populateCropDropdown = function() {
         const topSelect = document.getElementById('topCropSelect');
-        let html = `<option value="MASTER_ALL">🌐 All Crops Summary</option>`;
+        const archivedList = document.getElementById('archivedCropsList');
+        
+        let html = `<option value="MASTER_ALL">🌐 Active Crops Summary</option>`;
+        let archivedHtml = '';
+        let hasArchived = false;
+
         for (const [key, cfg] of Object.entries(cropConfigs)) {
-            let statusIcon = cfg.status === 'Completed' ? '✅' : '⏳';
-            html += `<option value="${key}">${cfg.name || key} (${statusIcon})</option>`;
+            let status = cfg.status || 'In Progress';
+            if (status === 'Completed') {
+                hasArchived = true;
+                archivedHtml += `
+                    <div class="flex justify-between items-center px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                        <span class="font-bold text-slate-700 truncate max-w-[120px]">${cfg.name}</span>
+                        <div class="flex gap-1">
+                            <button onclick="changeCrop('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold">View</button>
+                            <button onclick="updateCropStatusDirect('${key}', 'In Progress')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold" title="Restore">Restore</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `<option value="${key}">${cfg.name || key}</option>`;
+            }
         }
         html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        
         topSelect.innerHTML = html;
+        if (currentCrop !== 'MASTER_ALL' && cropConfigs[currentCrop]?.status === 'Completed') {
+            // Keep completed crop visible in dropdown if currently viewing it
+            topSelect.innerHTML = `<option value="${currentCrop}">${cropConfigs[currentCrop].name} (Completed)</option>` + html;
+        }
         topSelect.value = currentCrop;
+
+        archivedList.innerHTML = hasArchived ? archivedHtml : '<p class="text-xs text-slate-400 px-3 py-1 italic">No archived crops</p>';
     };
 
-    window.handleCropDropdownChange = function(val) {
+    window.handleTopCropDropdownChange = function(val) {
         if (val === 'ADD_NEW') {
             let newName = prompt("Enter new crop or project name (e.g. Chilli, Onion, Cotton):");
             if (newName && newName.trim() !== "") {
@@ -559,16 +592,23 @@
 
     window.updateCropStatus = function(statusVal) {
         if (currentCrop === 'MASTER_ALL') return;
-        if (!cropConfigs[currentCrop]) return;
-        
-        cropConfigs[currentCrop].status = statusVal;
-        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
-        
-        // Also sync status to Firebase for cloud persistence
-        set(ref(db, `${currentCrop}_status`), statusVal);
+        updateCropStatusDirect(currentCrop, statusVal);
+    };
 
-        applyStatusBadgeStyle(statusVal);
+    window.updateCropStatusDirect = function(cropKey, statusVal) {
+        if (!cropConfigs[cropKey]) return;
+        
+        cropConfigs[cropKey].status = statusVal;
+        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        set(ref(db, `${cropKey}_status`), statusVal);
+
+        if (cropKey === currentCrop) {
+            document.getElementById('cropStatusSelect').value = statusVal;
+            applyStatusBadgeStyle(statusVal);
+        }
+
         populateCropDropdown();
+        if (currentCrop === 'MASTER_ALL') loadMasterData();
     };
 
     function applyStatusBadgeStyle(statusVal) {
@@ -582,7 +622,8 @@
 
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
-        
+        toggleSidebar(); // close sidebar if opened
+
         const auctionNavBtn = document.getElementById('navAuctionBtn');
         const expenseNavBtn = document.getElementById('navExpenseBtn');
         const statusContainer = document.getElementById('cropStatusContainer');
@@ -590,8 +631,8 @@
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
 
         if (cropKey === 'MASTER_ALL') {
-            document.getElementById('headerTitle').innerText = "🌐 All Crops Summary";
-            document.getElementById('dashboardTitle').innerText = "🌾 Master Farm Financial Summary";
+            document.getElementById('headerTitle').innerText = "🌐 Active Summary";
+            document.getElementById('dashboardTitle').innerText = "🌾 Active Crops Master Summary";
             statusContainer.style.display = 'none';
             editInvBtn.style.display = 'none';
             auctionNavBtn.style.display = 'none';
@@ -662,6 +703,8 @@
         allCropsSummaryData = {};
 
         for (const [key, cfg] of Object.entries(cropConfigs)) {
+            if ((cfg.status || 'In Progress') === 'Completed') continue; // Only aggregate In Progress crops for active summary
+
             const expSnap = await get(ref(db, `${key}_expenses`));
             const aucSnap = await get(ref(db, `${key}_auction_entries`));
 
@@ -713,13 +756,12 @@
         container.innerHTML = '';
         
         Object.entries(allCropsSummaryData).forEach(([key, d]) => {
-            let statusBadge = d.status === 'Completed' ? '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-emerald-100 text-emerald-800">✅ Completed</span>' : '<span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-100 text-blue-800">⏳ In Progress</span>';
             let plColor = d.netPL >= 0 ? 'text-emerald-700' : 'text-rose-700';
 
             container.innerHTML += `
                 <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
+                        <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} <span class="px-2 py-0.5 text-[9px] font-bold rounded-full bg-blue-100 text-blue-800">⏳ In Progress</span></div>
                         <div class="text-slate-500 text-[10px] mt-0.5">Earnings: ₹${d.earnings.toLocaleString('en-IN')} | Expenses: ₹${d.expenses.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="text-right">
@@ -776,7 +818,6 @@
             }
         });
 
-        // Load synced status from Firebase if available
         onValue(ref(db, `${currentCrop}_status`), (snapshot) => {
             if (snapshot.exists()) {
                 let statusVal = snapshot.val();
@@ -784,6 +825,7 @@
                     cropConfigs[currentCrop].status = statusVal;
                     document.getElementById('cropStatusSelect').value = statusVal;
                     applyStatusBadgeStyle(statusVal);
+                    populateCropDropdown();
                 }
             }
         });
