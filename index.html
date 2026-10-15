@@ -9,12 +9,24 @@
         :root {
             --bg: #f0f4f8;
             --text-main: #1e293b;
+            --badge-fert: #dcfce7;
+            --badge-fert-text: #166534;
+            --badge-fung: #fef3c7;
+            --badge-fung-text: #92400e;
+            --badge-pest: #fee2e2;
+            --badge-pest-text: #991b1b;
+            --badge-other: #f1f5f9;
+            --badge-other-text: #475569;
         }
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; color: white; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-high, .badge-High { background: #10b981; }
-        .badge-medium, .badge-Medium { background: #f59e0b; }
-        .badge-low, .badge-Low { background: #ec4899; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-high, .badge-High { background: #10b981; color: white; }
+        .badge-medium, .badge-Medium { background: #f59e0b; color: white; }
+        .badge-low, .badge-Low { background: #ec4899; color: white; }
+        .badge-fertilizer { background: var(--badge-fert); color: var(--badge-fert-text); }
+        .badge-fungicide { background: var(--badge-fung); color: var(--badge-fung-text); }
+        .badge-pesticide { background: var(--badge-pest); color: var(--badge-pest-text); }
+        .badge-other { background: var(--badge-other); color: var(--badge-other-text); }
         .status-badge-progress { background-color: #3b82f6; color: white; }
         .status-badge-completed { background-color: #10b981; color: white; }
         .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 2px; display: block; }
@@ -72,6 +84,9 @@
       </button>
       <button onclick="switchTab('expenses')" id="navExpenseBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
         <span>💸</span> Crop Expenses
+      </button>
+      <button onclick="switchTab('sprays')" id="navSpraysBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
+        <span>🧪</span> Fertilizer & Spray Log
       </button>
 
       <hr class="my-3 border-slate-200">
@@ -397,6 +412,91 @@
       </section>
     </div>
 
+    <!-- TAB 4: FERTILIZER & SPRAY LOG -->
+    <div id="tab-sprays" class="space-y-5 tab-content hidden">
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🧪 Record Fertilizer or Spray Application</h2>
+        
+        <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Input Type</label>
+              <select id="sprayType" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="Fertilizer">Fertilizer</option>
+                <option value="Fungicide">Fungicide</option>
+                <option value="Pesticide">Pesticide</option>
+                <option value="Micronutrient / Other">Micronutrient / Other</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Product / Chemical Name</label>
+              <input type="text" id="sprayProduct" placeholder="e.g. 19:19:19, Nativo" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Quantity</label>
+              <input type="number" step="any" id="sprayQty" placeholder="e.g. 5" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Unit</label>
+              <select id="sprayUnit" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="kg">kg</option>
+                <option value="g">grams (g)</option>
+                <option value="L">Liters (L)</option>
+                <option value="ml">ml</option>
+                <option value="bags">bags</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Application Method</label>
+              <select id="sprayMethod" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+                <option value="Foliar Spray">Foliar Spray</option>
+                <option value="Drip Irrigation">Drip Irrigation</option>
+                <option value="Soil Broadcast">Soil Broadcast</option>
+                <option value="Drenching">Drenching</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date Applied</label>
+              <input type="date" id="sprayDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
+            ☁️ Save Spray Entry to Cloud
+          </button>
+        </form>
+      </section>
+
+      <!-- Spray History Records Table -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 pb-2 border-b">📋 Spray & Fertilizer History</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600">
+                <th class="p-2 text-center">Date</th>
+                <th class="p-2 text-center">Crop Age</th>
+                <th class="p-2 text-center">Category</th>
+                <th class="p-2 text-left">Product</th>
+                <th class="p-2 text-center">Qty</th>
+                <th class="p-2 text-center">Method</th>
+                <th class="p-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="sprayTableBody">
+              <tr><td colspan="7" class="text-center text-slate-400 py-4">No records logged yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
   </main>
 
   <!-- Firebase & Multi-Crop Logic Script -->
@@ -419,14 +519,17 @@
 
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
+    document.getElementById('sprayDate').valueAsDate = new Date();
 
     let currentCrop = 'MASTER_ALL';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
+    let cloudSprayLogs = [];
     let currentSortCol = 'date';
     let currentSortAsc = false;
     let currentAuctionRef = null;
     let currentExpenseRef = null;
+    let currentSprayRef = null;
     let allCropsSummaryData = {};
 
     // Datasets
@@ -666,6 +769,7 @@
 
         const auctionNavBtn = document.getElementById('navAuctionBtn');
         const expenseNavBtn = document.getElementById('navExpenseBtn');
+        const spraysNavBtn = document.getElementById('navSpraysBtn');
         const statusContainer = document.getElementById('cropStatusContainer');
         const editInvBtn = document.getElementById('editInvBtn');
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
@@ -680,12 +784,15 @@
             editInvBtn.style.display = 'none';
             auctionNavBtn.style.display = 'none';
             expenseNavBtn.style.display = 'none';
+            spraysNavBtn.style.display = 'none';
             boxesCardContainer.style.display = 'none'; 
             qualityBarSection.style.display = 'none';
             cropAgingBanner.style.display = 'none';
             masterBreakdownSection.classList.remove('hidden');
 
-            if (!document.getElementById('tab-auction').classList.contains('hidden') || !document.getElementById('tab-expenses').classList.contains('hidden')) {
+            if (!document.getElementById('tab-dashboard').classList.contains('hidden')) {
+                // stay on dashboard
+            } else {
                 switchTab('dashboard');
             }
             loadMasterData();
@@ -699,6 +806,7 @@
         statusContainer.style.display = 'flex';
         editInvBtn.style.display = 'inline-block';
         expenseNavBtn.style.display = 'flex';
+        spraysNavBtn.style.display = 'flex';
 
         const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", startDate: new Date().toISOString().slice(0,10), categories: [] };
         
@@ -746,7 +854,7 @@
     window.switchTab = function(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
-        const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses" };
+        const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses", sprays: "Fertilizer & Spray Log" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
     };
 
@@ -836,9 +944,11 @@
     function loadCropData() {
         if (currentAuctionRef) off(currentAuctionRef);
         if (currentExpenseRef) off(currentExpenseRef);
+        if (currentSprayRef) off(currentSprayRef);
 
         currentAuctionRef = ref(db, `${currentCrop}_auction_entries`);
         currentExpenseRef = ref(db, `${currentCrop}_expenses`);
+        currentSprayRef = ref(db, `${currentCrop}_spray_logs`);
 
         onValue(currentAuctionRef, (snapshot) => {
             cachedAuctionEntries = [];
@@ -876,7 +986,16 @@
             }
         });
 
-        // Load synced status from Firebase
+        onValue(currentSprayRef, (snapshot) => {
+            cloudSprayLogs = [];
+            snapshot.forEach((childSnap) => {
+                let item = childSnap.val();
+                item.id = childSnap.key;
+                cloudSprayLogs.push(item);
+            });
+            renderSprayLogs();
+        });
+
         onValue(ref(db, `${currentCrop}_status`), (snapshot) => {
             if (snapshot.exists()) {
                 let statusVal = snapshot.val();
@@ -889,7 +1008,6 @@
             }
         });
 
-        // Load synced Start Date from Firebase
         onValue(ref(db, `${currentCrop}_start_date`), (snapshot) => {
             if (snapshot.exists()) {
                 let dateVal = snapshot.val();
@@ -990,6 +1108,67 @@
         if (confirm("Delete this expense?")) await remove(ref(db, `${currentCrop}_expenses/${id}`));
     };
 
+    window.addSprayLog = async function(e) {
+        e.preventDefault();
+        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+
+        const type = document.getElementById('sprayType').value;
+        const product = document.getElementById('sprayProduct').value.trim();
+        const qty = document.getElementById('sprayQty').value;
+        const unit = document.getElementById('sprayUnit').value;
+        const method = document.getElementById('sprayMethod').value;
+        const date = document.getElementById('sprayDate').value;
+
+        try {
+            await push(ref(db, `${currentCrop}_spray_logs`), {
+                type, product, qty, unit, method, date, timestamp: Date.now()
+            });
+            alert('Spray / Fertilizer log saved to Cloud!');
+            document.getElementById('sprayProduct').value = '';
+            document.getElementById('sprayQty').value = '';
+            document.getElementById('sprayDate').valueAsDate = new Date();
+        } catch (error) { alert("Error: " + error.message); }
+    };
+
+    window.deleteSprayLog = async function(id) {
+        if (confirm("Delete this spray record?")) await remove(ref(db, `${currentCrop}_spray_logs/${id}`));
+    };
+
+    function renderSprayLogs() {
+        const tbody = document.getElementById('sprayTableBody');
+        tbody.innerHTML = '';
+
+        if (cloudSprayLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-slate-400 py-4">No records logged yet.</td></tr>';
+            return;
+        }
+
+        let sortedLogs = [...cloudSprayLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const startDate = cropConfigs[currentCrop]?.startDate || new Date().toISOString().slice(0, 10);
+
+        sortedLogs.forEach(log => {
+            let diffTime = new Date(log.date) - new Date(startDate);
+            let das = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            let badgeClass = 'badge-other';
+            if (log.type === 'Fertilizer') badgeClass = 'badge-fertilizer';
+            else if (log.type === 'Fungicide') badgeClass = 'badge-fungicide';
+            else if (log.type === 'Pesticide') badgeClass = 'badge-pesticide';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="p-2 text-center">${log.date}</td>
+                    <td class="p-2 text-center font-bold">${das >= 0 ? das + ' DAS' : '-'}</td>
+                    <td class="p-2 text-center"><span class="badge ${badgeClass}">${log.type}</span></td>
+                    <td class="p-2 text-left font-bold">${log.product}</td>
+                    <td class="p-2 text-center">${log.qty} ${log.unit}</td>
+                    <td class="p-2 text-center">${log.method}</td>
+                    <td class="p-2 text-center"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>
+                </tr>
+            `;
+        });
+    }
+
     window.editInvestment = async function() {
         if (currentCrop === 'MASTER_ALL') return alert('Switch to a specific crop to edit investment override.');
         let totalSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
@@ -1030,7 +1209,6 @@
         document.getElementById('subCountMedium').innerText = boxesMedium;
         document.getElementById('subCountLow').innerText = boxesLow;
 
-        // Update Quality Progress Bar Percentages
         if (totalBoxes > 0) {
             let pHigh = (boxesHigh / totalBoxes) * 100;
             let pMed = (boxesMedium / totalBoxes) * 100;
