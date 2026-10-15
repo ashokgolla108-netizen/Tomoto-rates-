@@ -39,7 +39,7 @@
       <!-- Top Right Active Crop Selector & Quick WhatsApp -->
       <div class="flex items-center gap-1.5">
         <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
-          <!-- Dynamically populated (Only In Progress + Master Summary) -->
+          <!-- Dynamically populated -->
         </select>
 
         <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition" title="Share via WhatsApp">
@@ -131,7 +131,7 @@
             <button id="editInvBtn" onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
           </div>
 
-          <!-- Total Boxes Card (Hidden in Master Summary View) -->
+          <!-- Total Boxes Card -->
           <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between col-span-2" id="boxesCardContainer">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
@@ -188,7 +188,6 @@
 
     <!-- TAB 2: AUCTION / YIELD MANAGEMENT -->
     <div id="tab-auction" class="space-y-5 tab-content hidden">
-      <!-- Add Auction Entry -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5" id="auctionFormSection">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
 
@@ -316,7 +315,6 @@
 
     <!-- TAB 3: CROP EXPENSES -->
     <div id="tab-expenses" class="space-y-5 tab-content hidden">
-      <!-- Add Expense Form -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
         <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2" id="expenseFormTitle">💸 Add Expense</h2>
         
@@ -629,6 +627,7 @@
         const editInvBtn = document.getElementById('editInvBtn');
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
         const boxesCardContainer = document.getElementById('boxesCardContainer');
+        const qualityBarSection = document.getElementById('qualityBarSection');
 
         if (cropKey === 'MASTER_ALL') {
             document.getElementById('headerTitle').innerText = "🌐 All Master Summary";
@@ -637,7 +636,8 @@
             editInvBtn.style.display = 'none';
             auctionNavBtn.style.display = 'none';
             expenseNavBtn.style.display = 'none';
-            boxesCardContainer.style.display = 'none'; // Hide Total Harvest Units in Master Summary
+            boxesCardContainer.style.display = 'none'; 
+            qualityBarSection.style.display = 'none'; // Hide Harvest Quality Distribution in Master Summary
             masterBreakdownSection.classList.remove('hidden');
 
             if (!document.getElementById('tab-auction').classList.contains('hidden') || !document.getElementById('tab-expenses').classList.contains('hidden')) {
@@ -648,7 +648,8 @@
         }
 
         masterBreakdownSection.classList.add('hidden');
-        boxesCardContainer.style.display = 'flex'; // Show Total Harvest Units for specific crop
+        boxesCardContainer.style.display = 'flex'; 
+        qualityBarSection.style.display = 'block'; // Show Quality Distribution for specific crop
         statusContainer.style.display = 'flex';
         editInvBtn.style.display = 'inline-block';
         expenseNavBtn.style.display = 'flex';
@@ -705,7 +706,6 @@
         allCropsSummaryData = {};
 
         for (const [key, cfg] of Object.entries(cropConfigs)) {
-            // Includes ALL crops (Completed & In Progress) in Master Summary
             const expSnap = await get(ref(db, `${key}_expenses`));
             const aucSnap = await get(ref(db, `${key}_auction_entries`));
 
@@ -802,14 +802,12 @@
                 items.push(item);
             });
 
-            let hasTomatoDataInNonTomato = (currentCrop !== 'tomato') && items.some(i => (i.category && i.category.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('tomoto')) || (i.notes && i.notes.toLowerCase().includes('isabion')));
-
             let expectedData = [];
             if (currentCrop === 'groundnut') expectedData = defaultGroundnutExpenses;
             else if (currentCrop === 'bore') expectedData = defaultBoreExpenses;
             else if (currentCrop === 'tomato') expectedData = tomatoBackupExpenses;
 
-            if (hasTomatoDataInNonTomato || items.length === 0) {
+            if (items.length === 0 && expectedData.length > 0) {
                 set(currentExpenseRef, null).then(() => {
                     expectedData.forEach(rec => push(currentExpenseRef, rec));
                 });
@@ -960,6 +958,22 @@
         document.getElementById('subCountHigh').innerText = boxesHigh;
         document.getElementById('subCountMedium').innerText = boxesMedium;
         document.getElementById('subCountLow').innerText = boxesLow;
+
+        // Update Quality Progress Bar Percentages
+        if (totalBoxes > 0) {
+            let pHigh = (boxesHigh / totalBoxes) * 100;
+            let pMed = (boxesMedium / totalBoxes) * 100;
+            let pLow = (boxesLow / totalBoxes) * 100;
+            document.getElementById('barHigh').style.width = pHigh + '%';
+            document.getElementById('barMedium').style.width = pMed + '%';
+            document.getElementById('barLow').style.width = pLow + '%';
+            document.getElementById('qualityPercentText').innerText = `High ${pHigh.toFixed(0)}% | Med ${pMed.toFixed(0)}% | Low ${pLow.toFixed(0)}%`;
+        } else {
+            document.getElementById('barHigh').style.width = '0%';
+            document.getElementById('barMedium').style.width = '0%';
+            document.getElementById('barLow').style.width = '0%';
+            document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
+        }
         
         let plBox = document.getElementById('totalProfitLossSummary');
         plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-800 p-4 rounded-xl text-white col-span-2 shadow-sm";
