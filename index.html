@@ -3,65 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomato Auction & Expense Tracker</title>
+    <title>Tomato Crop & Auction Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary: #e53935;
-            --primary-dark: #c62828;
             --bg: #f0f4f8;
-            --card-bg: #ffffff;
             --text-main: #1e293b;
-            --text-sub: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
         }
-
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; }
-        
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; color: white; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-High { background: #10b981; }
         .badge-Medium { background: #f59e0b; }
         .badge-Low { background: #ec4899; }
         .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 2px; display: block; }
+        
+        /* Sidebar transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Header -->
-  <header class="bg-red-700 text-white py-5 shadow-lg">
+  <!-- Header with Hamburger Menu -->
+  <header class="bg-red-700 text-white py-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-lg font-bold tracking-wide">🍅 Tomato Crop & Auction Tracker</h1>
-        <p class="text-red-200 text-xs mt-0.5">Unified Realtime Family Cloud Dashboard</p>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-1 rounded-lg hover:bg-red-800 text-white focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+        <div>
+          <h1 class="text-base font-bold tracking-wide">🍅 Tomato Farm Tracker</h1>
+          <p class="text-red-200 text-[10px] mt-0.5" id="headerSubtitle">Dashboard View</p>
+        </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2.5 py-1.5 rounded-lg border border-red-600 font-medium transition flex items-center gap-1">
-          📊 Excel CSV
+        <button onclick="exportCSV()" class="bg-red-800 hover:bg-red-900 text-xs text-white px-2 py-1.5 rounded-lg border border-red-600 font-medium transition">
+          📊 CSV
         </button>
-        <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition flex items-center gap-1">
+        <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition">
           💬 WhatsApp
         </button>
       </div>
     </div>
   </header>
 
+  <!-- Sidebar Overlay -->
+  <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
+
+  <!-- Sidebar Navigation Menu -->
+  <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-2xl z-50 transform -translate-x-full flex flex-col">
+    <div class="bg-red-700 text-white p-5 flex justify-between items-center">
+      <div>
+        <h2 class="font-bold text-lg">🌾 Farm Menu</h2>
+        <p class="text-xs text-red-200">Anantapur District</p>
+      </div>
+      <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold">✕</button>
+    </div>
+    
+    <nav class="p-4 space-y-2 flex-1">
+      <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-dashboard">
+        📊 Overview Dashboard
+      </button>
+      <button onclick="switchTab('auction')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-auction">
+        🍅 Auction Management
+      </button>
+      <button onclick="switchTab('expenses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-expenses">
+        💸 Crop Expenses
+      </button>
+    </nav>
+
+    <div class="p-4 border-t border-slate-100 text-center text-xs text-slate-400">
+      Firebase Cloud Synced 🟢
+    </div>
+  </aside>
+
+  <!-- Main Content Container -->
   <main class="max-w-xl mx-auto px-4 mt-5 space-y-5">
 
-    <!-- 1. Tomato Auction Entry Section -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Add Tomato Auction Entry</h2>
-
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
-            <input type="date" id="entryDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-dashboard" class="space-y-5 tab-content">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3">🌈 Tomato Harvest & Profit Overview</h2>
+        
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">💰 Total Net Earnings</div>
+            <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
           </div>
+
+          <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">🌱 Tomato Investment</div>
+              <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹1,34,199</div>
+            </div>
+            <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
+          </div>
+
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm">
+            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Boxes Sold</div>
+            <div class="text-base font-extrabold" id="totalBoxesSummary">0 Boxes</div>
+          </div>
+
+          <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">📈 Overall Tomato Net Profit/Loss</div>
+            <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
+          </div>
+        </div>
+
+        <!-- Quality Progress Bar -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
+            <span>🎨 Quality Breakdown</span>
+            <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
+          </div>
+          <div class="flex h-3 rounded-full overflow-hidden bg-slate-200 gap-0.5">
+            <div class="bg-emerald-500" id="barHigh" style="width: 0%;"></div>
+            <div class="bg-amber-500" id="barMedium" style="width: 0%;"></div>
+            <div class="bg-pink-500" id="barLow" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: AUCTION MANAGEMENT -->
+    <div id="tab-auction" class="space-y-5 tab-content hidden">
+      <!-- Add Auction Entry -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Add Tomato Auction Entry</h2>
+
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+              <input type="date" id="entryDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Quality / Grade</label>
+              <select id="crateType" onchange="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Quality / Grade</label>
-            <select id="crateType" onchange="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Comments / Type (e.g. Goli, Macha, Pandu, Dhwara)</label>
+            <input type="text" id="comments" placeholder="e.g. Goli / Macha / Pandu / Dhwara" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Total Crates Sent</label>
+              <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Less Crates (Deduction)</label>
+              <input type="number" id="lessCrates" value="0" placeholder="0" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Auction Price / Crate (₹)</label>
+              <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Transport / Crate (₹)</label>
+              <input type="number" id="transportRate" placeholder="e.g. 25" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Commission / Crate (₹)</label>
+              <input type="number" id="commission" placeholder="e.g. 30" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Market Rent [Fixed] (₹)</label>
+              <input type="number" id="rent" value="2" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-3.5 rounded-xl border border-red-200 mt-2 text-sm">
+            <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Crate Summary</div>
+            <div class="flex justify-between text-slate-600 text-xs mb-1">
+              <span>Sold Crates (Net):</span>
+              <span id="soldCrates" class="font-bold text-slate-800">0</span>
+            </div>
+            <div class="flex justify-between text-slate-600 text-xs mb-1">
+              <span>Gross Sales Amount:</span>
+              <span>₹<span id="grossAmount">0.00</span></span>
+            </div>
+            <div class="flex justify-between text-slate-600 text-xs mb-1">
+              <span>Total Deductions:</span>
+              <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
+            </div>
+            <div class="flex justify-between font-bold text-red-900 text-base border-t border-red-200 pt-2 mt-1">
+              <span>Net Payable Amount:</span>
+              <span>₹<span id="finalAmount">0.00</span></span>
+            </div>
+          </div>
+
+          <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
+            ☁️ Save Auction Entry to Cloud
+          </button>
+        </div>
+      </section>
+
+      <!-- Auction History Table -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="flex justify-between items-center mb-3 pb-2 border-b">
+          <h2 class="text-base font-bold text-slate-700">Auction Records</h2>
+          <div class="flex gap-2">
+            <input type="text" id="searchInput" placeholder="Search..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-24">
+            <select id="filterGrade" onchange="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
+              <option value="">All</option>
               <option value="High">High</option>
               <option value="Medium">Medium</option>
               <option value="Low">Low</option>
@@ -69,224 +225,101 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Comments / Type (e.g. Goli, Macha, Pandu, Dhwara)</label>
-          <input type="text" id="comments" placeholder="e.g. Goli / Macha / Pandu / Dhwara" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600">
+                <th class="p-2 text-center">Date</th>
+                <th class="p-2 text-center">Grade</th>
+                <th class="p-2 text-center">Crates</th>
+                <th class="p-2 text-center">Rate</th>
+                <th class="p-2 text-center">Net Amt</th>
+                <th class="p-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="auctionTableBody">
+              <tr><td colspan="6" class="text-center text-slate-400 py-4">No auction entries yet.</td></tr>
+            </tbody>
+          </table>
         </div>
+      </section>
+    </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Total Crates Sent</label>
-            <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Less Crates (Deduction)</label>
-            <input type="number" id="lessCrates" value="0" placeholder="0" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-          </div>
-        </div>
+    <!-- TAB 3: CROP EXPENSES -->
+    <div id="tab-expenses" class="space-y-5 tab-content hidden">
+      <!-- Add Expense Form -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">💸 Add Tomato Expense</h2>
+        
+        <form id="expenseForm" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Spent By</label>
+              <select id="spentBySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="Ashok">Ashok</option>
+                <option value="Home">Home</option>
+                <option value="Dhanu">Dhanu</option>
+                <option value="CUSTOM">+ Custom</option>
+              </select>
+              <input type="text" id="customPersonInput" placeholder="Name" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
+            </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Auction Price / Crate (₹)</label>
-            <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Expense Category</label>
+              <select id="categorySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+                <option value="Fertilizer/Pesticide">Fertilizer / Pesticide</option>
+                <option value="Tomoto thread">Tomato Thread</option>
+                <option value="Staking thread">Staking Thread</option>
+                <option value="Staking workers">Staking Workers</option>
+                <option value="Staking wire">Staking Wire</option>
+                <option value="Staking bamboo">Staking Bamboo</option>
+                <option value="Seeds">Seeds</option>
+                <option value="Weeding">Weeding</option>
+                <option value="Labor">Labor</option>
+                <option value="Irrigation">Irrigation</option>
+                <option value="Transport">Transport</option>
+                <option value="Machinery/Tractor">Machinery / Tractor</option>
+                <option value="CUSTOM">+ Custom</option>
+              </select>
+              <input type="text" id="customCategoryInput" placeholder="Type" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Transport / Crate (₹)</label>
-            <input type="number" id="transportRate" placeholder="e.g. 25" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-          </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Commission / Crate (₹)</label>
-            <input type="number" id="commission" placeholder="e.g. 30" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Market Rent [Fixed] (₹)</label>
-            <input type="number" id="rent" value="2" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 focus:outline-none">
-          </div>
-        </div>
-
-        <!-- Live Summary Box -->
-        <div class="bg-gradient-to-br from-rose-50 to-red-50 p-3.5 rounded-xl border border-red-200 mt-2 text-sm">
-          <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Crate Summary</div>
-          <div class="flex justify-between text-slate-600 text-xs mb-1">
-            <span>Sold Crates (Net):</span>
-            <span id="soldCrates" class="font-bold text-slate-800">0</span>
-          </div>
-          <div class="flex justify-between text-slate-600 text-xs mb-1">
-            <span>Gross Sales Amount:</span>
-            <span>₹<span id="grossAmount">0.00</span></span>
-          </div>
-          <div class="flex justify-between text-slate-600 text-xs mb-1">
-            <span>Total Deductions:</span>
-            <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
-          </div>
-          <div class="flex justify-between font-bold text-red-900 text-base border-t border-red-200 pt-2 mt-1">
-            <span>Net Payable Amount:</span>
-            <span>₹<span id="finalAmount">0.00</span></span>
-          </div>
-        </div>
-
-        <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm transition">
-          ☁️ Save Auction Entry to Cloud
-        </button>
-      </div>
-    </section>
-
-    <!-- 2. Add Tomato Expense Form -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">💸 Add Tomato Expense</h2>
-      
-      <form id="expenseForm" class="space-y-3">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Spent By</label>
-            <select id="spentBySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-              <option value="Ashok">Ashok</option>
-              <option value="Home">Home</option>
-              <option value="Dhanu">Dhanu</option>
-              <option value="CUSTOM">+ Custom</option>
-            </select>
-            <input type="text" id="customPersonInput" placeholder="Name" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Amount (₹)</label>
+              <input type="number" id="expenseAmount" min="1" placeholder="0" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+              <input type="date" id="expenseDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
+            </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Expense Category</label>
-            <select id="categorySelect" onchange="toggleCustomInputs()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-              <option value="Fertilizer/Pesticide">Fertilizer / Pesticide</option>
-              <option value="Tomoto thread">Tomato Thread</option>
-              <option value="Staking thread">Staking Thread</option>
-              <option value="Staking workers">Staking Workers</option>
-              <option value="Staking wire">Staking Wire</option>
-              <option value="Staking bamboo">Staking Bamboo</option>
-              <option value="Seeds">Seeds</option>
-              <option value="Weeding">Weeding</option>
-              <option value="Labor">Labor</option>
-              <option value="Irrigation">Irrigation</option>
-              <option value="Transport">Transport</option>
-              <option value="Machinery/Tractor">Machinery / Tractor</option>
-              <option value="CUSTOM">+ Custom</option>
-            </select>
-            <input type="text" id="customCategoryInput" placeholder="Type" class="hidden w-full mt-1 border border-slate-300 rounded-lg p-2 text-sm">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Note / Brand Details (Optional)</label>
+            <input type="text" id="expenseNotes" placeholder="e.g. Balu / Nativo / Staking tree" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
           </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Amount (₹)</label>
-            <input type="number" id="expenseAmount" min="1" placeholder="0" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
-            <input type="date" id="expenseDate" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none" required>
-          </div>
-        </div>
+          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+            ☁️ Add Expense to Cloud
+          </button>
+        </form>
+      </section>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Note / Brand Details (Optional)</label>
-          <input type="text" id="expenseNotes" placeholder="e.g. Balu / Nativo / Staking tree" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
-        </div>
+      <!-- Expense List -->
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Tomato Expenses Breakdown</h2>
+        
+        <div class="grid grid-cols-3 gap-2 mb-4" id="expenseSummaryCards"></div>
 
-        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-          ☁️ Add Expense to Cloud
-        </button>
-      </form>
-    </section>
-
-    <!-- 3. Colorful Harvest & Financial Dashboard -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3">🌈 Tomato Harvest & Profit Dashboard</h2>
-      
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
-          <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">💰 Total Net Earnings</div>
-          <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
-        </div>
-
-        <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center">
-          <div>
-            <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">🌱 Tomato Investment</div>
-            <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹1,34,199</div>
-          </div>
-          <button onclick="editInvestment()" class="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-lg">✏️</button>
-        </div>
-
-        <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-xl text-white shadow-sm">
-          <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Boxes Sold</div>
-          <div class="text-base font-extrabold" id="totalBoxesSummary">0 Boxes</div>
-        </div>
-
-        <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm">
-          <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1">📈 Overall Tomato Net Profit/Loss</div>
-          <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
-        </div>
-      </div>
-
-      <!-- Quality Progress Bar -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4">
-        <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
-          <span>🎨 Quality Breakdown</span>
-          <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
-        </div>
-        <div class="flex h-3 rounded-full overflow-hidden bg-slate-200 gap-0.5">
-          <div class="bg-emerald-500" id="barHigh" style="width: 0%;"></div>
-          <div class="bg-amber-500" id="barMedium" style="width: 0%;"></div>
-          <div class="bg-pink-500" id="barLow" style="width: 0%;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Auction History Table -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <div class="flex justify-between items-center mb-3 pb-2 border-b">
-        <h2 class="text-base font-bold text-slate-700">Auction Records</h2>
-        <div class="flex gap-2">
-          <input type="text" id="searchInput" placeholder="Search..." oninput="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs w-28">
-          <select id="filterGrade" onchange="renderDashboard()" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
-            <option value="">All Grades</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-xs">
-          <thead>
-            <tr class="bg-slate-50 text-slate-600">
-              <th class="p-2 text-center">Date</th>
-              <th class="p-2 text-center">Grade</th>
-              <th class="p-2 text-center">Crates</th>
-              <th class="p-2 text-center">Rate</th>
-              <th class="p-2 text-center">Net Amt</th>
-              <th class="p-2 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="auctionTableBody">
-            <tr><td colspan="6" class="text-center text-slate-400 py-4">No auction entries yet.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- 5. Tomato Expenses History -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <h2 class="text-base font-bold text-slate-700 mb-3 border-b pb-2">🍅 Tomato Expenses Breakdown</h2>
-      
-      <div class="grid grid-cols-3 gap-2 mb-4" id="expenseSummaryCards">
-        <!-- Populated dynamically -->
-      </div>
-
-      <div class="space-y-2 max-h-80 overflow-y-auto pr-1" id="expenseList">
-        <!-- Records populated dynamically -->
-      </div>
-    </section>
+        <div class="space-y-2 max-h-96 overflow-y-auto pr-1" id="expenseList"></div>
+      </section>
+    </div>
 
   </main>
 
-  <!-- Firebase Realtime Synchronization Script -->
+  <!-- Firebase & Navigation Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, remove, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -307,7 +340,6 @@
     document.getElementById('entryDate').valueAsDate = new Date();
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    // Embedded Backup Tomato Expense Records
     const tomatoBackupExpenses = [
       {"date": "2026-10-13", "spentBy": "Ashok", "category": "Tomoto thread", "amount": 1700, "notes": "8kgs"},
       {"date": "2026-10-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5050, "notes": "Isabion nativo ampligo osheen ultra vipul"},
@@ -347,7 +379,33 @@
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
 
-    // Live Calculation
+    // Sidebar navigation logic
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const isOpen = sidebar.classList.contains('translate-x-0');
+        
+        if (isOpen) {
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        } else {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            overlay.classList.remove('hidden');
+        }
+    };
+
+    window.switchTab = function(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+        
+        const subtitles = { dashboard: "Overview Dashboard", auction: "Auction Management", expenses: "Crop Expenses" };
+        document.getElementById('headerSubtitle').innerText = subtitles[tabName];
+        
+        toggleSidebar();
+    };
+
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
@@ -372,19 +430,6 @@
         return { soldCrates, auctionPrice, finalAmount };
     };
 
-    function resetAuctionForm() {
-        document.getElementById('totalCrates').value = '';
-        document.getElementById('lessCrates').value = '0';
-        document.getElementById('auctionPrice').value = '';
-        document.getElementById('transportRate').value = '';
-        document.getElementById('commission').value = '';
-        document.getElementById('comments').value = '';
-        document.getElementById('crateType').value = 'High';
-        document.getElementById('entryDate').valueAsDate = new Date();
-        window.calculate();
-    }
-
-    // Save Auction Entry to Firebase
     window.saveAuctionEntry = async function() {
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
@@ -396,35 +441,27 @@
 
         try {
             await push(ref(db, 'tomato_auction_entries'), {
-                date: date,
-                crateType: crateType,
-                comments: comments || '-',
-                soldCrates: calc.soldCrates,
-                auctionPrice: calc.auctionPrice,
-                finalAmount: calc.finalAmount,
-                timestamp: Date.now()
+                date, crateType, comments: comments || '-', soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, finalAmount: calc.finalAmount, timestamp: Date.now()
             });
             alert('Auction entry saved to Cloud!');
-            resetAuctionForm();
+            document.getElementById('totalCrates').value = '';
+            document.getElementById('auctionPrice').value = '';
+            document.getElementById('comments').value = '';
+            window.calculate();
         } catch (error) {
             alert("Error saving: " + error.message);
         }
     };
 
     window.deleteAuctionEntry = async function(id) {
-        if (confirm("Delete this auction record?")) {
-            await remove(ref(db, 'tomato_auction_entries/' + id));
-        }
+        if (confirm("Delete this auction record?")) await remove(ref(db, 'tomato_auction_entries/' + id));
     };
 
     window.toggleCustomInputs = function() {
-        const spentBy = document.getElementById('spentBySelect').value;
-        document.getElementById('customPersonInput').classList.toggle('hidden', spentBy !== 'CUSTOM');
-        const cat = document.getElementById('categorySelect').value;
-        document.getElementById('customCategoryInput').classList.toggle('hidden', cat !== 'CUSTOM');
+        document.getElementById('customPersonInput').classList.toggle('hidden', document.getElementById('spentBySelect').value !== 'CUSTOM');
+        document.getElementById('customCategoryInput').classList.toggle('hidden', document.getElementById('categorySelect').value !== 'CUSTOM');
     };
 
-    // Save Expense to Firebase Realtime Database
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
@@ -432,12 +469,7 @@
         
         try {
             await push(ref(db, 'tomato_expenses'), {
-                date: document.getElementById('expenseDate').value,
-                spentBy: spentBy,
-                category: category,
-                amount: parseFloat(document.getElementById('expenseAmount').value),
-                notes: document.getElementById('expenseNotes').value.trim() || '-',
-                timestamp: Date.now()
+                date: document.getElementById('expenseDate').value, spentBy, category, amount: parseFloat(document.getElementById('expenseAmount').value), notes: document.getElementById('expenseNotes').value.trim() || '-', timestamp: Date.now()
             });
             alert('Expense saved to Cloud!');
             e.target.reset();
@@ -448,18 +480,13 @@
     });
 
     window.deleteExpense = async function(id) {
-        if (confirm("Delete this expense record from Cloud?")) {
-            await remove(ref(db, 'tomato_expenses/' + id));
-        }
+        if (confirm("Delete this expense record from Cloud?")) await remove(ref(db, 'tomato_expenses/' + id));
     };
 
-    // Editable Investment Override
     window.editInvestment = async function() {
         let totalSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
         let newInv = prompt("Enter overall Tomato crop investment (₹):", totalSum);
-        if (newInv !== null && !isNaN(newInv)) {
-            await set(ref(db, 'tomato_investment_override'), parseFloat(newInv));
-        }
+        if (newInv !== null && !isNaN(newInv)) await set(ref(db, 'tomato_investment_override'), parseFloat(newInv));
     };
 
     let overrideInvestment = null;
@@ -468,30 +495,21 @@
         renderDashboard();
     });
 
-    // Realtime Listener for Auction Entries
     onValue(ref(db, 'tomato_auction_entries'), (snapshot) => {
         cachedAuctionEntries = [];
         snapshot.forEach((childSnap) => {
-            let item = childSnap.val();
-            item.id = childSnap.key;
-            cachedAuctionEntries.push(item);
+            let item = childSnap.val(); item.id = childSnap.key; cachedAuctionEntries.push(item);
         });
         renderDashboard();
     });
 
-    // Realtime Listener for Expenses (populates initial backup if empty)
     onValue(ref(db, 'tomato_expenses'), (snapshot) => {
         cloudExpenses = [];
         if (!snapshot.exists()) {
-            // Seed initial 33 Tomato backup records to cloud if database is fresh
-            tomatoBackupExpenses.forEach(rec => {
-                push(ref(db, 'tomato_expenses'), rec);
-            });
+            tomatoBackupExpenses.forEach(rec => push(ref(db, 'tomato_expenses'), rec));
         } else {
             snapshot.forEach((childSnap) => {
-                let item = childSnap.val();
-                item.id = childSnap.key;
-                cloudExpenses.push(item);
+                let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
             });
         }
         renderExpenses();
@@ -502,11 +520,7 @@
         let searchQuery = document.getElementById('searchInput').value.toLowerCase();
         let gradeFilter = document.getElementById('filterGrade').value;
 
-        let totalEarnings = 0;
-        let totalBoxes = 0;
-        let boxesHigh = 0;
-        let boxesMedium = 0;
-        let boxesLow = 0;
+        let totalEarnings = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
 
         cachedAuctionEntries.forEach(item => {
             totalEarnings += item.finalAmount;
@@ -517,10 +531,8 @@
             else if (item.crateType === 'Low') boxesLow += crates;
         });
 
-        // Investment comes directly from Cloud Expense Total
         let totalCloudExpenseSum = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
         let activeInvestment = overrideInvestment !== null ? overrideInvestment : totalCloudExpenseSum;
-
         let netProfitLoss = totalEarnings - activeInvestment;
 
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
@@ -531,7 +543,6 @@
         plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-800 p-4 rounded-xl text-white col-span-2 shadow-sm";
         document.getElementById('profitLossVal').innerText = `₹${Math.abs(netProfitLoss).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
 
-        // Progress bar
         if (totalBoxes > 0) {
             let pHigh = ((boxesHigh / totalBoxes) * 100).toFixed(0);
             let pMed = ((boxesMedium / totalBoxes) * 100).toFixed(0);
@@ -540,14 +551,8 @@
             document.getElementById('barMedium').style.width = pMed + '%';
             document.getElementById('barLow').style.width = pLow + '%';
             document.getElementById('qualityPercentText').innerText = `High ${pHigh}% | Med ${pMed}% | Low ${pLow}%`;
-        } else {
-            document.getElementById('barHigh').style.width = '0%';
-            document.getElementById('barMedium').style.width = '0%';
-            document.getElementById('barLow').style.width = '0%';
-            document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
         }
 
-        // Table filter
         let filtered = cachedAuctionEntries.filter(item => {
             let matchesSearch = (item.comments && item.comments.toLowerCase().includes(searchQuery)) || item.date.includes(searchQuery);
             let matchesGrade = gradeFilter === "" || item.crateType === gradeFilter;
@@ -585,10 +590,7 @@
         const listContainer = document.getElementById('expenseList');
 
         const personTotals = {};
-        cloudExpenses.forEach(e => {
-            personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount;
-        });
-
+        cloudExpenses.forEach(e => { personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount; });
         ['Ashok', 'Home', 'Dhanu'].forEach(p => { if (!(p in personTotals)) personTotals[p] = 0; });
 
         summaryCards.innerHTML = Object.keys(personTotals).map(person => `
@@ -615,19 +617,13 @@
     window.exportCSV = function() {
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
         let csv = '\uFEFF=== TOMATO AUCTION RECORDS ===\nDate,Grade,Comments,Crates,Rate,Net Amount\n';
-        cachedAuctionEntries.forEach(e => {
-            csv += `"${e.date}","${e.crateType}","${e.comments}",${e.soldCrates},${e.auctionPrice},${e.finalAmount}\n`;
-        });
+        cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType}","${e.comments}",${e.soldCrates},${e.auctionPrice},${e.finalAmount}\n`; });
         csv += '\n=== TOMATO EXPENSE RECORDS ===\nDate,Spent By,Category,Amount,Notes\n';
-        cloudExpenses.forEach(e => {
-            csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`;
-        });
+        cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
+        
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tomato_farm_cloud_report_${new Date().toISOString().slice(0,10)}.csv`;
-        a.click();
+        const a = document.createElement('a'); a.href = url; a.download = `tomato_farm_report_${new Date().toISOString().slice(0,10)}.csv`; a.click();
     };
 
     window.shareToWhatsApp = function() {
