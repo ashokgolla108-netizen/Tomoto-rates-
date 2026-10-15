@@ -6,72 +6,81 @@
     <title>Tomato Auction & Yield Dashboard</title>
     <style>
         :root {
-            --primary: #d32f2f;
-            --primary-dark: #b71c1c;
-            --bg: #f4f6f9;
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --bg: #f0f4f8;
             --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --text-sub: #7f8c8d;
-            --success: #2e7d32;
-            --warning: #f57c00;
-            --danger: #c62828;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; color: var(--text-main); }
         .container { width: 100%; max-width: 520px; }
 
-        .card { background: var(--card-bg); padding: 22px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.03); }
-        h2 { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700; }
+        .card { background: var(--card-bg); padding: 22px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.04); }
+        h2 { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
 
         .form-group { margin-bottom: 14px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; font-size: 13px; }
-        input, select { width: 100%; padding: 11px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; background-color: #f8fafc; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; background-color: #fff; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #475569; font-size: 13px; }
+        input, select { width: 100%; padding: 11px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; background-color: #f8fafc; transition: all 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background-color: #fff; box-shadow: 0 0 0 4px rgba(229,57,53,0.1); }
 
-        .results { background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%); padding: 16px; border-radius: 12px; margin-top: 18px; border: 1px solid #ffcdd2; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #4a5568; }
-        .row.total { font-weight: 700; font-size: 18px; color: var(--primary-dark); border-top: 2px dashed #ef9a9a; padding-top: 10px; margin-top: 10px; }
-        .breakdown-title { font-weight: 700; color: #742a2a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .results { background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); padding: 18px; border-radius: 14px; margin-top: 18px; border: 1px solid #fecdd3; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #475569; font-weight: 500; }
+        .row.total { font-weight: 700; font-size: 18px; color: #991b1b; border-top: 2px dashed #fda4af; padding-top: 10px; margin-top: 10px; }
+        .breakdown-title { font-weight: 800; color: #9f1239; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .btn { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 18px; }
+        .btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 18px; box-shadow: 0 4px 15px rgba(16,185,129,0.3); transition: transform 0.1s; }
         .btn:active { transform: scale(0.98); }
-        .btn-danger { background-color: #ffebee; color: var(--danger); border: 1px solid #ffcdd2; padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; }
+        .btn-danger { background-color: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; padding: 5px 10px; font-size: 11px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .btn-danger:hover { background-color: var(--danger); color: white; }
+        .icon-btn { background: rgba(255,255,255,0.2); border: none; cursor: pointer; font-size: 15px; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; }
+        .icon-btn:hover { background: rgba(255,255,255,0.4); }
 
         .sync-status { text-align: center; font-size: 12px; margin-top: 12px; color: var(--text-sub); }
-        .sync-online { color: var(--success); font-weight: 600; }
+        .sync-online { color: var(--success); font-weight: 700; }
 
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .stat-card { padding: 14px; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-        .stat-card.earnings { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); grid-column: span 2; }
-        .stat-card.investment { background: linear-gradient(135deg, #e65100 0%, #bf360c 100%); }
-        .stat-card.boxes { background: linear-gradient(135deg, #0288d1 0%, #01579b 100%); }
-        .stat-card.profit { background: linear-gradient(135deg, #00796b 0%, #004d40 100%); grid-column: span 2; }
-        .stat-card.loss { background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); grid-column: span 2; }
+        /* Colorful Dashboard Grid */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-card { padding: 16px; border-radius: 16px; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: rgba(255,255,255,0.1); transform: rotate(30deg); pointer-events: none; }
         
-        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; }
-        .stat-val { font-size: 18px; font-weight: 700; }
-
-        .progress-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 15px; }
-        .progress-title { font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .progress-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: #e2e8f0; }
-        .bar-high { background: var(--success); }
-        .bar-medium { background: var(--warning); }
-        .bar-low { background: #c2185b; }
-
-        .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .filter-row input, .filter-row select { font-size: 12px; padding: 8px; border-radius: 6px; }
-
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border-bottom: 1px solid #edf2f7; padding: 10px 6px; text-align: center; }
-        th { background-color: #f7fafc; color: #4a5568; font-weight: 700; cursor: pointer; }
+        .stat-card.earnings { background: linear-gradient(135deg, #059669 0%, #047857 100%); grid-column: span 2; }
+        .stat-card.investment { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+        .stat-card.boxes { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .stat-card.profit { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); grid-column: span 2; }
+        .stat-card.loss { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); grid-column: span 2; }
         
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; color: white; display: inline-block; }
-        .badge-High { background-color: var(--success); }
-        .badge-Medium { background-color: var(--warning); }
-        .badge-Low { background-color: #c2185b; }
-        .comment-tag { font-style: italic; color: #718096; font-size: 10px; margin-top: 2px; display: block; }
+        .stat-label { font-size: 11px; text-transform: uppercase; opacity: 0.9; margin-bottom: 6px; font-weight: 700; letter-spacing: 0.5px; }
+        .stat-val { font-size: 20px; font-weight: 800; }
+
+        /* Progress Bar */
+        .progress-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+        .progress-title { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .progress-bar-container { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #e2e8f0; gap: 2px; }
+        .bar-high { background: #10b981; transition: width 0.4s; }
+        .bar-medium { background: #f59e0b; transition: width 0.4s; }
+        .bar-low { background: #ec4899; transition: width 0.4s; }
+
+        /* Filters */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 14px; }
+        .filter-row input, .filter-row select { font-size: 13px; padding: 10px; border-radius: 10px; border: 2px solid #e2e8f0; }
+
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border-bottom: 1px solid #f1f5f9; padding: 12px 8px; text-align: center; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; cursor: pointer; user-select: none; border-top: 1px solid #e2e8f0; border-bottom: 2px solid #cbd5e1; }
+        th:hover { background-color: #f1f5f9; }
+        
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; color: white; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-High { background: #10b981; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+        .badge-Medium { background: #f59e0b; box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
+        .badge-Low { background: #ec4899; box-shadow: 0 2px 8px rgba(236,72,153,0.3); }
+        .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 3px; display: block; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -101,51 +110,51 @@
 
         <div class="form-group">
             <label for="totalCrates">Total Crates Sent:</label>
-            <input type="number" id="totalCrates" value="31" oninput="calculate()">
+            <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="lessCrates">Less Crates (Deduction):</label>
-            <input type="number" id="lessCrates" value="1" oninput="calculate()">
+            <input type="number" id="lessCrates" value="0" placeholder="e.g. 1" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="auctionPrice">Auction Price per Crate (₹):</label>
-            <input type="number" id="auctionPrice" value="300" oninput="calculate()">
+            <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="transportRate">Transport Cost per Crate (₹):</label>
-            <input type="number" id="transportRate" value="25" oninput="calculate()">
+            <input type="number" id="transportRate" placeholder="e.g. 25" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="commission">Auction Commission per Crate (₹):</label>
-            <input type="number" id="commission" value="30" oninput="calculate()">
+            <input type="number" id="commission" placeholder="e.g. 30" oninput="calculate()">
         </div>
 
         <div class="form-group">
             <label for="rent">Market Rent per Crate (₹) [Fixed]:</label>
-            <input type="number" id="rent" value="2" oninput="calculate()">
+            <input type="number" id="rent" value="2" placeholder="e.g. 2" oninput="calculate()">
         </div>
 
         <div class="results">
-            <div class="breakdown-title">LIVE CRATE SUMMARY</div>
+            <div class="breakdown-title">✨ Live Crate Summary</div>
             <div class="row">
                 <span>Sold Crates (Net):</span>
-                <span id="soldCrates">30</span>
+                <span id="soldCrates">0</span>
             </div>
             <div class="row">
                 <span>Gross Sales Amount:</span>
-                <span>₹<span id="grossAmount">9000.00</span></span>
+                <span>₹<span id="grossAmount">0.00</span></span>
             </div>
             <div class="row">
                 <span>Total Deductions:</span>
-                <span>- ₹<span id="totalDeductionsDisplay">1735.00</span></span>
+                <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
             </div>
             <div class="row total">
                 <span>Net Payable Amount:</span>
-                <span>₹<span id="finalAmount">7265.00</span></span>
+                <span>₹<span id="finalAmount">0.00</span></span>
             </div>
         </div>
 
@@ -153,8 +162,9 @@
         <div class="sync-status" id="syncStatus">Status: <span class="sync-online">🟢 Realtime Database Connected</span></div>
     </div>
 
+    <!-- Colorful Dashboard Card -->
     <div class="card">
-        <h2>📊 Family Harvest Dashboard</h2>
+        <h2>🌈 Family Harvest Dashboard</h2>
         
         <div class="dashboard-grid">
             <div class="stat-card earnings">
@@ -166,7 +176,7 @@
                 <div class="stat-label">🌱 Crop Investment</div>
                 <div class="stat-val" style="display:flex; justify-content:space-between; align-items:center;">
                     <span id="totalInvestmentDisplay">₹1,50,000</span>
-                    <button class="icon-btn" onclick="editInvestment()" title="Edit Investment" style="color:white;">✏️</button>
+                    <button class="icon-btn" onclick="editInvestment()" title="Edit Investment">✏️</button>
                 </div>
             </div>
 
@@ -183,8 +193,8 @@
 
         <div class="progress-box">
             <div class="progress-title">
-                <span>Harvest Quality Breakdown</span>
-                <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
+                <span>🎨 Harvest Quality Ratio</span>
+                <span id="qualityPercentText" style="font-weight: 800; color: #1e293b;">High 0% | Med 0% | Low 0%</span>
             </div>
             <div class="progress-bar-container">
                 <div class="bar-high" id="barHigh" style="width: 0%;"></div>
@@ -240,7 +250,6 @@
 
     document.getElementById('entryDate').valueAsDate = new Date();
 
-    // Attach calculate function to window object so inline oninput/onchange attributes can access it
     window.calculate = function() {
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
@@ -457,17 +466,15 @@
                 <td><span class="badge ${badgeClass}">${displayType}</span>${commentText}</td>
                 <td>${item.soldCrates}</td>
                 <td>₹${item.auctionPrice}</td>
-                <td style="font-weight: 700; color: var(--success);">₹${item.finalAmount.toFixed(2)}</td>
+                <td style="font-weight: 700; color: #059669;">₹${item.finalAmount.toFixed(2)}</td>
                 <td><button class="btn-danger" onclick="deleteEntry('${item.id}')">Del</button></td>
             </tr>`;
             tbody.innerHTML += row;
         });
     }
 
-    // Run calculation on initial load
     window.calculate();
 </script>
 
 </body>
 </html>
-
