@@ -651,16 +651,16 @@
         let lowerU = uInput.toLowerCase();
         if (lowerU === 'ashok' && pInput === '7457') {
             currentUser = 'Ashok';
-            currentUserPrefix = ''; // Uses main root data
+            currentUserPrefix = ''; // Root database (Ashok & Yumika shared data)
         } else if (lowerU === 'yumika' && pInput === '1234') {
             currentUser = 'Yumika';
-            currentUserPrefix = ''; // Views main root data
+            currentUserPrefix = ''; // Root database (Views Ashok's data)
         } else if (lowerU === 'harish' && pInput === '1234') {
             currentUser = 'Harish';
-            currentUserPrefix = 'harish_'; // Isolated database prefix
+            currentUserPrefix = 'harish_'; // Isolated database
         } else if (lowerU === 'pawan' && pInput === '1234') {
             currentUser = 'Pawan';
-            currentUserPrefix = 'pawan_'; // Isolated database prefix
+            currentUserPrefix = 'pawan_'; // Isolated database
         } else {
             errDiv.classList.remove('hidden');
             return;
@@ -670,10 +670,7 @@
         localStorage.setItem('farm_user_prefix', currentUserPrefix);
         document.getElementById('loginModal').classList.add('hidden');
         
-        // Reset crop view to master for fresh accounts or keep last selected
-        currentCrop = 'MASTER_ALL';
-        localStorage.setItem('farm_last_selected_crop', currentCrop);
-        
+        currentCrop = localStorage.getItem(getStorageKey('farm_last_selected_crop')) || 'MASTER_ALL';
         loadCropsAndStart();
     };
 
@@ -714,7 +711,7 @@
         loadCropsAndStart();
     }
 
-    let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'MASTER_ALL';
+    let currentCrop = 'MASTER_ALL';
     let masterFilter = 'Overall';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
@@ -784,8 +781,7 @@
             if (currentUser === 'Ashok' || currentUser === 'Yumika') {
                 cropConfigs = JSON.parse(JSON.stringify(defaultCropConfigs));
             } else {
-                // Fresh accounts start empty
-                cropConfigs = {};
+                cropConfigs = {}; // Fresh accounts start empty
             }
             localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
         }
@@ -798,6 +794,7 @@
             localStorage.setItem(getStorageKey('farm_spent_names'), JSON.stringify(globalSpentNames));
         }
 
+        currentCrop = localStorage.getItem(getStorageKey('farm_last_selected_crop')) || 'MASTER_ALL';
         populateCropDropdown();
         changeCrop(currentCrop);
     }
@@ -976,7 +973,7 @@
 
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
-        localStorage.setItem('farm_last_selected_crop', cropKey);
+        localStorage.setItem(getStorageKey('farm_last_selected_crop'), cropKey);
         if (document.getElementById('sidebar').classList.contains('translate-x-0')) toggleSidebar();
 
         const auctionNavBtn = document.getElementById('navAuctionBtn');
