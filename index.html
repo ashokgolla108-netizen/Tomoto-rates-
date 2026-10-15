@@ -35,7 +35,7 @@
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Header with Hamburger Menu, Top Right Active Crop Selector & Actions -->
+  <!-- Header with Hamburger Menu & Top Right Active Crop Selector -->
   <header class="bg-red-700 text-white py-3 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
@@ -48,15 +48,11 @@
         </div>
       </div>
 
-      <!-- Top Right Active Crop Selector & Quick WhatsApp -->
+      <!-- Top Right Active Crop Selector -->
       <div class="flex items-center gap-1.5">
         <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white max-w-[150px] truncate">
           <!-- Dynamically populated -->
         </select>
-
-        <button onclick="shareToWhatsApp()" class="bg-green-600 hover:bg-green-700 text-xs text-white px-2 py-1.5 rounded-lg font-bold transition" title="Share via WhatsApp">
-          💬
-        </button>
       </div>
     </div>
   </header>
@@ -627,7 +623,7 @@
     document.getElementById('expenseDate').valueAsDate = new Date();
     document.getElementById('sprayDate').valueAsDate = new Date();
 
-    let currentCrop = 'MASTER_ALL';
+    let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'MASTER_ALL';
     let masterFilter = 'Overall';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
@@ -849,6 +845,7 @@
 
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
+        localStorage.setItem('farm_last_selected_crop', cropKey);
         if (document.getElementById('sidebar').classList.contains('translate-x-0')) toggleSidebar();
 
         const auctionNavBtn = document.getElementById('navAuctionBtn');
@@ -1738,9 +1735,9 @@
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // Initialize crop dropdown and default view
+    // Initialize crop dropdown and last selected crop view
     window.populateCropDropdown();
-    window.changeCrop('MASTER_ALL');
+    window.changeCrop(currentCrop);
     window.calculate();
 </script>
 
