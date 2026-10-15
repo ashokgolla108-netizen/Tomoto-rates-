@@ -25,12 +25,12 @@
   <header class="bg-red-700 text-white py-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="p-1 rounded-lg hover:bg-red-800 text-white focus:outline-none">
+        <button onclick="toggleSidebar()" class="p-1.5 rounded-lg hover:bg-red-800 text-white focus:outline-none">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <div>
-          <h1 class="text-base font-bold tracking-wide" id="headerTitle">🍅 Tomato Farm Tracker</h1>
-          <p class="text-red-200 text-[10px] mt-0.5" id="headerSubtitle">Overview Dashboard</p>
+          <h1 class="text-sm font-bold tracking-wide truncate max-w-[180px]" id="headerTitle">🍅 Tomato Farm Tracker</h1>
+          <p class="text-red-200 text-[10px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -48,13 +48,13 @@
   <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
 
   <!-- Sidebar Navigation Menu -->
-  <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-2xl z-50 transform -translate-x-full flex flex-col">
+  <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white shadow-2xl z-50 transform -translate-x-full flex flex-col">
     <div class="bg-red-700 text-white p-5 flex justify-between items-center">
       <div>
         <h2 class="font-bold text-lg">🌾 Anantapur Farm</h2>
         <p class="text-xs text-red-200">Cloud Tracker</p>
       </div>
-      <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold">✕</button>
+      <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold p-1">✕</button>
     </div>
     
     <!-- Crop Selector in Sidebar -->
@@ -65,15 +65,16 @@
       </select>
     </div>
 
-    <nav class="p-4 space-y-2 flex-1">
-      <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-dashboard">
-        📊 Overview Dashboard
+    <!-- Properly Aligned Sidebar Navigation Links -->
+    <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+      <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
+        <span>📊</span> Overview Dashboard
       </button>
-      <button onclick="switchTab('auction')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-auction">
-        📦 Auction / Yield Management
+      <button onclick="switchTab('auction')" id="navAuctionBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
+        <span>📦</span> Auction / Yield Entry
       </button>
-      <button onclick="switchTab('expenses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn" id="btn-expenses">
-        💸 Crop Expenses
+      <button onclick="switchTab('expenses')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
+        <span>💸</span> Crop Expenses
       </button>
     </nav>
 
@@ -176,17 +177,17 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1" id="commentsLabel">Comments / Type (e.g. Goli, Macha, Variety)</label>
-            <input type="text" id="comments" placeholder="e.g. Goli / Variety details" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1" id="commentsLabel">Comments / Variety (e.g. Goli, Macha)</label>
+            <input type="text" id="comments" placeholder="e.g. Variety details / notes" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1" id="cratesLabel">Total Units / Crates</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" id="cratesLabel">Total Units / Bags</label>
               <input type="number" id="totalCrates" placeholder="e.g. 31" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
             </div>
             <div id="lessCratesContainer">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Less Crates (Deduction)</label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Less Units (Deduction)</label>
               <input type="number" id="lessCrates" value="0" placeholder="0" oninput="calculate()" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
             </div>
           </div>
@@ -322,7 +323,7 @@
 
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Note / Brand Details (Optional)</label>
-            <input type="text" id="expenseNotes" placeholder="e.g. Notes / fertilizer brand" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
+            <input type="text" id="expenseNotes" placeholder="e.g. Notes / brand details" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:outline-none">
           </div>
 
           <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-sm transition">
@@ -380,7 +381,27 @@
     let currentSortCol = 'date';
     let currentSortAsc = false;
 
-    // Built-in crops & custom crops stored in localStorage
+    // Default backup data for Groundnut & Borewell
+    const defaultGroundnutExpenses = [
+      {"date": "2026-09-10", "spentBy": "Ashok", "category": "Seeds", "amount": 4500, "notes": "Groundnut certified seeds"},
+      {"date": "2026-09-12", "spentBy": "Home", "category": "Sowing / BBF", "amount": 3200, "notes": "Broad Bed & Furrow setup"},
+      {"date": "2026-09-25", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 2800, "notes": "Gypsum & 0:52:34"}
+    ];
+
+    const defaultBoreExpenses = [
+      {"date": "2026-10-01", "spentBy": "Home", "category": "Bore Drilling", "amount": 75000, "notes": "Drilling & point testing"},
+      {"date": "2026-10-03", "spentBy": "Ashok", "category": "Casing Pipes", "amount": 24000, "notes": "Heavy duty PVC pipes"},
+      {"date": "2026-10-06", "spentBy": "Home", "category": "Submersible Pump", "amount": 32000, "notes": "5HP pump set"}
+    ];
+
+    const tomatoBackupExpenses = [
+      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Tomoto thread", "amount": 1700, "notes": "8kgs"},
+      {"date": "2026-10-13", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5050, "notes": "Isabion nativo ampligo"},
+      {"date": "2026-10-07", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 8800, "notes": "Grade 1 tomato"},
+      {"date": "2026-10-02", "spentBy": "Ashok", "category": "Fertilizer/Pesticide", "amount": 5000, "notes": "Simidos pegasus"},
+      {"date": "2026-09-29", "spentBy": "Home", "category": "Weeding", "amount": 5400, "notes": ""}
+    ];
+
     let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
       tomato: {
         name: "🍅 Tomato Crop",
@@ -417,7 +438,7 @@
         for (const [key, cfg] of Object.entries(cropConfigs)) {
             html += `<option value="${key}">${cfg.name || key}</option>`;
         }
-        html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
+        html += `<option value="ADD_NEW">➕ Add New Crop / Project...</option>`;
         select.innerHTML = html;
         select.value = currentCrop;
     };
@@ -440,7 +461,7 @@
                 populateCropDropdown();
                 changeCrop(key);
             } else {
-                populateCropDropdown(); // reset select
+                populateCropDropdown();
             }
         } else {
             changeCrop(val);
@@ -456,7 +477,7 @@
         document.getElementById('auctionFormTitle').innerText = cfg.auctionTitle;
         document.getElementById('expenseFormTitle').innerText = cfg.expenseTitle;
 
-        const auctionNavBtn = document.getElementById('btn-auction');
+        const auctionNavBtn = document.getElementById('navAuctionBtn');
         if (!cfg.showYieldTab) {
             auctionNavBtn.style.display = 'none';
             if (document.getElementById('tab-auction').classList.contains('hidden') === false) {
@@ -511,9 +532,17 @@
 
         onValue(expenseRef, (snapshot) => {
             cloudExpenses = [];
-            snapshot.forEach((childSnap) => {
-                let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
-            });
+            if (!snapshot.exists()) {
+                let seedData = [];
+                if (currentCrop === 'tomato') seedData = tomatoBackupExpenses;
+                else if (currentCrop === 'groundnut') seedData = defaultGroundnutExpenses;
+                else if (currentCrop === 'bore') seedData = defaultBoreExpenses;
+                seedData.forEach(rec => push(ref(db, `${currentCrop}_expenses`), rec));
+            } else {
+                snapshot.forEach((childSnap) => {
+                    let item = childSnap.val(); item.id = childSnap.key; cloudExpenses.push(item);
+                });
+            }
             renderExpenses();
             renderDashboard();
         });
