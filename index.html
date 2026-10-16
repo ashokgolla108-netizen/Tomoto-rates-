@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg: #f8fafc;
-            --text-main: #0f172a;
+            --bg: #f0fdf4;
+            --text-main: #064e3b;
             --badge-fert: #dcfce7;
             --badge-fert-text: #15803d;
             --badge-fung: #fef3c7;
@@ -21,7 +21,7 @@
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
         input[type="text"], input[type="number"], input[type="date"], select {
-            border: 1.5px solid #cbd5e1;
+            border: 1.5px solid #a7f3d0;
             transition: all 0.2s ease-in-out;
             background-color: #ffffff;
         }
@@ -32,9 +32,9 @@
         }
 
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-high, .badge-High { background: #10b981; color: white; }
-        .badge-medium, .badge-Medium { background: #f59e0b; color: white; }
-        .badge-low, .badge-Low { background: #ec4899; color: white; }
+        .badge-high, .badge-High { background: #059669; color: white; }
+        .badge-medium, .badge-Medium { background: #d97706; color: white; }
+        .badge-low, .badge-Low { background: #db2777; color: white; }
         .badge-fertilizer { background: var(--badge-fert); color: var(--badge-fert-text); }
         .badge-fungicide { background: var(--badge-fung); color: var(--badge-fung-text); }
         .badge-pesticide { background: var(--badge-pest); color: var(--badge-pest-text); }
@@ -48,8 +48,8 @@
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-200">
-      <div class="w-16 h-16 bg-red-50 text-red-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🍀</div>
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-emerald-100">
+      <div class="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🌾</div>
       <div>
         <h2 class="text-xl font-extrabold text-slate-800">Yumika Luck Tracker</h2>
         <p class="text-xs text-slate-500 mt-1">Please sign in to continue</p>
@@ -67,28 +67,28 @@
         <div id="loginError" class="text-xs text-rose-600 font-semibold text-center hidden">Invalid User ID or Password!</div>
       </div>
 
-      <button onclick="handleLogin()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
+      <button onclick="handleLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
         Sign In 🚀
       </button>
-      <div class="text-[11px] text-slate-400">Secured Cloud Farm System</div>
+      <div class="text-[11px] text-slate-400">Secured Farm Cloud System</div>
     </div>
   </div>
 
   <!-- Header -->
-  <header class="bg-red-700 text-white py-3 shadow-md sticky top-0 z-40">
+  <header class="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white py-3 shadow-md sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
-        <span class="text-lg">🍀</span>
+        <span class="text-lg">🌱</span>
         <div>
           <h1 class="text-xs font-bold tracking-wide truncate max-w-[130px] sm:max-w-[180px]" id="headerAppTitle">Yumika Luck</h1>
-          <p class="text-red-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
+          <p class="text-emerald-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[130px] truncate">
+        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-emerald-900 hover:bg-emerald-950 text-white text-xs font-bold border border-emerald-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[130px] truncate">
         </select>
-        <button onclick="logout()" class="bg-red-900 hover:bg-red-950 text-white text-[10px] font-bold px-2 py-1.5 rounded-xl border border-red-600 shadow-sm transition flex items-center gap-1" title="Logout">
+        <button onclick="logout()" class="bg-emerald-950 hover:bg-black text-white text-[10px] font-bold px-2 py-1.5 rounded-xl border border-emerald-600 shadow-sm transition flex items-center gap-1" title="Logout">
           <span>🚪</span> Logout
         </button>
       </div>
@@ -100,7 +100,7 @@
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <div class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5">
         
         <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
           <h2 class="text-base font-bold text-slate-800" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
@@ -114,66 +114,66 @@
           </div>
         </div>
 
-        <div id="masterFilterContainer" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-4 flex justify-between items-center text-xs font-bold">
-          <span class="text-slate-500 text-[11px] uppercase">Filter View:</span>
+        <div id="masterFilterContainer" class="hidden bg-emerald-50/60 border border-emerald-200 rounded-xl p-2.5 mb-4 flex justify-between items-center text-xs font-bold">
+          <span class="text-emerald-800 text-[11px] uppercase">Filter View:</span>
           <div class="flex gap-1.5">
-            <button onclick="setMasterFilter('Overall')" id="masterBtnOverall" class="px-3 py-1 rounded-lg bg-red-700 text-white transition shadow-sm">Overall</button>
+            <button onclick="setMasterFilter('Overall')" id="masterBtnOverall" class="px-3 py-1 rounded-lg bg-emerald-700 text-white transition shadow-sm">Overall</button>
             <button onclick="setMasterFilter('Completed')" id="masterBtnCompleted" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition">Completed</button>
             <button onclick="setMasterFilter('In Progress')" id="masterBtnInProgress" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition">In Progress</button>
           </div>
         </div>
 
-        <div id="cropAgingBanner" class="bg-slate-50/80 border border-slate-200 rounded-xl p-3 mb-3 flex justify-between items-center text-xs">
+        <div id="cropAgingBanner" class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3 mb-3 flex justify-between items-center text-xs">
           <div class="flex items-center gap-2">
             <span class="text-base">📅</span>
             <div>
-              <div class="text-[10px] font-bold uppercase text-slate-400">Crop Start Date</div>
-              <input type="date" id="cropStartDateInput" onchange="updateCropStartDate(this.value)" class="bg-transparent font-extrabold text-slate-700 border-b border-dashed border-slate-400 focus:outline-none !border-none !shadow-none p-0">
+              <div class="text-[10px] font-bold uppercase text-emerald-800">Crop Start Date</div>
+              <input type="date" id="cropStartDateInput" onchange="updateCropStartDate(this.value)" class="bg-transparent font-extrabold text-slate-700 border-b border-dashed border-emerald-400 focus:outline-none !border-none !shadow-none p-0">
             </div>
           </div>
           <div class="text-right">
-            <div class="text-[10px] font-bold uppercase text-slate-400">Crop Aging</div>
-            <div class="text-sm font-black text-blue-600" id="cropAgeDisplay">0 Days</div>
+            <div class="text-[10px] font-bold uppercase text-emerald-800">Crop Aging</div>
+            <div class="text-sm font-black text-emerald-600" id="cropAgeDisplay">0 Days</div>
           </div>
         </div>
 
-        <div id="cropEndDateContainer" class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 mb-4 flex justify-between items-center text-xs hidden">
+        <div id="cropEndDateContainer" class="bg-emerald-100/70 border border-emerald-300 rounded-xl p-3 mb-4 flex justify-between items-center text-xs hidden">
           <div class="flex items-center gap-2">
             <span class="text-base">🏁</span>
             <div>
-              <div class="text-[10px] font-bold uppercase text-emerald-600">Crop End Date</div>
-              <input type="date" id="cropEndDateInput" onchange="updateCropEndDate(this.value)" class="bg-transparent font-extrabold text-emerald-800 border-b border-dashed border-emerald-500 focus:outline-none !border-none !shadow-none p-0">
+              <div class="text-[10px] font-bold uppercase text-emerald-800">Crop End Date</div>
+              <input type="date" id="cropEndDateInput" onchange="updateCropEndDate(this.value)" class="bg-transparent font-extrabold text-emerald-900 border-b border-dashed border-emerald-600 focus:outline-none !border-none !shadow-none p-0">
             </div>
           </div>
-          <div class="text-right text-emerald-700 font-bold" id="cropTotalDurationDisplay">Duration: 0 Days</div>
+          <div class="text-right text-emerald-800 font-bold" id="cropTotalDurationDisplay">Duration: 0 Days</div>
         </div>
         
         <div class="grid grid-cols-2 gap-3 mb-4">
-          <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
+          <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="earningsLabel">💰 Total Net Earnings</div>
             <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
           </div>
 
-          <div id="investmentCard" class="bg-gradient-to-br from-amber-600 to-amber-700 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center col-span-2">
+          <div id="investmentCard" class="bg-gradient-to-br from-amber-600 to-orange-700 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center col-span-2">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5" id="investmentLabel">🌱 Total Investment</div>
               <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹0</div>
             </div>
           </div>
 
-          <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
+          <div id="totalProfitLossSummary" class="bg-gradient-to-br from-cyan-600 to-blue-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="plLabel">📈 Overall Net Profit/Loss</div>
             <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
           </div>
         </div>
 
         <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Crops Breakdown</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800 border-b pb-1">🌾 Crops Breakdown</h3>
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
-        <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 mb-4 shadow-sm">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 text-center flex items-center justify-center gap-1.5">
+        <div class="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 mb-4 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-4 text-center flex items-center justify-center gap-1.5">
             <span>📊</span> Expenditure Distribution By Person
           </h3>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -211,7 +211,7 @@
 
     <!-- TAB 2: AUCTION / YIELD MANAGEMENT -->
     <div id="tab-auction" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only" id="auctionFormSection">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5 editor-only" id="auctionFormSection">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
 
         <div class="space-y-3">
@@ -274,8 +274,8 @@
             </div>
           </div>
 
-          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-4 rounded-2xl border border-red-200 mt-2 text-sm shadow-sm" id="liveSummaryBox">
-            <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Calculation Summary</div>
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-200 mt-2 text-sm shadow-sm" id="liveSummaryBox">
+            <div class="font-bold text-emerald-900 text-xs uppercase mb-1">Live Calculation Summary</div>
             <div class="flex justify-between text-slate-600 text-xs mb-1" id="netSoldDisplayRow">
               <span>Sold Quantity (Net):</span>
               <span id="soldCrates" class="font-bold text-slate-800">0</span>
@@ -292,7 +292,7 @@
               <span>Total Deductions:</span>
               <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
             </div>
-            <div class="flex justify-between font-bold text-red-900 text-base border-t border-red-200 pt-2 mt-1">
+            <div class="flex justify-between font-bold text-emerald-950 text-base border-t border-emerald-200 pt-2 mt-1">
               <span id="netPayableLabel">Net Payable Amount:</span>
               <span>₹<span id="finalAmount">0.00</span></span>
             </div>
@@ -304,7 +304,7 @@
         </div>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="tableTitle">Auction Records</h2>
           <div class="flex gap-2">
@@ -321,12 +321,12 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600 select-none">
-                <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Date ↕</th>
-                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thGrade">Grade ↕</th>
-                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thCrates">Units ↕</th>
-                <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Rate ↕</th>
-                <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Net Amt ↕</th>
+              <tr class="bg-emerald-50/60 text-emerald-900 select-none">
+                <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Date ↕</th>
+                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-emerald-100" id="thGrade">Grade ↕</th>
+                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-emerald-100" id="thCrates">Units ↕</th>
+                <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Rate ↕</th>
+                <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Net Amt ↕</th>
                 <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
@@ -340,7 +340,7 @@
 
     <!-- TAB 3: CROP EXPENSES -->
     <div id="tab-expenses" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5 editor-only">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="expenseFormTitle">💸 Add Expense</h2>
         
         <form id="expenseForm" class="space-y-3">
@@ -376,20 +376,20 @@
             <input type="text" id="expenseNotes" placeholder="e.g. Notes / brand details" class="w-full rounded-xl p-2.5 text-sm">
           </div>
 
-          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm">
+          <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm">
             ☁️ Add Expense to Cloud
           </button>
         </form>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="expenseListTitle">Expenses Breakdown</h2>
           <div class="flex gap-2 items-center">
             <select id="filterExpensePerson" onchange="renderExpenses()" class="rounded-xl px-2.5 py-1 text-xs">
               <option value="ALL">All Persons</option>
             </select>
-            <button onclick="manageSpentByNames()" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded-lg text-xs transition border border-red-200 editor-only">
+            <button onclick="manageSpentByNames()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-lg text-xs transition border border-emerald-200 editor-only">
               ⚙️ Manage Names
             </button>
           </div>
@@ -402,7 +402,7 @@
 
     <!-- TAB 4: FERTILIZER, SPRAY LOG & STOCK INVENTORY -->
     <div id="tab-sprays" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
         
         <form id="stockForm" onsubmit="addStockItem(event)" class="space-y-3 mb-4 editor-only">
@@ -441,7 +441,7 @@
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
+          <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
             ➕ Add Item to Stock Inventory
           </button>
         </form>
@@ -450,7 +450,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600">
+              <tr class="bg-emerald-50/60 text-emerald-900">
                 <th class="p-2 text-left">Product</th>
                 <th class="p-2 text-center">Category</th>
                 <th class="p-2 text-center">Purchased</th>
@@ -486,7 +486,7 @@
         </details>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5 editor-only">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
         
         <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
@@ -546,7 +546,7 @@
         </form>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-2xl shadow-md border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800">📋 Spray & Fertilizer History</h2>
           <div>
@@ -561,7 +561,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600">
+              <tr class="bg-emerald-50/60 text-emerald-900">
                 <th class="p-2 text-center">Date</th>
                 <th class="p-2 text-center">Crop Age</th>
                 <th class="p-2 text-center">Category</th>
@@ -582,21 +582,21 @@
   </main>
 
   <!-- FIXED BOTTOM NAVIGATION BAR -->
-  <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40">
+  <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-emerald-100 shadow-lg z-40">
     <div class="max-w-xl mx-auto flex justify-around items-center py-2">
-      <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-red-700 font-bold transition">
+      <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-emerald-700 font-bold transition">
         <span class="text-lg">📊</span>
         <span class="text-[10px]">Overview</span>
       </button>
-      <button onclick="switchTab('auction')" id="btn-bottom-auction" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('auction')" id="btn-bottom-auction" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">📦</span>
         <span class="text-[10px]">Yield</span>
       </button>
-      <button onclick="switchTab('expenses')" id="btn-bottom-expenses" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('expenses')" id="btn-bottom-expenses" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">💸</span>
         <span class="text-[10px]">Expenses</span>
       </button>
-      <button onclick="switchTab('sprays')" id="btn-bottom-sprays" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('sprays')" id="btn-bottom-sprays" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">🧪</span>
         <span class="text-[10px]">Sprays</span>
       </button>
@@ -943,7 +943,7 @@
         ['Overall', 'Completed', 'In Progress'].forEach(f => {
             let btn = document.getElementById('masterBtn' + f.replace(/\s+/g, ''));
             if (f === filterVal) {
-                btn.className = 'px-3 py-1 rounded-lg bg-red-700 text-white transition shadow-sm';
+                btn.className = 'px-3 py-1 rounded-lg bg-emerald-700 text-white transition shadow-sm';
             } else {
                 btn.className = 'px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition';
             }
@@ -965,7 +965,7 @@
         const cropAgingBanner = document.getElementById('cropAgingBanner');
         const deleteCropBottomBtn = document.getElementById('deleteCropBottomBtn');
 
-        // Update top-left header name display
+        // Display user name clearly at top left
         document.getElementById('headerAppTitle').innerText = currentUser ? `👤 ${currentUser}` : 'Yumika Luck';
 
         if (cropKey === 'MASTER_ALL') {
@@ -1089,9 +1089,9 @@
             const btn = document.getElementById('btn-bottom-' + t);
             if (btn) {
                 if (t === tabName) {
-                    btn.className = "flex flex-col items-center gap-0.5 text-red-700 font-bold transition";
+                    btn.className = "flex flex-col items-center gap-0.5 text-emerald-700 font-bold transition";
                 } else {
-                    btn.className = "flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition";
+                    btn.className = "flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition";
                 }
             }
         });
@@ -1170,7 +1170,7 @@
             let plColor = d.netPL >= 0 ? 'text-emerald-700' : 'text-rose-700';
 
             container.innerHTML += `
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
+                <div class="p-3 bg-emerald-50/40 border border-emerald-200 rounded-xl flex justify-between items-center text-xs">
                     <div>
                         <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
                         <div class="text-slate-500 text-[10px] mt-0.5">Start: ${d.startDate} ${d.endDate ? '| End: ' + d.endDate : ''} | Earn: ₹${d.earnings.toLocaleString('en-IN')} | Exp: ₹${d.expenses.toLocaleString('en-IN')}</div>
@@ -1738,7 +1738,7 @@
         document.getElementById('totalInvestmentDisplay').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
         
         let plBox = document.getElementById('totalProfitLossSummary');
-        plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-700 p-4 rounded-xl text-white col-span-2 shadow-sm";
+        plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-emerald-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-red-700 p-4 rounded-xl text-white col-span-2 shadow-sm";
         document.getElementById('profitLossVal').innerText = `₹${Math.abs(netProfitLoss).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
 
         renderExpensePieChart(masterExpensesCombined, totalInvestment);
@@ -1749,7 +1749,7 @@
         expenses.forEach(e => { personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount; });
         document.getElementById('pieChartTotalAmount').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
 
-        const colors = ['#10b981', '#2563eb', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
+        const colors = ['#059669', '#2563eb', '#d97706', '#db2777', '#7c3aed', '#0891b2'];
         let accumulatedPercent = 0;
         
         let svgContent = `<circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e2e8f0" stroke-width="4"></circle>`;
@@ -1763,7 +1763,7 @@
             svgContent += `<circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="${color}" stroke-width="4.2" stroke-dasharray="${percent} 100" stroke-dashoffset="${-accumulatedPercent}" stroke-linecap="round"></circle>`;
             
             legendContent += `
-                <div class="flex items-center justify-between gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between gap-3 bg-white px-3 py-1.5 rounded-xl border border-emerald-100 shadow-sm">
                     <div class="flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full shadow-sm" style="background-color: ${color};"></span>
                         <span class="font-bold text-slate-700">${person}</span>
@@ -1791,8 +1791,8 @@
         globalSpentNames.forEach(p => { if (!(p in personTotals)) personTotals[p] = 0; });
 
         summaryCards.innerHTML = Object.keys(personTotals).map(person => `
-            <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center shadow-sm">
-                <div class="text-[10px] uppercase font-bold text-slate-500">${person}</div>
+            <div class="bg-emerald-50/50 border border-emerald-200 p-2.5 rounded-xl text-center shadow-sm">
+                <div class="text-[10px] uppercase font-bold text-emerald-800">${person}</div>
                 <div class="text-xs font-extrabold text-slate-800 mt-0.5">₹${personTotals[person].toLocaleString('en-IN')}</div>
             </div>
         `).join('');
@@ -1802,9 +1802,9 @@
         listContainer.innerHTML = filteredExpenses.map(item => {
             let delBtnHtml = currentUser !== 'Yumika' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
             return `
-                <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                <div class="flex justify-between items-center p-2.5 rounded-lg bg-emerald-50/30 border border-emerald-100 text-xs">
                     <div>
-                        <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
+                        <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
                         <div class="text-slate-500 text-[11px]">${item.date} ${item.notes && item.notes !== '-' ? '• ' + item.notes : ''}</div>
                     </div>
                     <div class="flex items-center gap-2">
