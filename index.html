@@ -20,7 +20,6 @@
         }
         body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
-        /* Input & Select Styling with Stylish Focus Glow */
         input[type="text"], input[type="number"], input[type="date"], select {
             border: 1.5px solid #cbd5e1;
             transition: all 0.2s ease-in-out;
@@ -46,7 +45,7 @@
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen pb-20">
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
@@ -76,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Header with Hamburger Menu & Top Right Active Crop Selector -->
+  <!-- Header -->
   <header class="bg-red-700 text-white py-3 shadow-md sticky top-0 z-40">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
@@ -89,20 +88,17 @@
         </div>
       </div>
 
-      <!-- Top Right Active Crop Selector & Role Badge -->
       <div class="flex items-center gap-1.5">
         <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[150px] truncate">
-          <!-- Dynamically populated -->
         </select>
         <button onclick="logout()" id="roleBadgeBtn" class="bg-red-900 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-red-600 text-red-100 shadow-sm" title="Click to Logout">Role</button>
       </div>
     </div>
   </header>
 
-  <!-- Sidebar Overlay -->
   <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden transition-opacity"></div>
 
-  <!-- Sidebar Navigation Menu -->
+  <!-- SIDEBAR (Menu Options & Crop Archiving) -->
   <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white shadow-2xl z-50 transform -translate-x-full flex flex-col">
     <div class="bg-red-700 text-white p-5 flex justify-between items-center">
       <div>
@@ -112,33 +108,15 @@
       <button onclick="toggleSidebar()" class="text-white hover:text-red-200 text-lg font-bold p-1">✕</button>
     </div>
 
-    <!-- Sidebar Navigation Links -->
-    <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
-      <button onclick="switchTab('dashboard')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
-        <span>📊</span> Overview Dashboard
-      </button>
-      <button onclick="switchTab('auction')" id="navAuctionBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
-        <span>📦</span> Auction / Yield Entry
-      </button>
-      <button onclick="switchTab('expenses')" id="navExpenseBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
-        <span>💸</span> Crop Expenses
-      </button>
-      <button onclick="switchTab('sprays')" id="navSpraysBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition tab-btn">
-        <span>🧪</span> Fertilizer & Spray Log
-      </button>
-
-      <hr class="my-3 border-slate-200">
-
-      <!-- Archived Crops Section -->
+    <nav class="p-4 space-y-3 flex-1 overflow-y-auto">
       <div>
-        <div class="text-[11px] font-bold uppercase text-slate-400 px-3 mb-1.5">📁 Archived (Completed) Crops</div>
+        <div class="text-[11px] font-bold uppercase text-slate-400 px-1 mb-1.5">📁 Archived (Completed) Crops</div>
         <div id="archivedCropsList" class="space-y-1">
-          <p class="text-xs text-slate-400 px-3 py-1 italic">No archived crops</p>
+          <p class="text-xs text-slate-400 px-1 py-1 italic">No archived crops</p>
         </div>
       </div>
     </nav>
 
-    <!-- Sidebar Footer with Delete Current Crop Option -->
     <div class="p-4 border-t border-slate-100 flex flex-col gap-2">
       <div class="text-center text-xs text-slate-400">Firebase Synced 🟢</div>
       <button id="deleteCropSidebarBtn" onclick="deleteCurrentCropPrompt()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2 rounded-xl text-xs transition border border-rose-200 hidden">
@@ -147,14 +125,13 @@
     </div>
   </aside>
 
-  <!-- Main Content Container -->
+  <!-- MAIN CONTENT CONTAINER -->
   <main class="max-w-xl mx-auto px-4 mt-5 space-y-5">
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
       <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
         
-        <!-- Header with Crop Status & Start Date / Aging -->
         <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
           <h2 class="text-base font-bold text-slate-800" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
           
@@ -167,7 +144,6 @@
           </div>
         </div>
 
-        <!-- Master Summary Filter Options (Only visible in Master Summary View) -->
         <div id="masterFilterContainer" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-4 flex justify-between items-center text-xs font-bold">
           <span class="text-slate-500 text-[11px] uppercase">Filter View:</span>
           <div class="flex gap-1.5">
@@ -177,7 +153,6 @@
           </div>
         </div>
 
-        <!-- Crop Start Date & Dynamic Aging Banner -->
         <div id="cropAgingBanner" class="bg-slate-50/80 border border-slate-200 rounded-xl p-3 mb-3 flex justify-between items-center text-xs">
           <div class="flex items-center gap-2">
             <span class="text-base">📅</span>
@@ -192,7 +167,6 @@
           </div>
         </div>
 
-        <!-- End Date Banner (Visible only when Completed) -->
         <div id="cropEndDateContainer" class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 mb-4 flex justify-between items-center text-xs hidden">
           <div class="flex items-center gap-2">
             <span class="text-base">🏁</span>
@@ -217,7 +191,6 @@
             </div>
           </div>
 
-          <!-- Total Boxes Card -->
           <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between col-span-2" id="boxesCardContainer">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
@@ -236,13 +209,11 @@
           </div>
         </div>
 
-        <!-- Master Crop Breakdown Cards (Shown in All Crops Summary View) -->
         <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b pb-1">🌾 Crops Breakdown</h3>
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
-        <!-- Professional SVG Expense Donut/Pie Chart Section -->
         <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 mb-4 shadow-sm">
           <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 text-center flex items-center justify-center gap-1.5">
             <span>📊</span> Expenditure Distribution By Person
@@ -250,7 +221,6 @@
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
             <div class="w-44 h-44 relative flex items-center justify-center">
               <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90" id="expensePieChart">
-                <!-- Track backdrop circle -->
                 <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e2e8f0" stroke-width="4"></circle>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
@@ -262,7 +232,6 @@
           </div>
         </div>
 
-        <!-- Quality Progress Bar -->
         <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-3" id="qualityBarSection">
           <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
             <span>🎨 Harvest Quality Distribution</span>
@@ -275,7 +244,6 @@
           </div>
         </div>
 
-        <!-- Bottom Page Crop-Specific Share & Export Buttons -->
         <div class="mt-5 pt-4 border-t border-slate-100 flex gap-3">
           <button onclick="shareToWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
             <span>💬</span> Share Report
@@ -383,7 +351,6 @@
         </div>
       </section>
 
-      <!-- Records Table -->
       <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="tableTitle">Auction Records</h2>
@@ -428,16 +395,14 @@
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">Spent By</label>
               <select id="spentBySelect" onchange="toggleCustomInputs()" class="w-full rounded-xl p-2.5 text-sm" required>
-                <!-- Dynamically populated -->
-              </select>
+            </select>
               <input type="text" id="customPersonInput" placeholder="Name" class="hidden w-full mt-1 rounded-xl p-2.5 text-sm">
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">Expense Category</label>
               <select id="categorySelect" onchange="toggleCustomInputs()" class="w-full rounded-xl p-2.5 text-sm" required>
-                <!-- Dynamically populated -->
-              </select>
+            </select>
               <input type="text" id="customCategoryInput" placeholder="Type" class="hidden w-full mt-1 rounded-xl p-2.5 text-sm">
             </div>
           </div>
@@ -464,7 +429,6 @@
         </form>
       </section>
 
-      <!-- Expense List with Name Filter -->
       <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="expenseListTitle">Expenses Breakdown</h2>
@@ -479,15 +443,12 @@
         </div>
         
         <div class="grid grid-cols-3 gap-2 mb-4" id="expenseSummaryCards"></div>
-
         <div class="space-y-2 max-h-96 overflow-y-auto pr-1" id="expenseList"></div>
       </section>
     </div>
 
     <!-- TAB 4: FERTILIZER, SPRAY LOG & STOCK INVENTORY -->
     <div id="tab-sprays" class="space-y-5 tab-content hidden">
-      
-      <!-- Inventory / Stock Manager Section -->
       <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
         
@@ -532,7 +493,6 @@
           </button>
         </form>
 
-        <!-- Stock Table -->
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
@@ -551,7 +511,6 @@
         </div>
       </section>
 
-      <!-- Spray & Fertilizer Application Form -->
       <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only">
         <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
         
@@ -612,7 +571,6 @@
         </form>
       </section>
 
-      <!-- Spray History Records Table -->
       <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800">📋 Spray & Fertilizer History</h2>
@@ -648,7 +606,28 @@
 
   </main>
 
-  <!-- Firebase & Multi-Crop Logic Script -->
+  <!-- FIXED BOTTOM NAVIGATION BAR -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40">
+    <div class="max-w-xl mx-auto flex justify-around items-center py-2">
+      <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-red-700 font-bold transition">
+        <span class="text-lg">📊</span>
+        <span class="text-[10px]">Overview</span>
+      </button>
+      <button onclick="switchTab('auction')" id="btn-bottom-auction" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+        <span class="text-lg">📦</span>
+        <span class="text-[10px]">Yield</span>
+      </button>
+      <button onclick="switchTab('expenses')" id="btn-bottom-expenses" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+        <span class="text-lg">💸</span>
+        <span class="text-[10px]">Expenses</span>
+      </button>
+      <button onclick="switchTab('sprays')" id="btn-bottom-sprays" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+        <span class="text-lg">🧪</span>
+        <span class="text-[10px]">Sprays</span>
+      </button>
+    </div>
+  </footer>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, remove, set, onValue, off, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -682,6 +661,8 @@
             localStorage.setItem('farm_logged_user', currentUser);
             document.getElementById('loginModal').classList.add('hidden');
             applyUserPermissions();
+            populateCropDropdown();
+            changeCrop(currentCrop);
         } else {
             errDiv.classList.remove('hidden');
         }
@@ -722,7 +703,7 @@
         applyUserPermissions();
     }
 
-    let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'MASTER_ALL';
+    let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'tomato';
     let masterFilter = 'Overall';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
@@ -812,7 +793,7 @@
         }
         topSelect.value = currentCrop;
 
-        archivedList.innerHTML = hasArchived ? archivedHtml : '<p class="text-xs text-slate-400 px-3 py-1 italic">No archived crops</p>';
+        archivedList.innerHTML = hasArchived ? archivedHtml : '<p class="text-xs text-slate-400 px-1 py-1 italic">No archived crops</p>';
     };
 
     window.handleTopCropDropdownChange = function(val) {
@@ -954,9 +935,9 @@
         localStorage.setItem('farm_last_selected_crop', cropKey);
         if (document.getElementById('sidebar').classList.contains('translate-x-0')) toggleSidebar();
 
-        const auctionNavBtn = document.getElementById('navAuctionBtn');
-        const expenseNavBtn = document.getElementById('navExpenseBtn');
-        const spraysNavBtn = document.getElementById('navSpraysBtn');
+        const btnBottomAuction = document.getElementById('btn-bottom-auction');
+        const btnBottomExpenses = document.getElementById('btn-bottom-expenses');
+        const btnBottomSprays = document.getElementById('btn-bottom-sprays');
         const statusContainer = document.getElementById('cropStatusContainer');
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
         const masterFilterContainer = document.getElementById('masterFilterContainer');
@@ -969,9 +950,9 @@
             document.getElementById('headerTitle').innerText = "🌐 All Master Summary";
             document.getElementById('dashboardTitle').innerText = "🌾 Farm Overall Master Summary";
             statusContainer.style.display = 'none';
-            auctionNavBtn.style.display = 'none';
-            expenseNavBtn.style.display = 'none';
-            spraysNavBtn.style.display = 'none';
+            btnBottomAuction.style.display = 'none';
+            btnBottomExpenses.style.display = 'none';
+            btnBottomSprays.style.display = 'none';
             boxesCardContainer.style.display = 'flex'; 
             qualityBarSection.style.display = 'block';
             cropAgingBanner.style.display = 'none';
@@ -980,11 +961,7 @@
             masterFilterContainer.classList.remove('hidden');
             deleteCropSidebarBtn.classList.add('hidden');
 
-            if (!document.getElementById('tab-dashboard').classList.contains('hidden')) {
-                // stay on dashboard
-            } else {
-                switchTab('dashboard');
-            }
+            switchTab('dashboard');
             loadMasterData();
             return;
         }
@@ -995,8 +972,8 @@
         qualityBarSection.style.display = 'block'; 
         cropAgingBanner.style.display = 'flex';
         statusContainer.style.display = 'flex';
-        expenseNavBtn.style.display = 'flex';
-        spraysNavBtn.style.display = 'flex';
+        btnBottomExpenses.style.display = 'flex';
+        btnBottomSprays.style.display = 'flex';
         
         if (currentUser === 'Ashok') {
             deleteCropSidebarBtn.classList.remove('hidden');
@@ -1020,12 +997,12 @@
         toggleEndDateDisplay(statusVal, cfg.endDate, sDate);
 
         if (!cfg.showYieldTab) {
-            auctionNavBtn.style.display = 'none';
+            btnBottomAuction.style.display = 'none';
             if (!document.getElementById('tab-auction').classList.contains('hidden')) {
                 switchTab('dashboard');
             }
         } else {
-            auctionNavBtn.style.display = 'flex';
+            btnBottomAuction.style.display = 'flex';
         }
 
         updateCategoryDropdown(cfg.categories || []);
@@ -1097,6 +1074,19 @@
     window.switchTab = function(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
+        
+        const tabs = ['dashboard', 'auction', 'expenses', 'sprays'];
+        tabs.forEach(t => {
+            const btn = document.getElementById('btn-bottom-' + t);
+            if (btn) {
+                if (t === tabName) {
+                    btn.className = "flex flex-col items-center gap-0.5 text-red-700 font-bold transition";
+                } else {
+                    btn.className = "flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition";
+                }
+            }
+        });
+
         const subtitles = { dashboard: "Overview Dashboard", auction: "Yield Management", expenses: "Crop Expenses", sprays: "Fertilizer & Spray Log" };
         document.getElementById('headerSubtitle').innerText = subtitles[tabName];
         if (document.getElementById('sidebar').classList.contains('translate-x-0')) {
@@ -1763,11 +1753,9 @@
         expenses.forEach(e => { personTotals[e.spentBy] = (personTotals[e.spentBy] || 0) + e.amount; });
         document.getElementById('pieChartTotalAmount').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
 
-        // Professional SVG Palette
         const colors = ['#10b981', '#2563eb', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
         let accumulatedPercent = 0;
         
-        // Base backdrop track ring
         let svgContent = `<circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e2e8f0" stroke-width="4"></circle>`;
         let legendContent = '';
 
@@ -1776,7 +1764,6 @@
             const percent = totalInvestment > 0 ? (amount / totalInvestment) * 100 : 0;
             const color = colors[index % colors.length];
             
-            // Render stroke segment with round caps
             svgContent += `<circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="${color}" stroke-width="4.2" stroke-dasharray="${percent} 100" stroke-dashoffset="${-accumulatedPercent}" stroke-linecap="round"></circle>`;
             
             legendContent += `
@@ -1883,9 +1870,11 @@
         window.open(`https://api.whatsapp.com/send?phone=917075226826&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    window.populateCropDropdown();
-    window.changeCrop(currentCrop);
-    window.calculate();
+    if (currentUser) {
+        window.populateCropDropdown();
+        window.changeCrop(currentCrop);
+        window.calculate();
+    }
 </script>
 
 </body>
