@@ -58,7 +58,7 @@
       <div class="space-y-3 pt-2 text-left">
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">User ID</label>
-          <input type="text" id="loginUser" placeholder="e.g. Ashok or Yumika" class="w-full rounded-xl p-3 text-sm">
+          <input type="text" id="loginUser" placeholder="e.g. Ashok, Yumika, Harish, Pawan" class="w-full rounded-xl p-3 text-sm">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
@@ -86,9 +86,11 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[150px] truncate">
+        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[130px] truncate">
         </select>
-        <button onclick="logout()" id="roleBadgeBtn" class="bg-red-900 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-red-600 text-red-100 shadow-sm" title="Click to Logout">Role</button>
+        <button onclick="logout()" class="bg-red-900 hover:bg-red-950 text-white text-[10px] font-bold px-2 py-1.5 rounded-xl border border-red-600 shadow-sm transition flex items-center gap-1" title="Logout">
+          <span>🚪</span> Logout
+        </button>
       </div>
     </div>
   </header>
@@ -647,27 +649,40 @@
     document.getElementById('sprayDate').valueAsDate = new Date();
 
     let currentUser = localStorage.getItem('farm_logged_user') || null;
+    let dbPrefix = localStorage.getItem('farm_db_prefix') || '';
 
     window.handleLogin = function() {
-        let uInput = document.getElementById('loginUser').value.trim();
+        let uInput = document.getElementById('loginUser').value.trim().toLowerCase();
         let pInput = document.getElementById('loginPass').value.trim();
         let errDiv = document.getElementById('loginError');
 
-        if ((uInput.toLowerCase() === 'ashok' && pInput === '7457') || (uInput.toLowerCase() === 'yumika' && pInput === '1234')) {
-            currentUser = uInput.charAt(0).toUpperCase() + uInput.slice(1).toLowerCase();
-            localStorage.setItem('farm_logged_user', currentUser);
-            document.getElementById('loginModal').classList.add('hidden');
-            applyUserPermissions();
-            populateCropDropdown();
-            changeCrop(currentCrop);
+        if ((uInput === 'ashok' && pInput === '7457') || (uInput === 'yumika' && pInput === '1234')) {
+            currentUser = uInput === 'ashok' ? 'Ashok' : 'Yumika';
+            dbPrefix = '';
+        } else if (uInput === 'harish' && pInput === '1234') {
+            currentUser = 'Harish';
+            dbPrefix = 'harish_';
+        } else if (uInput === 'pawan' && pInput === '1234') {
+            currentUser = 'Pawan';
+            dbPrefix = 'pawan_';
         } else {
             errDiv.classList.remove('hidden');
+            return;
         }
+
+        localStorage.setItem('farm_logged_user', currentUser);
+        localStorage.setItem('farm_db_prefix', dbPrefix);
+        document.getElementById('loginModal').classList.add('hidden');
+        
+        applyUserPermissions();
+        initUserCrops();
     };
 
     window.logout = function() {
         localStorage.removeItem('farm_logged_user');
+        localStorage.removeItem('farm_db_prefix');
         currentUser = null;
+        dbPrefix = '';
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
         document.getElementById('loginModal').classList.remove('hidden');
@@ -677,18 +692,18 @@
         const badgeBtn = document.getElementById('roleBadgeBtn');
         const editorOnlyElements = document.querySelectorAll('.editor-only');
 
-        if (currentUser === 'Ashok') {
-            badgeBtn.innerText = '👤 Ashok (Full Edit)';
-            editorOnlyElements.forEach(el => el.classList.remove('hidden'));
-            document.getElementById('cropStatusSelect').disabled = false;
-            document.getElementById('cropStartDateInput').disabled = false;
-            document.getElementById('cropEndDateInput').disabled = false;
-        } else {
+        if (currentUser === 'Y0umika' || currentUser === 'Yumika') {
             badgeBtn.innerText = '👁️ Yumika (Read Only)';
             editorOnlyElements.forEach(el => el.classList.add('hidden'));
             document.getElementById('cropStatusSelect').disabled = true;
             document.getElementById('cropStartDateInput').disabled = true;
             document.getElementById('cropEndDateInput').disabled = true;
+        } else {
+            badgeBtn.innerText = `👤 ${currentUser} (Full Edit)`;
+            editorOnlyElements.forEach(el => el.classList.remove('hidden'));
+            document.getElementById('cropStatusSelect').disabled = false;
+            document.getElementById('cropStartDateInput').disabled = false;
+            document.getElementById('cropEndDateInput').disabled = false;
         }
     }
 
@@ -697,7 +712,7 @@
         applyUserPermissions();
     }
 
-    let currentCrop = localStorage.getItem('farm_last_selected_crop') || 'tomato';
+    let currentCrop = 'tomato';
     let masterFilter = 'Overall';
     let cachedAuctionEntries = [];
     let cloudExpenses = [];
@@ -711,9 +726,7 @@
     let currentStockRef = null;
     let allCropsSummaryData = {};
 
-    let dbPrefix = ''; // Optional prefix support if using custom user storage namespaces
-
-    let cropConfigs = JSON.parse(localStorage.getItem('farm_custom_crops')) || {
+    let defaultMainCrops = {
       tomato: {
         name: "🍅 Tomato",
         title: "🍅 Tomato Farm",
@@ -752,7 +765,69 @@
       }
     };
 
-    let globalSpentNames = JSON.parse(localStorage.getItem('farm_spent_names')) || ['Ashok', 'Home', 'Dhanu'];
+    let cropConfigs = {};
+    let globalSpentNames = [];
+
+    function initUserCrops() {
+        if (dbPrefix === '') {
+            globalSpentNames = JSON.parse(localStorage.getItem('farm_spent_names')) || ['Ashok', 'Home', 'Dhanu'];
+        } else {
+            globalSpentNames = JSON.parse(localStorage.getItem(`${dbPrefix}farm_spent_names`)) || [currentUser];
+        }
+
+        let storedCrops = localStorage.getItem(`${dbPrefix}farm_custom_crops`);
+        if (storedCrops) {
+            try {
+                cropConfigs = JSON.parse(storedCrops);
+            } catch (e) {
+                cropConfigs = {};
+            }
+        }
+        
+        if (!cropConfigs || Object.keys(cropConfigs).length === 0) {
+            if (dbPrefix === '') {
+                cropConfigs = defaultMainCrops;
+            } else {
+                cropConfigs = {};
+            }
+            localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
+        }
+
+        let keys = Object.keys(cropConfigs);
+        if (keys.length === 0 && dbPrefix !== '') {
+            setTimeout(() => { promptCreateFirstCrop(); }, 300);
+        } else {
+            let lastSel = localStorage.getItem(`${dbPrefix}farm_last_selected_crop`);
+            currentCrop = (lastSel && cropConfigs[lastSel]) ? lastSel : keys[0] || 'tomato';
+            populateCropDropdown();
+            changeCrop(currentCrop);
+        }
+    }
+
+    window.promptCreateFirstCrop = function() {
+        let newName = prompt(`Welcome ${currentUser}! Your account is fresh. Please enter your first crop or project name (e.g. Chilli, Paddy, Cotton):`);
+        if (newName && newName.trim() !== "") {
+            let key = newName.trim().toLowerCase().replace(/\s+/g, '_');
+            cropConfigs[key] = {
+                name: `🌱 ${newName.trim()}`,
+                title: `🌱 ${newName.trim()} Tracker`,
+                dashboardTitle: `📊 ${newName.trim()} Overview`,
+                auctionTitle: `📦 ${newName.trim()} Yield Entry`,
+                expenseTitle: `💸 ${newName.trim()} Expenses`,
+                showYieldTab: true,
+                status: "In Progress",
+                startDate: new Date().toISOString().slice(0, 10),
+                endDate: "",
+                categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
+            };
+            localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
+            currentCrop = key;
+            populateCropDropdown();
+            changeCrop(key);
+        } else {
+            promptCreateFirstCrop();
+        }
+    };
 
     window.populateCropDropdown = function() {
         const topSelect = document.getElementById('topCropSelect');
@@ -762,7 +837,7 @@
             let status = cfg.status || 'In Progress';
             html += `<option value="${key}">${cfg.name || key} ${status === 'Completed' ? '(Completed)' : ''}</option>`;
         }
-        if (currentUser === 'Ashok') {
+        if (currentUser !== 'Yumika') {
             html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
         }
         
@@ -772,7 +847,7 @@
 
     window.handleTopCropDropdownChange = function(val) {
         if (val === 'ADD_NEW') {
-            if (currentUser !== 'Ashok') return alert('Read-only user cannot add crops.');
+            if (currentUser === 'Yumika') return alert('Read-only user cannot add crops.');
             let newName = prompt("Enter new crop or project name (e.g. Chilli, Onion, Cotton):");
             if (newName && newName.trim() !== "") {
                 let key = newName.trim().toLowerCase().replace(/\s+/g, '_');
@@ -788,7 +863,7 @@
                     endDate: "",
                     categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
                 };
-                localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+                localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
                 populateCropDropdown();
                 changeCrop(key);
             } else {
@@ -800,13 +875,13 @@
     };
 
     window.updateCropStatus = function(statusVal) {
-        if (currentUser !== 'Ashok') return;
+        if (currentUser === 'Yumika') return;
         if (currentCrop === 'MASTER_ALL') return;
         updateCropStatusDirect(currentCrop, statusVal);
     };
 
     window.updateCropStatusDirect = function(cropKey, statusVal) {
-        if (currentUser !== 'Ashok') return;
+        if (currentUser === 'Yumika') return;
         if (!cropConfigs[cropKey]) return;
         
         cropConfigs[cropKey].status = statusVal;
@@ -818,7 +893,7 @@
             set(ref(db, `${dbPrefix}${cropKey}_end_date`), "");
         }
 
-        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         set(ref(db, `${dbPrefix}${cropKey}_status`), statusVal);
 
         if (cropKey === currentCrop) {
@@ -832,19 +907,19 @@
     };
 
     window.updateCropStartDate = function(startDateVal) {
-        if (currentUser !== 'Ashok') return;
+        if (currentUser === 'Yumika') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].startDate = startDateVal;
-        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         set(ref(db, `${dbPrefix}${currentCrop}_start_date`), startDateVal);
         calculateCropAge(startDateVal, cropConfigs[currentCrop].endDate);
     };
 
     window.updateCropEndDate = function(endDateVal) {
-        if (currentUser !== 'Ashok') return;
+        if (currentUser === 'Yumika') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].endDate = endDateVal;
-        localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+        localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         set(ref(db, `${dbPrefix}${currentCrop}_end_date`), endDateVal);
         calculateCropAge(cropConfigs[currentCrop].startDate, endDateVal);
     };
@@ -906,7 +981,7 @@
 
     window.changeCrop = function(cropKey) {
         currentCrop = cropKey;
-        localStorage.setItem('farm_last_selected_crop', cropKey);
+        localStorage.setItem(`${dbPrefix}farm_last_selected_crop`, cropKey);
 
         const btnBottomAuction = document.getElementById('btn-bottom-auction');
         const btnBottomExpenses = document.getElementById('btn-bottom-expenses');
@@ -948,7 +1023,7 @@
         btnBottomExpenses.style.display = 'flex';
         btnBottomSprays.style.display = 'flex';
         
-        if (currentUser === 'Ashok') {
+        if (currentUser !== 'Yumika') {
             deleteCropBottomBtn.classList.remove('hidden');
         } else {
             deleteCropBottomBtn.classList.add('hidden');
@@ -984,7 +1059,7 @@
     };
 
     window.deleteCurrentCropPrompt = async function() {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete crops.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot delete crops.');
         if (currentCrop === 'MASTER_ALL') return;
         let cfg = cropConfigs[currentCrop];
         if (confirm(`Are you sure you want to delete "${cfg ? cfg.name : currentCrop}" and all its records? This cannot be undone.`)) {
@@ -997,7 +1072,7 @@
             await remove(ref(db, `${dbPrefix}${currentCrop}_end_date`));
 
             delete cropConfigs[currentCrop];
-            localStorage.setItem('farm_custom_crops', JSON.stringify(cropConfigs));
+            localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
             populateCropDropdown();
             changeCrop('MASTER_ALL');
         }
@@ -1017,14 +1092,18 @@
     }
 
     window.manageSpentByNames = function() {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot manage names.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot manage names.');
         let currentList = globalSpentNames.join(', ');
         let input = prompt("Edit or remove Spent By names (comma-separated):", currentList);
         if (input !== null) {
             let names = input.split(',').map(n => n.trim()).filter(n => n.length > 0);
             if (names.length > 0) {
                 globalSpentNames = names;
-                localStorage.setItem('farm_spent_names', JSON.stringify(globalSpentNames));
+                if (dbPrefix === '') {
+                    localStorage.setItem('farm_spent_names', JSON.stringify(globalSpentNames));
+                } else {
+                    localStorage.setItem(`${dbPrefix}farm_spent_names`, JSON.stringify(globalSpentNames));
+                }
                 updateSpentByDropdowns();
                 renderExpenses();
             } else {
@@ -1359,7 +1438,7 @@
     };
 
     window.saveAuctionEntry = async function() {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot add entries.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot add entries.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
@@ -1384,7 +1463,7 @@
     };
 
     window.deleteAuctionEntry = async function(id) {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete entries.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot delete entries.');
         if (confirm("Delete this record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_auction_entries/${id}`));
     };
 
@@ -1409,14 +1488,18 @@
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot add expenses.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot add expenses.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
         if (!globalSpentNames.includes(spentBy)) {
             globalSpentNames.push(spentBy);
-            localStorage.setItem('farm_spent_names', JSON.stringify(globalSpentNames));
+            if (dbPrefix === '') {
+                localStorage.setItem('farm_spent_names', JSON.stringify(globalSpentNames));
+            } else {
+                localStorage.setItem(`${dbPrefix}farm_spent_names`, JSON.stringify(globalSpentNames));
+            }
             updateSpentByDropdowns();
         }
 
@@ -1431,13 +1514,13 @@
     });
 
     window.deleteExpense = async function(id) {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete expenses.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot delete expenses.');
         if (confirm("Delete this expense?")) await remove(ref(db, `${dbPrefix}${currentCrop}_expenses/${id}`));
     };
 
     window.addStockItem = async function(e) {
         e.preventDefault();
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot add stock.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot add stock.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
 
         const name = document.getElementById('stockName').value.trim();
@@ -1462,7 +1545,7 @@
     };
 
     window.deleteStockItem = async function(id) {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete stock.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot delete stock.');
         if (confirm("Delete this stock item?")) await remove(ref(db, `${dbPrefix}${currentCrop}_stock_inventory/${id}`));
     };
 
@@ -1504,7 +1587,7 @@
             let consumed = consumedMap[item.name] || 0;
             let remaining = item.qty - consumed;
 
-            let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+            let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
             if (remaining <= 0) {
                 outOfStockCount++;
@@ -1550,7 +1633,7 @@
 
     window.addSprayLog = async function(e) {
         e.preventDefault();
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot add spray logs.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot add spray logs.');
         if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
 
         const rawType = document.getElementById('sprayType').value;
@@ -1575,7 +1658,7 @@
     };
 
     window.deleteSprayLog = async function(id) {
-        if (currentUser !== 'Ashok') return alert('Read-only user cannot delete spray logs.');
+        if (currentUser === 'Yumika') return alert('Read-only user cannot delete spray logs.');
         if (confirm("Delete this spray record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_spray_logs/${id}`));
     };
 
@@ -1612,7 +1695,7 @@
             else if (tLower.includes('fungicide')) badgeClass = 'badge-fungicide';
             else if (tLower.includes('pesticide')) badgeClass = 'badge-pesticide';
 
-            let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+            let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
             tbody.innerHTML += `
                 <tr>
@@ -1686,7 +1769,7 @@
                     let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
                     let commentText = item.comments !== '-' ? `<span class="comment-tag">${item.comments}</span>` : '';
                     let displayCrates = item.totalCrates !== undefined ? item.totalCrates : item.soldCrates;
-                    let delBtnHtml = currentUser === 'Ashok' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+                    let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
                     tbody.innerHTML += `
                         <tr>
@@ -1789,7 +1872,7 @@
         let filteredExpenses = cloudExpenses.filter(e => personFilter === 'ALL' || e.spentBy.toLowerCase() === personFilter.toLowerCase());
 
         listContainer.innerHTML = filteredExpenses.map(item => {
-            let delBtnHtml = currentUser === 'Ashok' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
+            let delBtnHtml = currentUser !== 'Yumika' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
             return `
                 <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
                     <div>
@@ -1856,9 +1939,7 @@
     };
 
     if (currentUser) {
-        window.populateCropDropdown();
-        window.changeCrop(currentCrop);
-        window.calculate();
+        initUserCrops();
     }
 </script>
 
