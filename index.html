@@ -982,8 +982,8 @@
             btnBottomAuction.style.display = 'none';
             btnBottomExpenses.style.display = 'none';
             btnBottomSprays.style.display = 'none';
-            boxesCardContainer.style.display = 'flex'; 
-            qualityBarSection.style.display = 'block';
+            boxesCardContainer.style.display = 'none'; // HIDE IN MASTER VIEW
+            qualityBarSection.style.display = 'none';  // HIDE IN MASTER VIEW
             cropAgingBanner.style.display = 'none';
             document.getElementById('cropEndDateContainer').classList.add('hidden');
             masterBreakdownSection.classList.remove('hidden');
@@ -1122,8 +1122,6 @@
 
             let cropExpSum = 0;
             let cropAucSum = 0;
-            let cropBoxes = 0;
-            let boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
             let expList = [];
 
             if (expSnap.exists()) {
@@ -1138,12 +1136,6 @@
                 aucSnap.forEach(c => {
                     let val = c.val(); val.cropKey = key;
                     cropAucSum += (val.finalAmount || 0);
-                    let crates = (val.totalCrates !== undefined ? val.totalCrates : val.soldCrates) || 0;
-                    cropBoxes += crates;
-                    let type = (val.crateType || '').toLowerCase();
-                    if (type === 'high') boxesHigh += crates;
-                    else if (type === 'medium') boxesMedium += crates;
-                    else if (type === 'low') boxesLow += crates;
                 });
             }
 
@@ -1163,8 +1155,6 @@
                 expenses: cropExpSum,
                 earnings: cropAucSum,
                 netPL: cropAucSum - cropExpSum,
-                boxes: cropBoxes,
-                boxesHigh, boxesMedium, boxesLow,
                 expensesList: expList
             };
         }
@@ -1613,11 +1603,7 @@
 
                 totalEarnings += d.earnings;
                 totalInvestment += d.expenses;
-                totalBoxes += d.boxes;
-                boxesHigh += d.boxesHigh;
-                boxesMedium += d.boxesMedium;
-                boxesLow += d.boxesLow;
-                masterExpensesCombined = masterExpensesCombined.concat(d.expensesList);
+                masterExpensesCombined = masterExpensesCombined.concat(d.expensesList || []);
             }
         } else {
             let searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1680,24 +1666,26 @@
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalInvestmentDisplay').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
         
-        document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Units`;
-        document.getElementById('subCountHigh').innerText = boxesHigh;
-        document.getElementById('subCountMedium').innerText = boxesMedium;
-        document.getElementById('subCountLow').innerText = boxesLow;
+        if (currentCrop !== 'MASTER_ALL') {
+            document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Units`;
+            document.getElementById('subCountHigh').innerText = boxesHigh;
+            document.getElementById('subCountMedium').innerText = boxesMedium;
+            document.getElementById('subCountLow').innerText = boxesLow;
 
-        if (totalBoxes > 0) {
-            let pHigh = (boxesHigh / totalBoxes) * 100;
-            let pMed = (boxesMedium / totalBoxes) * 100;
-            let pLow = (boxesLow / totalBoxes) * 100;
-            document.getElementById('barHigh').style.width = pHigh + '%';
-            document.getElementById('barMedium').style.width = pMed + '%';
-            document.getElementById('barLow').style.width = pLow + '%';
-            document.getElementById('qualityPercentText').innerText = `High ${pHigh.toFixed(0)}% | Med ${pMed.toFixed(0)}% | Low ${pLow.toFixed(0)}%`;
-        } else {
-            document.getElementById('barHigh').style.width = '0%';
-            document.getElementById('barMedium').style.width = '0%';
-            document.getElementById('barLow').style.width = '0%';
-            document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
+            if (totalBoxes > 0) {
+                let pHigh = (boxesHigh / totalBoxes) * 100;
+                let pMed = (boxesMedium / totalBoxes) * 100;
+                let pLow = (boxesLow / totalBoxes) * 100;
+                document.getElementById('barHigh').style.width = pHigh + '%';
+                document.getElementById('barMedium').style.width = pMed + '%';
+                document.getElementById('barLow').style.width = pLow + '%';
+                document.getElementById('qualityPercentText').innerText = `High ${pHigh.toFixed(0)}% | Med ${pMed.toFixed(0)}% | Low ${pLow.toFixed(0)}%`;
+            } else {
+                document.getElementById('barHigh').style.width = '0%';
+                document.getElementById('barMedium').style.width = '0%';
+                document.getElementById('barLow').style.width = '0%';
+                document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
+            }
         }
         
         let plBox = document.getElementById('totalProfitLossSummary');
