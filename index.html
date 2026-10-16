@@ -769,7 +769,7 @@
             if (dbPrefix === '') {
                 cropConfigs = defaultMainCrops;
             } else {
-                cropConfigs = {}; // Fresh accounts Harish & Pawan start empty
+                cropConfigs = {};
             }
             localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         }
@@ -1138,7 +1138,7 @@
                 aucSnap.forEach(c => {
                     let val = c.val(); val.cropKey = key;
                     cropAucSum += (val.finalAmount || 0);
-                    let crates = (val.totalCrates !== undefined ? val.totalCrates : val.soldCrates);
+                    let crates = (val.totalCrates !== undefined ? val.totalCrates : val.soldCrates) || 0;
                     cropBoxes += crates;
                     let type = (val.crateType || '').toLowerCase();
                     if (type === 'high') boxesHigh += crates;
@@ -1625,7 +1625,7 @@
 
             cachedAuctionEntries.forEach(item => {
                 totalEarnings += item.finalAmount;
-                let crates = (item.totalCrates !== undefined ? item.totalCrates : item.soldCrates);
+                let crates = (item.totalCrates !== undefined ? item.totalCrates : item.soldCrates) || 0;
                 totalBoxes += crates;
                 let type = (item.crateType || '').toLowerCase();
                 if (type === 'high') boxesHigh += crates;
