@@ -746,7 +746,7 @@
         expenseTitle: "💸 Tomato Crop Expenses",
         showYieldTab: true,
         status: "In Progress",
-        startDate: "2026-08-01",
+        startDate: "2026-08-04",
         endDate: "",
         categories: ['Fertilizer/Pesticide', 'Tomato thread', 'Staking thread', 'Staking workers', 'Staking wire', 'Staking bamboo', 'Seeds', 'Weeding', 'Labor', 'Irrigation', 'Transport', 'Machinery/Tractor']
       },
@@ -758,7 +758,7 @@
         expenseTitle: "💸 Groundnut Crop Expenses",
         showYieldTab: true,
         status: "In Progress",
-        startDate: "2026-07-22",
+        startDate: "2026-07-24",
         endDate: "",
         categories: ['Seeds', 'Fertilizer/Pesticide', 'Sowing / BBF', 'Weeding', 'Harvesting / Labor', 'Threshing', 'Transport', 'Machinery/Tractor', 'Irrigation']
       },
@@ -778,6 +778,30 @@
 
     let cropConfigs = {};
     let globalSpentNames = [];
+
+    // Unified helper for calculating exact day differences uniformly across both views
+    function calculateDaysBetween(startDateStr, endDateStr) {
+        if (!startDateStr) return 0;
+        const startParts = startDateStr.split('-');
+        if (startParts.length !== 3) return 0;
+        const startUtc = Date.UTC(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+        
+        let endUtc;
+        if (endDateStr) {
+            const endParts = endDateStr.split('-');
+            if (endParts.length === 3) {
+                endUtc = Date.UTC(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
+            } else {
+                endUtc = Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate());
+            }
+        } else {
+            const now = new Date();
+            endUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        }
+        
+        const diffTime = endUtc - startUtc;
+        return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+    }
 
     function initUserCrops() {
         if (dbPrefix === '') {
@@ -932,7 +956,7 @@
         cropConfigs[currentCrop].startDate = startDateVal;
         localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         set(ref(db, `${dbPrefix}${currentCrop}_start_date`), startDateVal);
-        calculateCropAge(startDateVal, cropConfigs[currentCrop].endDate);
+        updateCropAgeDisplay(startDateVal, cropConfigs[currentCrop].endDate);
     };
 
     window.updateCropEndDate = function(endDateVal) {
@@ -941,19 +965,11 @@
         cropConfigs[currentCrop].endDate = endDateVal;
         localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         set(ref(db, `${dbPrefix}${currentCrop}_end_date`), endDateVal);
-        calculateCropAge(cropConfigs[currentCrop].startDate, endDateVal);
+        updateCropAgeDisplay(cropConfigs[currentCrop].startDate, endDateVal);
     };
 
-    function calculateCropAge(startDateStr, endDateStr) {
-        if (!startDateStr) {
-            document.getElementById('cropAgeDisplay').innerText = '0 Days';
-            return;
-        }
-        const start = new Date(startDateStr);
-        const end = endDateStr ? new Date(endDateStr) : new Date();
-        const diffTime = end - start;
-        const diffDays = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
-        
+    function updateCropAgeDisplay(startDateStr, endDateStr) {
+        const diffDays = calculateDaysBetween(startDateStr, endDateStr);
         if (endDateStr) {
             document.getElementById('cropAgeDisplay').innerText = `${diffDays} Days (Completed)`;
             document.getElementById('cropTotalDurationDisplay').innerText = `Total Duration: ${diffDays} Days`;
@@ -969,10 +985,10 @@
             endDateContainer.classList.remove('hidden');
             let eDate = endDateVal || new Date().toISOString().slice(0, 10);
             endDateInput.value = eDate;
-            calculateCropAge(startDateVal, eDate);
+            updateCropAgeDisplay(startDateVal, eDate);
         } else {
             endDateContainer.classList.add('hidden');
-            calculateCropAge(startDateVal, "");
+            updateCropAgeDisplay(startDateVal, "");
         }
     }
 
@@ -1180,12 +1196,7 @@
                 });
             }
 
-            let daysAge = 0;
-            if (cfg.startDate) {
-                const end = cfg.endDate ? new Date(cfg.endDate) : new Date();
-                const diffTime = end - new Date(cfg.startDate);
-                daysAge = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
-            }
+            let daysAge = calculateDaysBetween(cfg.startDate, cfg.endDate);
 
             allCropsSummaryData[key] = {
                 name: cfg.name,
@@ -1406,7 +1417,7 @@
                 if (cropConfigs[currentCrop]) {
                     cropConfigs[currentCrop].startDate = dateVal;
                     document.getElementById('cropStartDateInput').value = dateVal;
-                    calculateCropAge(dateVal, cropConfigs[currentCrop].endDate);
+                    updateCropAgeDisplay(dateVal, cropConfigs[currentCrop].endDate);
                 }
             }
         });
@@ -1417,7 +1428,7 @@
                 if (cropConfigs[currentCrop]) {
                     cropConfigs[currentCrop].endDate = dateVal;
                     document.getElementById('cropEndDateInput').value = dateVal;
-                    calculateCropAge(cropConfigs[currentCrop].startDate, dateVal);
+                    updateCropAgeDisplay(cropConfigs[currentCrop].startDate, dateVal);
                 }
             }
         });
@@ -1702,8 +1713,7 @@
         }
 
         sortedLogs.forEach(log => {
-            let diffTime = new Date(log.date) - new Date(startDate);
-            let das = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let das = calculateDaysBetween(startDate, log.date);
             
             let badgeClass = 'badge-other';
             let tLower = (log.type || '').toLowerCase();
