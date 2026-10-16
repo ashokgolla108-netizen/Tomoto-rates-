@@ -47,7 +47,7 @@
 <body class="min-h-screen pb-20">
 
   <!-- LOGIN MODAL -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-200">
       <div class="w-16 h-16 bg-red-50 text-red-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🍀</div>
       <div>
@@ -692,14 +692,12 @@
         const badgeBtn = document.getElementById('roleBadgeBtn');
         const editorOnlyElements = document.querySelectorAll('.editor-only');
 
-        if (currentUser === 'Y0umika' || currentUser === 'Yumika') {
-            badgeBtn.innerText = '👁️ Yumika (Read Only)';
+        if (currentUser === 'Yumika') {
             editorOnlyElements.forEach(el => el.classList.add('hidden'));
             document.getElementById('cropStatusSelect').disabled = true;
             document.getElementById('cropStartDateInput').disabled = true;
             document.getElementById('cropEndDateInput').disabled = true;
         } else {
-            badgeBtn.innerText = `👤 ${currentUser} (Full Edit)`;
             editorOnlyElements.forEach(el => el.classList.remove('hidden'));
             document.getElementById('cropStatusSelect').disabled = false;
             document.getElementById('cropStartDateInput').disabled = false;
@@ -707,8 +705,9 @@
         }
     }
 
-    if (currentUser) {
-        document.getElementById('loginModal').classList.add('hidden');
+    if (!currentUser) {
+        document.getElementById('loginModal').classList.remove('hidden');
+    } else {
         applyUserPermissions();
     }
 
@@ -1711,7 +1710,7 @@
         });
     }
 
-    function renderDashboard() {
+    window.renderDashboard = function() {
         let totalEarnings = 0, totalInvestment = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
         let masterExpensesCombined = [];
 
