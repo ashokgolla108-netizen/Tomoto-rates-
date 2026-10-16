@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yumika Luck - Farm & Master Tracker</title>
+    <title>Yumika Luck - Modern Farm Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg: #f8fafc;
+            --bg: #f0fdf4;
             --text-main: #0f172a;
             --badge-fert: #dcfce7;
             --badge-fert-text: #15803d;
@@ -18,7 +18,11 @@
             --badge-other: #f1f5f9;
             --badge-other-text: #475569;
         }
-        body { background-color: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { 
+            background: linear-gradient(180deg, #ecfdf5 0%, #f8fafc 100%); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
         
         input[type="text"], input[type="number"], input[type="date"], select {
             border: 1.5px solid #cbd5e1;
@@ -27,7 +31,7 @@
         }
         input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus {
             border-color: #059669 !important;
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2) !important;
             outline: none !important;
         }
 
@@ -44,15 +48,15 @@
         .comment-tag { font-style: italic; color: #64748b; font-size: 11px; margin-top: 2px; display: block; }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-24">
 
   <!-- LOGIN MODAL -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-200">
-      <div class="w-16 h-16 bg-red-50 text-red-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🍀</div>
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-emerald-100">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🌱</div>
       <div>
         <h2 class="text-xl font-extrabold text-slate-800">Yumika Luck Tracker</h2>
-        <p class="text-xs text-slate-500 mt-1">Please sign in to continue</p>
+        <p class="text-xs text-emerald-600 font-medium mt-1">Smart Farm Management System</p>
       </div>
 
       <div class="space-y-3 pt-2 text-left">
@@ -67,99 +71,101 @@
         <div id="loginError" class="text-xs text-rose-600 font-semibold text-center hidden">Invalid User ID or Password!</div>
       </div>
 
-      <button onclick="handleLogin()" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
+      <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-emerald-600/30 transition">
         Sign In 🚀
       </button>
-      <div class="text-[11px] text-slate-400">Secured Cloud Farm System</div>
+      <div class="text-[11px] text-slate-400">Secured Cloud Sync</div>
     </div>
   </div>
 
   <!-- Header -->
-  <header class="bg-red-700 text-white py-3 shadow-md sticky top-0 z-40">
+  <header class="bg-emerald-800 text-white py-3 shadow-lg sticky top-0 z-40 border-b border-emerald-700">
     <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
-        <span class="text-lg">🍀</span>
+        <span class="text-xl">🌿</span>
         <div>
-          <h1 class="text-xs font-bold tracking-wide truncate max-w-[120px] sm:max-w-[160px]" id="headerTitle">🍅 Tomato Farm</h1>
-          <p class="text-red-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
+          <h1 class="text-xs font-extrabold tracking-wide truncate max-w-[120px] sm:max-w-[160px]" id="headerTitle">🍅 Tomato Farm</h1>
+          <p class="text-emerald-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-red-800 hover:bg-red-900 text-white text-xs font-bold border border-red-500 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[150px] truncate">
+        <select id="topCropSelect" onchange="handleTopCropDropdownChange(this.value)" class="bg-emerald-900 hover:bg-emerald-950 text-white text-xs font-bold border border-emerald-600 rounded-xl px-2.5 py-1.5 focus:outline-none max-w-[150px] truncate shadow-inner">
         </select>
-        <button onclick="logout()" id="roleBadgeBtn" class="bg-red-900 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-red-600 text-red-100 shadow-sm" title="Click to Logout">Role</button>
+        <button onclick="logout()" id="roleBadgeBtn" class="bg-emerald-950 text-[10px] font-bold px-2.5 py-1.5 rounded-xl border border-emerald-700 text-emerald-100 shadow-sm" title="Click to Logout">Role</button>
       </div>
     </div>
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-xl mx-auto px-4 mt-5 space-y-5">
+  <main class="max-w-xl mx-auto px-4 mt-4 space-y-5">
 
     <!-- TAB 1: DASHBOARD -->
-    <div id="tab-dashboard" class="space-y-5 tab-content">
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+    <div id="tab-dashboard" class="space-y-4 tab-content">
+      <div class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5">
         
         <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
-          <h2 class="text-base font-bold text-slate-800" id="dashboardTitle">🌈 Harvest & Profit Overview</h2>
+          <h2 class="text-base font-extrabold text-slate-800 flex items-center gap-1.5" id="dashboardTitle">
+            <span>🌈</span> Harvest & Profit Overview
+          </h2>
           
           <div id="cropStatusContainer" class="flex items-center gap-1.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase">Status:</span>
-            <select id="cropStatusSelect" onchange="updateCropStatus(this.value)" class="text-xs font-bold rounded-full px-3 py-1 cursor-pointer border-slate-200">
+            <select id="cropStatusSelect" onchange="updateCropStatus(this.value)" class="text-xs font-bold rounded-full px-3 py-1 cursor-pointer border-slate-200 shadow-sm">
               <option value="In Progress">⏳ In Progress</option>
               <option value="Completed">✅ Completed</option>
             </select>
           </div>
         </div>
 
-        <div id="masterFilterContainer" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-4 flex justify-between items-center text-xs font-bold">
-          <span class="text-slate-500 text-[11px] uppercase">Filter View:</span>
+        <div id="masterFilterContainer" class="hidden bg-emerald-50/60 border border-emerald-200 rounded-2xl p-2.5 mb-4 flex justify-between items-center text-xs font-bold">
+          <span class="text-emerald-800 text-[11px] uppercase">Filter View:</span>
           <div class="flex gap-1.5">
-            <button onclick="setMasterFilter('Overall')" id="masterBtnOverall" class="px-3 py-1 rounded-lg bg-red-700 text-white transition shadow-sm">Overall</button>
-            <button onclick="setMasterFilter('Completed')" id="masterBtnCompleted" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition">Completed</button>
-            <button onclick="setMasterFilter('In Progress')" id="masterBtnInProgress" class="px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition">In Progress</button>
+            <button onclick="setMasterFilter('Overall')" id="masterBtnOverall" class="px-3 py-1 rounded-xl bg-emerald-700 text-white transition shadow-sm">Overall</button>
+            <button onclick="setMasterFilter('Completed')" id="masterBtnCompleted" class="px-3 py-1 rounded-xl bg-slate-200 text-slate-700 transition">Completed</button>
+            <button onclick="setMasterFilter('In Progress')" id="masterBtnInProgress" class="px-3 py-1 rounded-xl bg-slate-200 text-slate-700 transition">In Progress</button>
           </div>
         </div>
 
-        <div id="cropAgingBanner" class="bg-slate-50/80 border border-slate-200 rounded-xl p-3 mb-3 flex justify-between items-center text-xs">
+        <div id="cropAgingBanner" class="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-3 mb-3 flex justify-between items-center text-xs shadow-sm">
           <div class="flex items-center gap-2">
             <span class="text-base">📅</span>
             <div>
-              <div class="text-[10px] font-bold uppercase text-slate-400">Crop Start Date</div>
-              <input type="date" id="cropStartDateInput" onchange="updateCropStartDate(this.value)" class="bg-transparent font-extrabold text-slate-700 border-b border-dashed border-slate-400 focus:outline-none !border-none !shadow-none p-0">
+              <div class="text-[10px] font-bold uppercase text-emerald-800/60">Crop Start Date</div>
+              <input type="date" id="cropStartDateInput" onchange="updateCropStartDate(this.value)" class="bg-transparent font-extrabold text-emerald-950 border-b border-dashed border-emerald-400 focus:outline-none !border-none !shadow-none p-0">
             </div>
           </div>
           <div class="text-right">
-            <div class="text-[10px] font-bold uppercase text-slate-400">Crop Aging</div>
-            <div class="text-sm font-black text-blue-600" id="cropAgeDisplay">0 Days</div>
+            <div class="text-[10px] font-bold uppercase text-emerald-800/60">Crop Aging</div>
+            <div class="text-sm font-black text-emerald-700" id="cropAgeDisplay">0 Days</div>
           </div>
         </div>
 
-        <div id="cropEndDateContainer" class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3 mb-4 flex justify-between items-center text-xs hidden">
+        <div id="cropEndDateContainer" class="bg-teal-50/80 border border-teal-200 rounded-2xl p-3 mb-4 flex justify-between items-center text-xs hidden">
           <div class="flex items-center gap-2">
             <span class="text-base">🏁</span>
             <div>
-              <div class="text-[10px] font-bold uppercase text-emerald-600">Crop End Date</div>
-              <input type="date" id="cropEndDateInput" onchange="updateCropEndDate(this.value)" class="bg-transparent font-extrabold text-emerald-800 border-b border-dashed border-emerald-500 focus:outline-none !border-none !shadow-none p-0">
+              <div class="text-[10px] font-bold uppercase text-teal-700">Crop End Date</div>
+              <input type="date" id="cropEndDateInput" onchange="updateCropEndDate(this.value)" class="bg-transparent font-extrabold text-teal-900 border-b border-dashed border-teal-500 focus:outline-none !border-none !shadow-none p-0">
             </div>
           </div>
-          <div class="text-right text-emerald-700 font-bold" id="cropTotalDurationDisplay">Duration: 0 Days</div>
+          <div class="text-right text-teal-800 font-bold" id="cropTotalDurationDisplay">Duration: 0 Days</div>
         </div>
         
         <div class="grid grid-cols-2 gap-3 mb-4">
-          <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
+          <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 rounded-2xl text-white col-span-2 shadow-md">
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="earningsLabel">💰 Total Net Earnings</div>
-            <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
+            <div class="text-2xl font-black" id="totalEarningsSummary">₹0.00</div>
           </div>
 
-          <div id="investmentCard" class="bg-gradient-to-br from-amber-600 to-amber-700 p-3.5 rounded-xl text-white shadow-sm flex justify-between items-center col-span-2">
+          <div id="investmentCard" class="bg-gradient-to-br from-amber-600 to-amber-700 p-3.5 rounded-2xl text-white shadow-md flex justify-between items-center col-span-2">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5" id="investmentLabel">🌱 Total Investment</div>
               <div class="text-base font-extrabold" id="totalInvestmentDisplay">₹0</div>
             </div>
           </div>
 
-          <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between col-span-2" id="boxesCardContainer">
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-3.5 rounded-2xl text-white shadow-md flex flex-col justify-between col-span-2" id="boxesCardContainer">
             <div>
               <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
               <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Units</div>
@@ -171,7 +177,7 @@
             </div>
           </div>
 
-          <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
+          <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-2xl text-white col-span-2 shadow-md">
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="plLabel">📈 Overall Net Profit/Loss</div>
             <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
           </div>
@@ -182,8 +188,8 @@
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
-        <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 mb-4 shadow-sm">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 text-center flex items-center justify-center gap-1.5">
+        <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-4 mb-4 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-4 text-center flex items-center justify-center gap-1.5">
             <span>📊</span> Expenditure Distribution By Person
           </h3>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -200,19 +206,19 @@
           </div>
         </div>
 
-        <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-3" id="qualityBarSection">
+        <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3" id="qualityBarSection">
           <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
             <span>🎨 Harvest Quality Distribution</span>
             <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
           </div>
-          <div class="flex h-3 rounded-full overflow-hidden bg-slate-200 gap-0.5">
+          <div class="flex h-3 rounded-full overflow-hidden bg-slate-200 gap-0.5 shadow-inner">
             <div class="bg-emerald-500" id="barHigh" style="width: 0%;"></div>
             <div class="bg-amber-500" id="barMedium" style="width: 0%;"></div>
             <div class="bg-pink-500" id="barLow" style="width: 0%;"></div>
           </div>
         </div>
 
-        <!-- ACTIONS & DELETE CROP SECTION AT BOTTOM OF PAGE -->
+        <!-- ACTIONS & LOGOUT AT BOTTOM OF OVERVIEW -->
         <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col gap-2.5">
           <div class="flex gap-2.5">
             <button onclick="shareToWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
@@ -223,18 +229,23 @@
             </button>
           </div>
           
-          <button id="deleteCropBottomBtn" onclick="deleteCurrentCropPrompt()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2.5 rounded-xl text-xs transition border border-rose-200 flex items-center justify-center gap-1.5 shadow-sm editor-only hidden">
-            <span>🗑️</span> Delete Current Crop
-          </button>
+          <div class="flex gap-2.5">
+            <button id="deleteCropBottomBtn" onclick="deleteCurrentCropPrompt()" class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2.5 rounded-xl text-xs transition border border-rose-200 flex items-center justify-center gap-1.5 shadow-sm editor-only hidden">
+              <span>🗑️</span> Delete Crop
+            </button>
+            <button onclick="logout()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition border border-slate-300 flex items-center justify-center gap-1.5 shadow-sm">
+              <span>🚪</span> Logout
+            </button>
+          </div>
         </div>
 
       </div>
     </div>
 
     <!-- TAB 2: AUCTION / YIELD MANAGEMENT -->
-    <div id="tab-auction" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only" id="auctionFormSection">
-        <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
+    <div id="tab-auction" class="space-y-4 tab-content hidden">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5 editor-only" id="auctionFormSection">
+        <h2 class="text-base font-extrabold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="auctionFormTitle">📦 Add Yield / Auction Entry</h2>
 
         <div class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
@@ -296,8 +307,8 @@
             </div>
           </div>
 
-          <div class="bg-gradient-to-br from-rose-50 to-red-50 p-4 rounded-2xl border border-red-200 mt-2 text-sm shadow-sm" id="liveSummaryBox">
-            <div class="font-bold text-rose-900 text-xs uppercase mb-1">Live Calculation Summary</div>
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-200 mt-2 text-sm shadow-sm" id="liveSummaryBox">
+            <div class="font-bold text-emerald-900 text-xs uppercase mb-1">Live Calculation Summary</div>
             <div class="flex justify-between text-slate-600 text-xs mb-1" id="netSoldDisplayRow">
               <span>Sold Quantity (Net):</span>
               <span id="soldCrates" class="font-bold text-slate-800">0</span>
@@ -314,19 +325,19 @@
               <span>Total Deductions:</span>
               <span>- ₹<span id="totalDeductionsDisplay">0.00</span></span>
             </div>
-            <div class="flex justify-between font-bold text-red-900 text-base border-t border-red-200 pt-2 mt-1">
+            <div class="flex justify-between font-bold text-emerald-950 text-base border-t border-emerald-200 pt-2 mt-1">
               <span id="netPayableLabel">Net Payable Amount:</span>
               <span>₹<span id="finalAmount">0.00</span></span>
             </div>
           </div>
 
-          <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-sm transition">
+          <button onclick="saveAuctionEntry()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition">
             ☁️ Save Entry to Cloud
           </button>
         </div>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="tableTitle">Auction Records</h2>
           <div class="flex gap-2">
@@ -343,12 +354,12 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600 select-none">
-                <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Date ↕</th>
-                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thGrade">Grade ↕</th>
-                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-slate-100" id="thCrates">Units ↕</th>
-                <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Rate ↕</th>
-                <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-slate-100">Net Amt ↕</th>
+              <tr class="bg-emerald-50/60 text-slate-700 select-none">
+                <th onclick="sortAuctionTable('date')" class="p-2 text-center cursor-pointer hover:bg-emerald-100/50">Date ↕</th>
+                <th onclick="sortAuctionTable('crateType')" class="p-2 text-center cursor-pointer hover:bg-emerald-100/50" id="thGrade">Grade ↕</th>
+                <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-emerald-100/50" id="thCrates">Units ↕</th>
+                <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-emerald-100/50">Rate ↕</th>
+                <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100/50">Net Amt ↕</th>
                 <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
@@ -361,9 +372,9 @@
     </div>
 
     <!-- TAB 3: CROP EXPENSES -->
-    <div id="tab-expenses" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only">
-        <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="expenseFormTitle">💸 Add Expense</h2>
+    <div id="tab-expenses" class="space-y-4 tab-content hidden">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5 editor-only">
+        <h2 class="text-base font-extrabold text-slate-800 mb-3 border-b border-slate-100 pb-2" id="expenseFormTitle">💸 Add Expense</h2>
         
         <form id="expenseForm" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
@@ -398,20 +409,20 @@
             <input type="text" id="expenseNotes" placeholder="e.g. Notes / brand details" class="w-full rounded-xl p-2.5 text-sm">
           </div>
 
-          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm">
+          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
             ☁️ Add Expense to Cloud
           </button>
         </form>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800" id="expenseListTitle">Expenses Breakdown</h2>
           <div class="flex gap-2 items-center">
             <select id="filterExpensePerson" onchange="renderExpenses()" class="rounded-xl px-2.5 py-1 text-xs">
               <option value="ALL">All Persons</option>
             </select>
-            <button onclick="manageSpentByNames()" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded-lg text-xs transition border border-red-200 editor-only">
+            <button onclick="manageSpentByNames()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-lg text-xs transition border border-emerald-200 editor-only">
               ⚙️ Manage Names
             </button>
           </div>
@@ -423,9 +434,9 @@
     </div>
 
     <!-- TAB 4: FERTILIZER, SPRAY LOG & STOCK INVENTORY -->
-    <div id="tab-sprays" class="space-y-5 tab-content hidden">
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
-        <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
+    <div id="tab-sprays" class="space-y-4 tab-content hidden">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5">
+        <h2 class="text-base font-extrabold text-slate-800 mb-3 border-b border-slate-100 pb-2">📦 Chemical / Fertilizer Stock Inventory</h2>
         
         <form id="stockForm" onsubmit="addStockItem(event)" class="space-y-3 mb-4 editor-only">
           <div class="grid grid-cols-2 gap-3">
@@ -463,7 +474,7 @@
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md">
             ➕ Add Item to Stock Inventory
           </button>
         </form>
@@ -472,7 +483,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600">
+              <tr class="bg-emerald-50/60 text-slate-700">
                 <th class="p-2 text-left">Product</th>
                 <th class="p-2 text-center">Category</th>
                 <th class="p-2 text-center">Purchased</th>
@@ -487,7 +498,7 @@
         </div>
 
         <!-- OUT OF STOCK COLLAPSIBLE EXPANSION DROPDOWN -->
-        <details id="outOfStockContainer" class="mt-4 border border-rose-200 rounded-xl bg-rose-50/50 p-3 hidden">
+        <details id="outOfStockContainer" class="mt-4 border border-rose-200 rounded-2xl bg-rose-50/50 p-3 hidden">
           <summary class="text-xs font-bold text-rose-800 cursor-pointer flex justify-between items-center select-none">
             <span id="outOfStockTitle">🔴 Out of Stock Items (0)</span>
             <span class="text-[10px] text-rose-500 font-semibold">Tap to view / hide ▼</span>
@@ -508,8 +519,8 @@
         </details>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 editor-only">
-        <h2 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5 editor-only">
+        <h2 class="text-base font-extrabold text-slate-800 mb-3 border-b border-slate-100 pb-2">🧪 Record Spray / Application (Auto-Deducts Stock)</h2>
         
         <form id="sprayLogForm" onsubmit="addSprayLog(event)" class="space-y-3">
           <div class="grid grid-cols-2 gap-3">
@@ -562,13 +573,13 @@
             <input type="date" id="sprayDate" class="w-full rounded-xl p-2.5 text-sm" required>
           </div>
 
-          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-sm transition">
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition">
             ☁️ Save & Deduct from Stock
           </button>
         </form>
       </section>
 
-      <section class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
+      <section class="bg-white rounded-3xl shadow-xl border border-emerald-100 p-5">
         <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-base font-bold text-slate-800">📋 Spray & Fertilizer History</h2>
           <div>
@@ -583,7 +594,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
-              <tr class="bg-slate-50 text-slate-600">
+              <tr class="bg-emerald-50/60 text-slate-700">
                 <th class="p-2 text-center">Date</th>
                 <th class="p-2 text-center">Crop Age</th>
                 <th class="p-2 text-center">Category</th>
@@ -604,21 +615,21 @@
   </main>
 
   <!-- FIXED BOTTOM NAVIGATION BAR -->
-  <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40">
-    <div class="max-w-xl mx-auto flex justify-around items-center py-2">
-      <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-red-700 font-bold transition">
+  <footer class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-emerald-100 shadow-2xl z-40">
+    <div class="max-w-xl mx-auto flex justify-around items-center py-2.5">
+      <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-emerald-700 font-bold transition">
         <span class="text-lg">📊</span>
         <span class="text-[10px]">Overview</span>
       </button>
-      <button onclick="switchTab('auction')" id="btn-bottom-auction" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('auction')" id="btn-bottom-auction" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">📦</span>
         <span class="text-[10px]">Yield</span>
       </button>
-      <button onclick="switchTab('expenses')" id="btn-bottom-expenses" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('expenses')" id="btn-bottom-expenses" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">💸</span>
         <span class="text-[10px]">Expenses</span>
       </button>
-      <button onclick="switchTab('sprays')" id="btn-bottom-sprays" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition">
+      <button onclick="switchTab('sprays')" id="btn-bottom-sprays" class="flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition">
         <span class="text-lg">🧪</span>
         <span class="text-[10px]">Sprays</span>
       </button>
@@ -678,13 +689,13 @@
         const editorOnlyElements = document.querySelectorAll('.editor-only');
 
         if (currentUser === 'Ashok') {
-            badgeBtn.innerText = '👤 Ashok (Full Edit)';
+            badgeBtn.innerText = '👤 Ashok';
             editorOnlyElements.forEach(el => el.classList.remove('hidden'));
             document.getElementById('cropStatusSelect').disabled = false;
             document.getElementById('cropStartDateInput').disabled = false;
             document.getElementById('cropEndDateInput').disabled = false;
         } else {
-            badgeBtn.innerText = '👁️ Yumika (Read Only)';
+            badgeBtn.innerText = '👁️ Yumika';
             editorOnlyElements.forEach(el => el.classList.add('hidden'));
             document.getElementById('cropStatusSelect').disabled = true;
             document.getElementById('cropStartDateInput').disabled = true;
@@ -893,9 +904,9 @@
         ['Overall', 'Completed', 'In Progress'].forEach(f => {
             let btn = document.getElementById('masterBtn' + f.replace(/\s+/g, ''));
             if (f === filterVal) {
-                btn.className = 'px-3 py-1 rounded-lg bg-red-700 text-white transition shadow-sm';
+                btn.className = 'px-3 py-1 rounded-xl bg-emerald-700 text-white transition shadow-sm';
             } else {
-                btn.className = 'px-3 py-1 rounded-lg bg-slate-200 text-slate-700 transition';
+                btn.className = 'px-3 py-1 rounded-xl bg-slate-200 text-slate-700 transition';
             }
         });
         renderMasterBreakdownCards();
@@ -1040,9 +1051,9 @@
             const btn = document.getElementById('btn-bottom-' + t);
             if (btn) {
                 if (t === tabName) {
-                    btn.className = "flex flex-col items-center gap-0.5 text-red-700 font-bold transition";
+                    btn.className = "flex flex-col items-center gap-0.5 text-emerald-700 font-bold transition";
                 } else {
-                    btn.className = "flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-red-700 transition";
+                    btn.className = "flex flex-col items-center gap-0.5 text-slate-500 font-medium hover:text-emerald-700 transition";
                 }
             }
         });
@@ -1725,7 +1736,7 @@
         }
         
         let plBox = document.getElementById('totalProfitLossSummary');
-        plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-700 p-4 rounded-xl text-white col-span-2 shadow-sm";
+        plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-800 p-4 rounded-2xl text-white col-span-2 shadow-md" : "bg-gradient-to-br from-rose-600 to-rose-800 p-4 rounded-2xl text-white col-span-2 shadow-md";
         document.getElementById('profitLossVal').innerText = `₹${Math.abs(netProfitLoss).toLocaleString('en-IN', {minimumFractionDigits: 2})} ${netProfitLoss >= 0 ? '(Profit 🟢)' : '(Loss 🔴)'}`;
 
         renderExpensePieChart(masterExpensesCombined, totalInvestment);
@@ -1778,9 +1789,9 @@
         globalSpentNames.forEach(p => { if (!(p in personTotals)) personTotals[p] = 0; });
 
         summaryCards.innerHTML = Object.keys(personTotals).map(person => `
-            <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center shadow-sm">
-                <div class="text-[10px] uppercase font-bold text-slate-500">${person}</div>
-                <div class="text-xs font-extrabold text-slate-800 mt-0.5">₹${personTotals[person].toLocaleString('en-IN')}</div>
+            <div class="bg-emerald-50/50 border border-emerald-100 p-2.5 rounded-2xl text-center shadow-sm">
+                <div class="text-[10px] uppercase font-bold text-emerald-800/70">${person}</div>
+                <div class="text-xs font-black text-slate-800 mt-0.5">₹${personTotals[person].toLocaleString('en-IN')}</div>
             </div>
         `).join('');
 
@@ -1789,9 +1800,9 @@
         listContainer.innerHTML = filteredExpenses.map(item => {
             let delBtnHtml = currentUser === 'Ashok' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
             return `
-                <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                <div class="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs shadow-sm">
                     <div>
-                        <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">${item.spentBy}</span></div>
+                        <div class="font-bold text-slate-800">${item.category} <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">${item.spentBy}</span></div>
                         <div class="text-slate-500 text-[11px]">${item.date} ${item.notes && item.notes !== '-' ? '• ' + item.notes : ''}</div>
                     </div>
                     <div class="flex items-center gap-2">
