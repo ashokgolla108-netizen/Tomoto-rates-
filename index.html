@@ -173,7 +173,7 @@
         </div>
 
         <div id="masterBreakdownSection" class="hidden space-y-3 mb-4">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800 border-b pb-1">🌾 Crops Breakdown</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800 border-b pb-1">🌾 Crops Breakdown & Units</h3>
           <div id="masterCropCards" class="space-y-2"></div>
         </div>
 
@@ -1134,6 +1134,7 @@
 
             let cropExpSum = 0;
             let cropAucSum = 0;
+            let totalUnitsSum = 0;
             let expList = [];
 
             if (expSnap.exists()) {
@@ -1148,6 +1149,8 @@
                 aucSnap.forEach(c => {
                     let val = c.val(); val.cropKey = key;
                     cropAucSum += (val.finalAmount || 0);
+                    let units = val.totalCrates !== undefined ? val.totalCrates : (val.soldCrates || 0);
+                    totalUnitsSum += parseFloat(units || 0);
                 });
             }
 
@@ -1166,6 +1169,7 @@
                 ageDays: daysAge,
                 expenses: cropExpSum,
                 earnings: cropAucSum,
+                totalUnits: totalUnitsSum,
                 netPL: cropAucSum - cropExpSum,
                 expensesList: expList
             };
@@ -1198,6 +1202,7 @@
                 <div class="p-3 bg-emerald-50/40 border border-emerald-200 rounded-xl flex justify-between items-center text-xs">
                     <div>
                         <div class="font-extrabold text-slate-800 flex items-center gap-2">${d.name} ${statusBadge}</div>
+                        <div class="text-slate-600 text-[11px] font-bold mt-1">📦 Total Units: <span class="text-emerald-800">${d.totalUnits.toLocaleString('en-IN')}</span></div>
                         <div class="text-slate-500 text-[10px] mt-0.5">Start: ${d.startDate} ${d.endDate ? '| End: ' + d.endDate : ''} | Earn: ₹${d.earnings.toLocaleString('en-IN')} | Exp: ₹${d.expenses.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="text-right">
@@ -1849,7 +1854,7 @@
             for (const [key, d] of Object.entries(allCropsSummaryData)) {
                 if (masterFilter === 'Completed' && d.status !== 'Completed') continue;
                 if (masterFilter === 'In Progress' && d.status !== 'In Progress') continue;
-                csv += `\nCrop: ${d.name}, Status: ${d.status}, Earnings: ₹${d.earnings}, Expenses: ₹${d.expenses}, Net P/L: ₹${d.netPL}\n`;
+                csv += `\nCrop: ${d.name}, Status: ${d.status}, Total Units: ${d.totalUnits}, Earnings: ₹${d.earnings}, Expenses: ₹${d.expenses}, Net P/L: ₹${d.netPL}\n`;
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
@@ -1869,23 +1874,28 @@
     };
 
     window.shareToWhatsApp = function() {
-        let totalEarnings = 0, totalExpenses = 0;
+        let totalEarnings = 0, totalExpenses = 0, totalUnitsAll = 0;
         if (currentCrop === 'MASTER_ALL') {
             for (const [key, d] of Object.entries(allCropsSummaryData)) {
                 if (masterFilter === 'Completed' && d.status !== 'Completed') continue;
                 if (masterFilter === 'In Progress' && d.status !== 'In Progress') continue;
                 totalEarnings += d.earnings;
                 totalExpenses += d.expenses;
+                totalUnitsAll += d.totalUnits;
             }
         } else {
             totalEarnings = cachedAuctionEntries.reduce((sum, i) => sum + i.finalAmount, 0);
             totalExpenses = cloudExpenses.reduce((sum, i) => sum + i.amount, 0);
+            totalUnitsAll = cachedAuctionEntries.reduce((sum, i) => sum + (i.totalCrates !== undefined ? i.totalCrates : (i.soldCrates || 0)), 0);
         }
         let netPL = totalEarnings - totalExpenses;
 
         let titleStr = currentCrop === 'MASTER_ALL' ? `🌐 All Crops Master Summary (${masterFilter})` : `🌾 *${currentCrop.toUpperCase()} Farm Financial Summary*`;
         let msg = `${titleStr}\n`;
         msg += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
+        if (totalUnitsAll > 0) {
+            msg += `📦 *Total Units/Yield:* ${totalUnitsAll.toLocaleString('en-IN')}\n`;
+        }
         msg += `💰 *Total Earnings:* ₹${totalEarnings.toLocaleString('en-IN')}\n`;
         msg += `🌱 *Total Investment:* ₹${totalExpenses.toLocaleString('en-IN')}\n`;
         msg += `📈 *Net Profit/Loss:* ₹${netPL.toLocaleString('en-IN')} ${netPL >= 0 ? '🟢' : '🔴'}\n`;
