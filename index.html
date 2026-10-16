@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yumika Luck - Farm & Master Tracker</title>
+    <title>Yumika Designs - Farm & Master Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -56,7 +56,7 @@
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-emerald-100">
       <div class="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🌾</div>
       <div>
-        <h2 class="text-xl font-extrabold text-slate-800">Yumika Luck Tracker</h2>
+        <h2 class="text-xl font-extrabold text-slate-800">Yumika Designs Tracker</h2>
         <p class="text-xs text-slate-500 mt-1">Please sign in to continue</p>
       </div>
 
@@ -85,7 +85,7 @@
       <div class="flex items-center gap-2">
         <span class="text-lg">🌱</span>
         <div>
-          <h1 class="text-xs font-bold tracking-wide truncate max-w-[130px] sm:max-w-[180px]" id="headerAppTitle">Yumika Luck</h1>
+          <h1 class="text-xs font-bold tracking-wide truncate max-w-[130px] sm:max-w-[180px]" id="headerAppTitle">Yumika Designs</h1>
           <p class="text-emerald-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
@@ -1013,7 +1013,7 @@
         const deleteCropBottomBtn = document.getElementById('deleteCropBottomBtn');
         const cropUnitsBreakdownCard = document.getElementById('cropUnitsBreakdownCard');
 
-        document.getElementById('headerAppTitle').innerText = currentUser ? `👤 ${currentUser}` : 'Yumika Luck';
+        document.getElementById('headerAppTitle').innerText = currentUser ? `👤 ${currentUser}` : 'Yumika Designs';
 
         if (cropKey === 'MASTER_ALL') {
             document.getElementById('dashboardTitle').innerText = "🌾 Farm Overall Master Summary";
@@ -1898,7 +1898,7 @@
             }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `yumika_luck_master_report_${masterFilter.toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `yumika_designs_master_report_${masterFilter.toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`; a.click();
             return;
         }
 
