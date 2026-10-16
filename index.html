@@ -80,7 +80,7 @@
       <div class="flex items-center gap-2">
         <span class="text-lg">🍀</span>
         <div>
-          <h1 class="text-xs font-bold tracking-wide truncate max-w-[120px] sm:max-w-[160px]" id="headerTitle">🍅 Tomato Farm</h1>
+          <h1 class="text-xs font-bold tracking-wide truncate max-w-[130px] sm:max-w-[180px]" id="headerAppTitle">Yumika Luck</h1>
           <p class="text-red-200 text-[9px]" id="headerSubtitle">Overview Dashboard</p>
         </div>
       </div>
@@ -161,18 +161,6 @@
             </div>
           </div>
 
-          <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-3.5 rounded-xl text-white shadow-sm flex flex-col justify-between col-span-2" id="boxesCardContainer">
-            <div>
-              <div class="text-[10px] uppercase tracking-wider font-bold opacity-90 mb-0.5">📦 Total Harvest Units</div>
-              <div class="text-lg font-extrabold" id="totalBoxesSummary">0 Units</div>
-            </div>
-            <div class="mt-2 pt-2 border-t border-blue-400/30 flex justify-between text-[10px] font-semibold opacity-95" id="boxesSubCounts">
-              <span>🟢 High: <strong id="subCountHigh">0</strong></span>
-              <span>🟡 Med: <strong id="subCountMedium">0</strong></span>
-              <span>🔴 Low: <strong id="subCountLow">0</strong></span>
-            </div>
-          </div>
-
           <div id="totalProfitLossSummary" class="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm">
             <div class="text-[11px] uppercase tracking-wider font-bold opacity-90 mb-1" id="plLabel">📈 Overall Net Profit/Loss</div>
             <div class="text-xl font-extrabold" id="profitLossVal">₹0.00</div>
@@ -199,18 +187,6 @@
               </div>
             </div>
             <div id="pieChartLegend" class="space-y-2 text-xs w-full sm:w-auto"></div>
-          </div>
-        </div>
-
-        <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-3" id="qualityBarSection">
-          <div class="flex justify-between text-xs font-bold text-slate-600 mb-2">
-            <span>🎨 Harvest Quality Distribution</span>
-            <span id="qualityPercentText">High 0% | Med 0% | Low 0%</span>
-          </div>
-          <div class="flex h-3 rounded-full overflow-hidden bg-slate-200 gap-0.5">
-            <div class="bg-emerald-500" id="barHigh" style="width: 0%;"></div>
-            <div class="bg-amber-500" id="barMedium" style="width: 0%;"></div>
-            <div class="bg-pink-500" id="barLow" style="width: 0%;"></div>
           </div>
         </div>
 
@@ -689,9 +665,7 @@
     };
 
     function applyUserPermissions() {
-        const badgeBtn = document.getElementById('roleBadgeBtn');
         const editorOnlyElements = document.querySelectorAll('.editor-only');
-
         if (currentUser === 'Yumika') {
             editorOnlyElements.forEach(el => el.classList.add('hidden'));
             document.getElementById('cropStatusSelect').disabled = true;
@@ -988,20 +962,18 @@
         const statusContainer = document.getElementById('cropStatusContainer');
         const masterBreakdownSection = document.getElementById('masterBreakdownSection');
         const masterFilterContainer = document.getElementById('masterFilterContainer');
-        const boxesCardContainer = document.getElementById('boxesCardContainer');
-        const qualityBarSection = document.getElementById('qualityBarSection');
         const cropAgingBanner = document.getElementById('cropAgingBanner');
         const deleteCropBottomBtn = document.getElementById('deleteCropBottomBtn');
 
+        // Update top-left header name display
+        document.getElementById('headerAppTitle').innerText = currentUser ? `👤 ${currentUser}` : 'Yumika Luck';
+
         if (cropKey === 'MASTER_ALL') {
-            document.getElementById('headerTitle').innerText = "🌐 All Master Summary";
             document.getElementById('dashboardTitle').innerText = "🌾 Farm Overall Master Summary";
             statusContainer.style.display = 'none';
             btnBottomAuction.style.display = 'none';
             btnBottomExpenses.style.display = 'none';
             btnBottomSprays.style.display = 'none';
-            boxesCardContainer.style.display = 'flex'; 
-            qualityBarSection.style.display = 'block';
             cropAgingBanner.style.display = 'none';
             document.getElementById('cropEndDateContainer').classList.add('hidden');
             masterBreakdownSection.classList.remove('hidden');
@@ -1015,8 +987,6 @@
 
         masterBreakdownSection.classList.add('hidden');
         masterFilterContainer.classList.add('hidden');
-        boxesCardContainer.style.display = 'flex'; 
-        qualityBarSection.style.display = 'block'; 
         cropAgingBanner.style.display = 'flex';
         statusContainer.style.display = 'flex';
         btnBottomExpenses.style.display = 'flex';
@@ -1030,7 +1000,6 @@
 
         const cfg = cropConfigs[cropKey] || { name: cropKey, title: cropKey, dashboardTitle: cropKey + " Overview", auctionTitle: cropKey + " Yield", expenseTitle: cropKey + " Expenses", showYieldTab: true, status: "In Progress", startDate: new Date().toISOString().slice(0,10), endDate: "", categories: [] };
         
-        document.getElementById('headerTitle').innerText = cfg.title;
         document.getElementById('dashboardTitle').innerText = cfg.dashboardTitle;
         document.getElementById('auctionFormTitle').innerText = cfg.auctionTitle;
         document.getElementById('expenseFormTitle').innerText = cfg.expenseTitle;
@@ -1140,8 +1109,6 @@
 
             let cropExpSum = 0;
             let cropAucSum = 0;
-            let cropBoxes = 0;
-            let boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
             let expList = [];
 
             if (expSnap.exists()) {
@@ -1156,12 +1123,6 @@
                 aucSnap.forEach(c => {
                     let val = c.val(); val.cropKey = key;
                     cropAucSum += (val.finalAmount || 0);
-                    let crates = (val.totalCrates !== undefined ? val.totalCrates : val.soldCrates) || 0;
-                    cropBoxes += crates;
-                    let type = (val.crateType || '').toLowerCase();
-                    if (type === 'high') boxesHigh += crates;
-                    else if (type === 'medium') boxesMedium += crates;
-                    else if (type === 'low') boxesLow += crates;
                 });
             }
 
@@ -1181,8 +1142,6 @@
                 expenses: cropExpSum,
                 earnings: cropAucSum,
                 netPL: cropAucSum - cropExpSum,
-                boxes: cropBoxes,
-                boxesHigh, boxesMedium, boxesLow,
                 expensesList: expList
             };
         }
@@ -1711,7 +1670,7 @@
     }
 
     window.renderDashboard = function() {
-        let totalEarnings = 0, totalInvestment = 0, totalBoxes = 0, boxesHigh = 0, boxesMedium = 0, boxesLow = 0;
+        let totalEarnings = 0, totalInvestment = 0;
         let masterExpensesCombined = [];
 
         if (currentCrop === 'MASTER_ALL') {
@@ -1721,10 +1680,6 @@
 
                 totalEarnings += d.earnings;
                 totalInvestment += d.expenses;
-                totalBoxes += d.boxes;
-                boxesHigh += d.boxesHigh;
-                boxesMedium += d.boxesMedium;
-                boxesLow += d.boxesLow;
                 masterExpensesCombined = masterExpensesCombined.concat(d.expensesList);
             }
         } else {
@@ -1733,12 +1688,6 @@
 
             cachedAuctionEntries.forEach(item => {
                 totalEarnings += item.finalAmount;
-                let crates = (item.totalCrates !== undefined ? item.totalCrates : item.soldCrates) || 0;
-                totalBoxes += crates;
-                let type = (item.crateType || '').toLowerCase();
-                if (type === 'high') boxesHigh += crates;
-                else if (type === 'medium') boxesMedium += crates;
-                else if (type === 'low') boxesLow += crates;
             });
 
             totalInvestment = cloudExpenses.reduce((sum, item) => sum + item.amount, 0);
@@ -1787,26 +1736,6 @@
 
         document.getElementById('totalEarningsSummary').innerText = `₹${totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('totalInvestmentDisplay').innerText = `₹${totalInvestment.toLocaleString('en-IN')}`;
-        
-        document.getElementById('totalBoxesSummary').innerText = `${totalBoxes} Units`;
-        document.getElementById('subCountHigh').innerText = boxesHigh;
-        document.getElementById('subCountMedium').innerText = boxesMedium;
-        document.getElementById('subCountLow').innerText = boxesLow;
-
-        if (totalBoxes > 0) {
-            let pHigh = (boxesHigh / totalBoxes) * 100;
-            let pMed = (boxesMedium / totalBoxes) * 100;
-            let pLow = (boxesLow / totalBoxes) * 100;
-            document.getElementById('barHigh').style.width = pHigh + '%';
-            document.getElementById('barMedium').style.width = pMed + '%';
-            document.getElementById('barLow').style.width = pLow + '%';
-            document.getElementById('qualityPercentText').innerText = `High ${pHigh.toFixed(0)}% | Med ${pMed.toFixed(0)}% | Low ${pLow.toFixed(0)}%`;
-        } else {
-            document.getElementById('barHigh').style.width = '0%';
-            document.getElementById('barMedium').style.width = '0%';
-            document.getElementById('barLow').style.width = '0%';
-            document.getElementById('qualityPercentText').innerText = `High 0% | Med 0% | Low 0%`;
-        }
         
         let plBox = document.getElementById('totalProfitLossSummary');
         plBox.className = netProfitLoss >= 0 ? "bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl text-white col-span-2 shadow-sm" : "bg-gradient-to-br from-rose-600 to-rose-700 p-4 rounded-xl text-white col-span-2 shadow-sm";
