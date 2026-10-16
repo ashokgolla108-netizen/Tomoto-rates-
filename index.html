@@ -651,16 +651,16 @@
         let lowerU = uInput.toLowerCase();
         if (lowerU === 'ashok' && pInput === '7457') {
             currentUser = 'Ashok';
-            currentUserPrefix = ''; // Root database (Ashok & Yumika shared data)
+            currentUserPrefix = ''; // Root main database (Main farm records)
         } else if (lowerU === 'yumika' && pInput === '1234') {
             currentUser = 'Yumika';
-            currentUserPrefix = ''; // Root database (Views Ashok's data)
+            currentUserPrefix = ''; // Root main database (Read-only view)
         } else if (lowerU === 'harish' && pInput === '1234') {
             currentUser = 'Harish';
-            currentUserPrefix = 'harish_'; // Isolated database
+            currentUserPrefix = 'harish_'; // Separate database space for Harish
         } else if (lowerU === 'pawan' && pInput === '1234') {
             currentUser = 'Pawan';
-            currentUserPrefix = 'pawan_'; // Isolated database
+            currentUserPrefix = 'pawan_'; // Separate database space for Pawan
         } else {
             errDiv.classList.remove('hidden');
             return;
@@ -775,7 +775,8 @@
         applyUserPermissions();
         
         if (currentUser === 'Ashok' || currentUser === 'Yumika') {
-            cropConfigs = JSON.parse(JSON.stringify(defaultCropConfigs));
+            let storedCrops = localStorage.getItem('farm_custom_crops');
+            cropConfigs = storedCrops ? JSON.parse(storedCrops) : JSON.parse(JSON.stringify(defaultCropConfigs));
         } else {
             let storedCrops = localStorage.getItem(getStorageKey('farm_custom_crops'));
             cropConfigs = storedCrops ? JSON.parse(storedCrops) : {};
@@ -850,9 +851,7 @@
                     endDate: "",
                     categories: ['Seeds', 'Fertilizer/Pesticide', 'Labor', 'Weeding', 'Irrigation', 'Transport', 'Machinery/Tractor', 'Misc']
                 };
-                if (currentUser !== 'Ashok' && currentUser !== 'Yumika') {
-                    localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
-                }
+                localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
                 populateCropDropdown();
                 changeCrop(key);
             } else {
@@ -882,9 +881,7 @@
             set(ref(db, getStorageKey(`${cropKey}_end_date`)), "");
         }
 
-        if (currentUser !== 'Ashok' && currentUser !== 'Yumika') {
-            localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
-        }
+        localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
         set(ref(db, getStorageKey(`${cropKey}_status`)), statusVal);
 
         if (cropKey === currentCrop) {
@@ -901,9 +898,7 @@
         if (currentUser === 'Yumika') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].startDate = startDateVal;
-        if (currentUser !== 'Ashok' && currentUser !== 'Yumika') {
-            localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
-        }
+        localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
         set(ref(db, getStorageKey(`${currentCrop}_start_date`)), startDateVal);
         calculateCropAge(startDateVal, cropConfigs[currentCrop].endDate);
     };
@@ -912,9 +907,7 @@
         if (currentUser === 'Yumika') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].endDate = endDateVal;
-        if (currentUser !== 'Ashok' && currentUser !== 'Yumika') {
-            localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
-        }
+        localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
         set(ref(db, getStorageKey(`${currentCrop}_end_date`)), endDateVal);
         calculateCropAge(cropConfigs[currentCrop].startDate, endDateVal);
     };
@@ -1069,9 +1062,7 @@
             await remove(ref(db, getStorageKey(`${currentCrop}_end_date`)));
 
             delete cropConfigs[currentCrop];
-            if (currentUser !== 'Ashok' && currentUser !== 'Yumika') {
-                localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
-            }
+            localStorage.setItem(getStorageKey('farm_custom_crops'), JSON.stringify(cropConfigs));
             populateCropDropdown();
             changeCrop('MASTER_ALL');
         }
