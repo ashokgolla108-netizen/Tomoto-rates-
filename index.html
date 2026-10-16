@@ -46,6 +46,11 @@
 </head>
 <body class="min-h-screen pb-20">
 
+  <!-- IN-PAGE TOAST NOTIFICATION -->
+  <div id="toastBanner" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-emerald-800 text-white px-5 py-2.5 rounded-2xl shadow-xl text-xs font-bold transition-all duration-300 opacity-0 pointer-events-none flex items-center gap-2">
+    <span>✅</span> <span id="toastText">Details saved successfully</span>
+  </div>
+
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-emerald-100">
@@ -627,6 +632,15 @@
     let currentUser = localStorage.getItem('farm_logged_user') || null;
     let dbPrefix = localStorage.getItem('farm_db_prefix') || '';
 
+    function showToast(msg = "Details saved successfully") {
+        const toast = document.getElementById('toastBanner');
+        document.getElementById('toastText').innerText = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 2500);
+    }
+
     window.handleLogin = function() {
         let uInput = document.getElementById('loginUser').value.trim().toLowerCase();
         let pInput = document.getElementById('loginPass').value.trim();
@@ -657,6 +671,8 @@
     window.logout = function() {
         localStorage.removeItem('farm_logged_user');
         localStorage.removeItem('farm_db_prefix');
+        localStorage.removeItem('farm_last_selected_crop');
+        localStorage.removeItem('farm_last_active_tab');
         currentUser = null;
         dbPrefix = '';
         document.getElementById('loginUser').value = '';
@@ -771,10 +787,18 @@
             setTimeout(() => { promptCreateFirstCrop(); }, 300);
         } else {
             let lastSel = localStorage.getItem(`${dbPrefix}farm_last_selected_crop`);
-            // Ensure selected crop actually exists in configuration keys, otherwise fallback to first available or 'tomato'
-            currentCrop = (lastSel && cropConfigs[lastSel]) ? lastSel : (keys.includes('tomato') ? 'tomato' : (keys[0] || 'tomato'));
+            if (lastSel === 'MASTER_ALL' || (lastSel && cropConfigs[lastSel])) {
+                currentCrop = lastSel;
+            } else {
+                currentCrop = keys[0] || 'tomato';
+            }
             populateCropDropdown();
             changeCrop(currentCrop);
+
+            let lastTab = localStorage.getItem(`${dbPrefix}farm_last_active_tab`) || 'dashboard';
+            if (currentCrop !== 'MASTER_ALL' || lastTab === 'dashboard') {
+                switchTab(lastTab);
+            }
         }
     }
 
@@ -1083,6 +1107,7 @@
     window.switchTab = function(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
+        localStorage.setItem(`${dbPrefix}farm_last_active_tab`, tabName);
         
         const tabs = ['dashboard', 'auction', 'expenses', 'sprays'];
         tabs.forEach(t => {
@@ -1217,7 +1242,6 @@
 
             if (items.length === 0) {
                 let initialSeed = [];
-                // Only seed default items for main Ashok/default database prefix, leaving Harish and Pawan accounts clean
                 if (dbPrefix === '') {
                     if (currentCrop === 'groundnut') {
                         initialSeed = [
@@ -1399,32 +1423,32 @@
     };
 
     window.saveAuctionEntry = async function() {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot add entries.');
-        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot add entries');
+        if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
         const comments = document.getElementById('comments').value.trim();
         const totalCratesInput = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCratesInput = parseFloat(document.getElementById('lessCrates').value) || 0;
 
-        if (!date) return alert('Please select a date.');
+        if (!date) return showToast('Please select a date');
         const calc = window.calculate();
-        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return alert('Please enter valid quantity and price.');
+        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return showToast('Please enter valid quantity and price');
 
         try {
             await push(ref(db, `${dbPrefix}${currentCrop}_auction_entries`), {
                 date, crateType, comments: comments || '-', totalCrates: totalCratesInput, lessCrates: lessCratesInput, soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, finalAmount: calc.finalAmount, timestamp: Date.now()
             });
-            alert('Details saved successfully');
+            showToast('Details saved successfully');
             document.getElementById('totalCrates').value = '';
             document.getElementById('auctionPrice').value = '';
             document.getElementById('comments').value = '';
             window.calculate();
-        } catch (error) { alert("Error: " + error.message); }
+        } catch (error) { showToast("Error: " + error.message); }
     };
 
     window.deleteAuctionEntry = async function(id) {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot delete entries.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete entries');
         if (confirm("Delete this record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_auction_entries/${id}`));
     };
 
@@ -1449,8 +1473,8 @@
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (currentUser === 'Yumika') return alert('Read-only user cannot add expenses.');
-        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot add expenses');
+        if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
         
@@ -1468,21 +1492,21 @@
             await push(ref(db, `${dbPrefix}${currentCrop}_expenses`), {
                 date: document.getElementById('expenseDate').value, spentBy, category, amount: parseFloat(document.getElementById('expenseAmount').value), notes: document.getElementById('expenseNotes').value.trim() || '-', timestamp: Date.now()
             });
-            alert('Details saved successfully');
+            showToast('Details saved successfully');
             e.target.reset();
             document.getElementById('expenseDate').valueAsDate = new Date();
-        } catch (error) { alert("Error: " + error.message); }
+        } catch (error) { showToast("Error: " + error.message); }
     });
 
     window.deleteExpense = async function(id) {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot delete expenses.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete expenses');
         if (confirm("Delete this expense?")) await remove(ref(db, `${dbPrefix}${currentCrop}_expenses/${id}`));
     };
 
     window.addStockItem = async function(e) {
         e.preventDefault();
-        if (currentUser === 'Yumika') return alert('Read-only user cannot add stock.');
-        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot add stock');
+        if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
 
         const name = document.getElementById('stockName').value.trim();
         const rawCat = document.getElementById('stockCategory').value;
@@ -1490,23 +1514,23 @@
         const qty = parseFloat(document.getElementById('stockQty').value) || 0;
         const unit = document.getElementById('stockUnit').value;
 
-        if (!category) return alert('Please select or enter a valid category.');
+        if (!category) return showToast('Please select or enter a valid category');
 
         try {
             await push(ref(db, `${dbPrefix}${currentCrop}_stock_inventory`), {
                 name, category, qty, unit, timestamp: Date.now()
             });
-            alert('Details saved successfully');
+            showToast('Details saved successfully');
             document.getElementById('stockName').value = '';
             document.getElementById('stockQty').value = '';
             document.getElementById('customStockCategoryInput').value = '';
             document.getElementById('customStockCategoryInput').classList.add('hidden');
             document.getElementById('stockCategory').value = 'Fertilizer';
-        } catch (error) { alert("Error: " + error.message); }
+        } catch (error) { showToast("Error: " + error.message); }
     };
 
     window.deleteStockItem = async function(id) {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot delete stock.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete stock');
         if (confirm("Delete this stock item?")) await remove(ref(db, `${dbPrefix}${currentCrop}_stock_inventory/${id}`));
     };
 
@@ -1594,8 +1618,8 @@
 
     window.addSprayLog = async function(e) {
         e.preventDefault();
-        if (currentUser === 'Yumika') return alert('Read-only user cannot add spray logs.');
-        if (currentCrop === 'MASTER_ALL') return alert('Please select a specific crop first.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot add spray logs');
+        if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
 
         const rawType = document.getElementById('sprayType').value;
         const type = rawType === 'CUSTOM' ? document.getElementById('customSprayTypeInput').value.trim() : rawType;
@@ -1605,21 +1629,21 @@
         const method = document.getElementById('sprayMethod').value;
         const date = document.getElementById('sprayDate').value;
 
-        if (!product) return alert('Please select a product from inventory.');
-        if (!type) return alert('Please enter or select a valid input type.');
+        if (!product) return showToast('Please select a product from inventory');
+        if (!type) return showToast('Please enter or select a valid input type');
 
         try {
             await push(ref(db, `${dbPrefix}${currentCrop}_spray_logs`), {
                 type, product, qty, unit, method, date, timestamp: Date.now()
             });
-            alert('Details saved successfully');
+            showToast('Details saved successfully');
             document.getElementById('sprayQty').value = '';
             document.getElementById('sprayDate').valueAsDate = new Date();
-        } catch (error) { alert("Error: " + error.message); }
+        } catch (error) { showToast("Error: " + error.message); }
     };
 
     window.deleteSprayLog = async function(id) {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot delete spray logs.');
+        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete spray logs');
         if (confirm("Delete this spray record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_spray_logs/${id}`));
     };
 
@@ -1833,7 +1857,7 @@
             return;
         }
 
-        if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return alert('No data to export!');
+        if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return showToast('No data to export!');
         let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Rate,Net Amount\n`;
         cachedAuctionEntries.forEach(e => { csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.auctionPrice || 0},${e.finalAmount || 0}\n`; });
         csv += '\n=== EXPENSES ===\nDate,Spent By,Category,Amount,Notes\n';
