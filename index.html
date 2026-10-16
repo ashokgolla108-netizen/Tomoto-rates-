@@ -758,12 +758,18 @@
 
         let storedCrops = localStorage.getItem(`${dbPrefix}farm_custom_crops`);
         if (storedCrops) {
-            cropConfigs = JSON.parse(storedCrops);
-        } else {
+            try {
+                cropConfigs = JSON.parse(storedCrops);
+            } catch (e) {
+                cropConfigs = {};
+            }
+        }
+        
+        if (!cropConfigs || Object.keys(cropConfigs).length === 0) {
             if (dbPrefix === '') {
                 cropConfigs = defaultMainCrops;
             } else {
-                cropConfigs = {}; // Fresh account has no crops initially
+                cropConfigs = {}; // Fresh accounts Harish & Pawan start empty
             }
             localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
         }
