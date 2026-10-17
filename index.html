@@ -83,7 +83,7 @@
 
   <!-- Header -->
   <header class="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white py-3 shadow-md sticky top-0 z-40">
-    <div class="max-w-3xl mx-auto px-4 flex justify-between items-center gap-2">
+    <div class="max-w-4xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
         <span class="text-lg">🌱</span>
         <div>
@@ -103,7 +103,7 @@
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-3xl mx-auto px-4 mt-5 space-y-5">
+  <main class="max-w-4xl mx-auto px-4 mt-5 space-y-5">
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
@@ -358,14 +358,17 @@
                 <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-emerald-100" id="thCrates">Units ↕</th>
                 <th class="p-2 text-center">Less</th>
                 <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Rate ↕</th>
-                <th onclick="sortAuctionTable('grossAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Total Amt ↕</th>
+                <th class="p-2 text-center text-rose-700">Transport ↕</th>
+                <th class="p-2 text-center text-rose-700">Comm ↕</th>
+                <th class="p-2 text-center text-rose-700">Rent ↕</th>
+                <th onclick="sortAuctionTable('grossAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Gross Amt ↕</th>
                 <th onclick="sortAuctionTable('totalDeductions')" class="p-2 text-center cursor-pointer hover:bg-emerald-100 text-rose-700">Less Amt ↕</th>
                 <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100 text-emerald-800 font-bold">Net Amt ↕</th>
                 <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
             <tbody id="auctionTableBody">
-              <tr><td colspan="9" class="text-center text-slate-400 py-4">No records yet.</td></tr>
+              <tr><td colspan="12" class="text-center text-slate-400 py-4">No records yet.</td></tr>
             </tbody>
             <tfoot id="auctionTableFooter" class="bg-emerald-100/70 font-black text-emerald-950 border-t-2 border-emerald-300">
               <!-- Dynamically filled totals -->
@@ -1296,6 +1299,10 @@
                 let totComm = sCrates * commPerUnit;
                 let totRent = sCrates * rRate;
 
+                item.totTransport = totTransport;
+                item.totComm = totComm;
+                item.totRent = totRent;
+
                 item.grossAmount = sCrates * aPrice;
                 item.totalDeductions = totTransport + totComm + totRent;
                 if (item.finalAmount === undefined) item.finalAmount = item.grossAmount - item.totalDeductions;
@@ -1883,11 +1890,14 @@
             tbody.innerHTML = '';
             
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-4">No records found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center text-slate-400 py-4">No records found.</td></tr>';
                 tfoot.innerHTML = '';
             } else {
                 let sumTotalUnits = 0;
                 let sumLessUnits = 0;
+                let sumTransport = 0;
+                let sumComm = 0;
+                let sumRent = 0;
                 let sumGrossAmt = 0;
                 let sumLessAmt = 0;
                 let sumNetAmt = 0;
@@ -1899,12 +1909,19 @@
 
                     let tCrates = parseFloat(item.totalCrates) || 0;
                     let lCrates = parseFloat(item.lessCrates) || 0;
+                    let tTransport = parseFloat(item.totTransport) || 0;
+                    let tComm = parseFloat(item.totComm) || 0;
+                    let tRent = parseFloat(item.totRent) || 0;
+
                     let grossAmt = parseFloat(item.grossAmount) || 0;
                     let lessAmt = parseFloat(item.totalDeductions) || 0;
                     let netAmt = parseFloat(item.finalAmount) || 0;
 
                     sumTotalUnits += tCrates;
                     sumLessUnits += lCrates;
+                    sumTransport += tTransport;
+                    sumComm += tComm;
+                    sumRent += tRent;
                     sumGrossAmt += grossAmt;
                     sumLessAmt += lessAmt;
                     sumNetAmt += netAmt;
@@ -1915,6 +1932,10 @@
                     let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${lCrates})">${lCrates}</span>` : lCrates;
                     let priceCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`;
 
+                    let transportCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${item.transportRate})">₹${tTransport.toFixed(2)}</span>` : `₹${tTransport.toFixed(2)}`;
+                    let commCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${item.commissionValue})">₹${tComm.toFixed(2)}</span>` : `₹${tComm.toFixed(2)}`;
+                    let rentCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${item.rentRate})">₹${tRent.toFixed(2)}</span>` : `₹${tRent.toFixed(2)}`;
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-2 text-center">${dateCell}</td>
@@ -1922,6 +1943,9 @@
                             <td class="p-2 text-center">${totalUnitsCell}</td>
                             <td class="p-2 text-center">${lessUnitsCell}</td>
                             <td class="p-2 text-center">${priceCell}</td>
+                            <td class="p-2 text-center">${transportCell}</td>
+                            <td class="p-2 text-center">${commCell}</td>
+                            <td class="p-2 text-center">${rentCell}</td>
                             <td class="p-2 text-center text-slate-700 font-semibold">₹${grossAmt.toFixed(2)}</td>
                             <td class="p-2 text-center text-rose-600 font-bold">- ₹${lessAmt.toFixed(2)}</td>
                             <td class="p-2 text-center font-black text-emerald-700">₹${netAmt.toFixed(2)}</td>
@@ -1936,6 +1960,9 @@
                         <td class="p-2 text-center">${sumTotalUnits.toLocaleString('en-IN')}</td>
                         <td class="p-2 text-center text-rose-700">${sumLessUnits.toLocaleString('en-IN')}</td>
                         <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center text-rose-700">₹${sumTransport.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="p-2 text-center text-rose-700">₹${sumComm.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="p-2 text-center text-rose-700">₹${sumRent.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="p-2 text-center">₹${sumGrossAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="p-2 text-center text-rose-700">- ₹${sumLessAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="p-2 text-center text-emerald-900">₹${sumNetAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
@@ -2049,10 +2076,10 @@
         }
 
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return showToast('No data to export!');
-        let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Less Units,Net Sold,Rate,Total Gross Amount,Less Amount (Deductions),Net Amount\n`;
+        let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Less Units,Net Sold,Rate,Transport Amt,Comm Amt,Rent Amt,Total Gross Amount,Less Amount (Deductions),Net Amount\n`;
         cachedAuctionEntries.forEach(e => { 
             let sold = e.soldCrates !== undefined ? e.soldCrates : Math.max(0, (e.totalCrates || 0) - (e.lessCrates || 0));
-            csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.lessCrates || 0},${sold},${e.auctionPrice || 0},${e.grossAmount || 0},${e.totalDeductions || 0},${e.finalAmount || 0}\n`; 
+            csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.lessCrates || 0},${sold},${e.auctionPrice || 0},${e.totTransport || 0},${e.totComm || 0},${e.totRent || 0},${e.grossAmount || 0},${e.totalDeductions || 0},${e.finalAmount || 0}\n`; 
         });
         csv += '\n=== EXPENSES ===\nDate,Spent By,Category,Amount,Notes\n';
         cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
