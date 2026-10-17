@@ -367,6 +367,9 @@
             <tbody id="auctionTableBody">
               <tr><td colspan="9" class="text-center text-slate-400 py-4">No records yet.</td></tr>
             </tbody>
+            <tfoot id="auctionTableFooter" class="bg-emerald-100/70 font-black text-emerald-950 border-t-2 border-emerald-300">
+              <!-- Dynamically filled totals -->
+            </tfoot>
           </table>
         </div>
       </section>
@@ -1876,24 +1879,41 @@
             });
 
             let tbody = document.getElementById('auctionTableBody');
+            let tfoot = document.getElementById('auctionTableFooter');
             tbody.innerHTML = '';
+            
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-4">No records found.</td></tr>';
+                tfoot.innerHTML = '';
             } else {
+                let sumTotalUnits = 0;
+                let sumLessUnits = 0;
+                let sumGrossAmt = 0;
+                let sumLessAmt = 0;
+                let sumNetAmt = 0;
+
                 filtered.forEach((item) => {
                     let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
                     let commentText = item.comments !== '-' && item.comments ? `<span class="comment-tag editable-cell" onclick="updateAuctionField('${item.id}', 'comments', '${item.comments}')">${item.comments}</span>` : `<span class="comment-tag editable-cell text-slate-300" onclick="updateAuctionField('${item.id}', 'comments', '')">+ Add note</span>`;
                     let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
+                    let tCrates = parseFloat(item.totalCrates) || 0;
+                    let lCrates = parseFloat(item.lessCrates) || 0;
+                    let grossAmt = parseFloat(item.grossAmount) || 0;
+                    let lessAmt = parseFloat(item.totalDeductions) || 0;
+                    let netAmt = parseFloat(item.finalAmount) || 0;
+
+                    sumTotalUnits += tCrates;
+                    sumLessUnits += lCrates;
+                    sumGrossAmt += grossAmt;
+                    sumLessAmt += lessAmt;
+                    sumNetAmt += netAmt;
+
                     let dateCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'date', '${item.date}')">${item.date}</span>` : item.date;
                     let gradeCell = currentUser !== 'Yumika' ? `<span class="badge ${badgeClass} editable-cell" onclick="updateAuctionField('${item.id}', 'crateType', '${item.crateType}')">${item.crateType}</span>` : `<span class="badge ${badgeClass}">${item.crateType}</span>`;
-                    let totalUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${item.totalCrates})">${item.totalCrates}</span>` : item.totalCrates;
-                    let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${item.lessCrates || 0})">${item.lessCrates || 0}</span>` : (item.lessCrates || 0);
+                    let totalUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${tCrates})">${tCrates}</span>` : tCrates;
+                    let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${lCrates})">${lCrates}</span>` : lCrates;
                     let priceCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`;
-
-                    let grossAmtDisplay = (item.grossAmount || 0).toFixed(2);
-                    let lessAmtDisplay = (item.totalDeductions || 0).toFixed(2);
-                    let netAmtDisplay = (item.finalAmount || 0).toFixed(2);
 
                     tbody.innerHTML += `
                         <tr>
@@ -1902,12 +1922,26 @@
                             <td class="p-2 text-center">${totalUnitsCell}</td>
                             <td class="p-2 text-center">${lessUnitsCell}</td>
                             <td class="p-2 text-center">${priceCell}</td>
-                            <td class="p-2 text-center text-slate-700 font-semibold">₹${grossAmtDisplay}</td>
-                            <td class="p-2 text-center text-rose-600 font-bold">- ₹${lessAmtDisplay}</td>
-                            <td class="p-2 text-center font-black text-emerald-700">₹${netAmtDisplay}</td>
+                            <td class="p-2 text-center text-slate-700 font-semibold">₹${grossAmt.toFixed(2)}</td>
+                            <td class="p-2 text-center text-rose-600 font-bold">- ₹${lessAmt.toFixed(2)}</td>
+                            <td class="p-2 text-center font-black text-emerald-700">₹${netAmt.toFixed(2)}</td>
                             ${delBtnHtml}
                         </tr>`;
                 });
+
+                tfoot.innerHTML = `
+                    <tr>
+                        <td class="p-2 text-center uppercase">TOTAL</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">${sumTotalUnits.toLocaleString('en-IN')}</td>
+                        <td class="p-2 text-center text-rose-700">${sumLessUnits.toLocaleString('en-IN')}</td>
+                        <td class="p-2 text-center">-</td>
+                        <td class="p-2 text-center">₹${sumGrossAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="p-2 text-center text-rose-700">- ₹${sumLessAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="p-2 text-center text-emerald-900">₹${sumNetAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        ${currentUser !== 'Yumika' ? '<td class="p-2 text-center">-</td>' : ''}
+                    </tr>
+                `;
             }
         }
 
