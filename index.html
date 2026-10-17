@@ -83,7 +83,7 @@
 
   <!-- Header -->
   <header class="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white py-3 shadow-md sticky top-0 z-40">
-    <div class="max-w-xl mx-auto px-4 flex justify-between items-center gap-2">
+    <div class="max-w-2xl mx-auto px-4 flex justify-between items-center gap-2">
       <div class="flex items-center gap-2">
         <span class="text-lg">🌱</span>
         <div>
@@ -103,7 +103,7 @@
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="max-w-xl mx-auto px-4 mt-5 space-y-5">
+  <main class="max-w-2xl mx-auto px-4 mt-5 space-y-5">
 
     <!-- TAB 1: DASHBOARD -->
     <div id="tab-dashboard" class="space-y-5 tab-content">
@@ -161,7 +161,7 @@
             <div class="text-2xl font-extrabold" id="totalEarningsSummary">₹0.00</div>
           </div>
 
-          <!-- Grade-wise Units Breakdown Card (Shows on individual crop overview) -->
+          <!-- Grade-wise Units Breakdown Card -->
           <div id="cropUnitsBreakdownCard" class="bg-gradient-to-br from-teal-700 to-cyan-800 p-4 rounded-xl text-white col-span-2 shadow-sm space-y-2.5">
             <div class="flex justify-between items-center border-b border-teal-600 pb-1.5">
               <span class="text-[11px] uppercase tracking-wider font-bold opacity-90">📦 Harvest Units by Grade (Net Sold)</span>
@@ -281,8 +281,8 @@
               <input type="number" id="auctionPrice" placeholder="e.g. 300" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm">
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Transport / Unit [Fixed] (₹)</label>
-              <input type="number" id="transportRate" value="25" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm bg-slate-50">
+              <label class="block text-xs font-bold text-slate-600 mb-1">Transport / Unit (₹)</label>
+              <input type="number" id="transportRate" value="25" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm">
             </div>
           </div>
 
@@ -298,8 +298,8 @@
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Market Rent [Fixed] (₹)</label>
-              <input type="number" id="rent" value="4" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm bg-slate-50">
+              <label class="block text-xs font-bold text-slate-600 mb-1">Market Rent / Unit (₹)</label>
+              <input type="number" id="rent" value="4" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm">
             </div>
           </div>
 
@@ -358,12 +358,15 @@
                 <th onclick="sortAuctionTable('totalCrates')" class="p-2 text-center cursor-pointer hover:bg-emerald-100" id="thCrates">Units ↕</th>
                 <th class="p-2 text-center">Less</th>
                 <th onclick="sortAuctionTable('auctionPrice')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Rate ↕</th>
+                <th class="p-2 text-center">Transport ↕</th>
+                <th class="p-2 text-center">Comm. ↕</th>
+                <th class="p-2 text-center">Rent ↕</th>
                 <th onclick="sortAuctionTable('finalAmount')" class="p-2 text-center cursor-pointer hover:bg-emerald-100">Net Amt ↕</th>
                 <th class="p-2 text-center editor-only">Action</th>
               </tr>
             </thead>
             <tbody id="auctionTableBody">
-              <tr><td colspan="7" class="text-center text-slate-400 py-4">No records yet.</td></tr>
+              <tr><td colspan="10" class="text-center text-slate-400 py-4">No records yet.</td></tr>
             </tbody>
           </table>
         </div>
@@ -615,7 +618,7 @@
 
   <!-- FIXED BOTTOM NAVIGATION BAR -->
   <footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-emerald-100 shadow-lg z-40">
-    <div class="max-w-xl mx-auto flex justify-around items-center py-2">
+    <div class="max-w-2xl mx-auto flex justify-around items-center py-2">
       <button onclick="switchTab('dashboard')" id="btn-bottom-dashboard" class="flex flex-col items-center gap-0.5 text-emerald-700 font-bold transition">
         <span class="text-lg">📊</span>
         <span class="text-[10px]">Overview</span>
@@ -1274,6 +1277,10 @@
                 if (item.totalCrates === undefined) item.totalCrates = item.soldCrates || 0;
                 if (item.lessCrates === undefined) item.lessCrates = 0;
                 if (item.soldCrates === undefined) item.soldCrates = Math.max(0, item.totalCrates - item.lessCrates);
+                if (item.transportRate === undefined) item.transportRate = 25;
+                if (item.commissionType === undefined) item.commissionType = 'percent';
+                if (item.commissionValue === undefined) item.commissionValue = 10;
+                if (item.rentRate === undefined) item.rentRate = 4;
                 cachedAuctionEntries.push(item);
             });
             renderDashboard();
@@ -1445,14 +1452,15 @@
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
         const auctionPrice = parseFloat(document.getElementById('auctionPrice').value) || 0;
         
-        const transportRate = 25;
-        const commRate = 10;
-        const rentRate = 4;
+        const transportRate = parseFloat(document.getElementById('transportRate').value) || 25;
+        const commType = document.getElementById('commissionType').value;
+        const commVal = parseFloat(document.getElementById('commissionValue').value) || 0;
+        const rentRate = parseFloat(document.getElementById('rent').value) || 4;
 
         const soldCrates = Math.max(0, totalCrates - lessCrates);
         const grossAmount = soldCrates * auctionPrice;
         
-        let commissionPerCrate = (auctionPrice * commRate) / 100;
+        let commissionPerCrate = commType === 'percent' ? (auctionPrice * commVal) / 100 : commVal;
         const totalCommission = soldCrates * commissionPerCrate;
         const totalTransport = totalCrates * transportRate;
         const totalRent = soldCrates * rentRate;
@@ -1466,7 +1474,7 @@
         document.getElementById('totalDeductionsDisplay').innerText = totalDeductions.toFixed(2);
         document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
 
-        return { totalCrates, lessCrates, soldCrates, auctionPrice, finalAmount };
+        return { totalCrates, lessCrates, soldCrates, auctionPrice, transportRate, commissionType: commType, commissionValue: commVal, commissionPerCrate, totalTransport, totalCommission, totalRent, rentRate, finalAmount };
     };
 
     window.saveAuctionEntry = async function() {
@@ -1475,8 +1483,6 @@
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
         const comments = document.getElementById('comments').value.trim();
-        const totalCratesInput = parseFloat(document.getElementById('totalCrates').value) || 0;
-        const lessCratesInput = parseFloat(document.getElementById('lessCrates').value) || 0;
 
         if (!date) return showToast('Please select a date');
         const calc = window.calculate();
@@ -1484,7 +1490,7 @@
 
         try {
             await push(ref(db, `${dbPrefix}${currentCrop}_auction_entries`), {
-                date, crateType, comments: comments || '-', totalCrates: totalCratesInput, lessCrates: lessCratesInput, soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, finalAmount: calc.finalAmount, timestamp: Date.now()
+                date, crateType, comments: comments || '-', totalCrates: calc.totalCrates, lessCrates: calc.lessCrates, soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, transportRate: calc.transportRate, commissionType: calc.commissionType, commissionValue: calc.commissionValue, rentRate: calc.rentRate, finalAmount: calc.finalAmount, timestamp: Date.now()
             });
             showToast('Details saved successfully');
             document.getElementById('totalCrates').value = '';
@@ -1509,7 +1515,7 @@
         let entry = cachedAuctionEntries.find(e => e.id === id);
         if (!entry) return;
 
-        if (field === 'date' || field === 'comments' || field === 'crateType') {
+        if (field === 'date' || field === 'comments' || field === 'crateType' || field === 'commissionType') {
             entry[field] = newVal.trim();
         } else {
             let num = parseFloat(newVal);
@@ -1517,15 +1523,24 @@
             entry[field] = num;
         }
 
-        // Recalculate net amount
         let tCrates = parseFloat(entry.totalCrates) || 0;
         let lCrates = parseFloat(entry.lessCrates) || 0;
         let sCrates = Math.max(0, tCrates - lCrates);
         let aPrice = parseFloat(entry.auctionPrice) || 0;
+        let tRate = parseFloat(entry.transportRate) !== undefined ? parseFloat(entry.transportRate) : 25;
+        let cType = entry.commissionType || 'percent';
+        let cVal = parseFloat(entry.commissionValue) !== undefined ? parseFloat(entry.commissionValue) : 10;
+        let rRate = parseFloat(entry.rentRate) !== undefined ? parseFloat(entry.rentRate) : 4;
+
         let gross = sCrates * aPrice;
-        let comm = (aPrice * 10) / 100;
-        let totalDeductions = (tCrates * 25) + (sCrates * comm) + (sCrates * 4);
+        let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
+        let totalDeductions = (tCrates * tRate) + (sCrates * commPerUnit) + (sCrates * rRate);
+        
         entry.soldCrates = sCrates;
+        entry.transportRate = tRate;
+        entry.commissionType = cType;
+        entry.commissionValue = cVal;
+        entry.rentRate = rRate;
         entry.finalAmount = gross - totalDeductions;
 
         try {
@@ -1537,6 +1552,10 @@
                 lessCrates: entry.lessCrates,
                 soldCrates: entry.soldCrates,
                 auctionPrice: entry.auctionPrice,
+                transportRate: entry.transportRate,
+                commissionType: entry.commissionType,
+                commissionValue: entry.commissionValue,
+                rentRate: entry.rentRate,
                 finalAmount: entry.finalAmount
             });
             showToast('Updated successfully');
@@ -1839,18 +1858,36 @@
             let tbody = document.getElementById('auctionTableBody');
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-slate-400 py-4">No records found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center text-slate-400 py-4">No records found.</td></tr>';
             } else {
                 filtered.forEach((item) => {
                     let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
                     let commentText = item.comments !== '-' && item.comments ? `<span class="comment-tag editable-cell" onclick="updateAuctionField('${item.id}', 'comments', '${item.comments}')">${item.comments}</span>` : `<span class="comment-tag editable-cell text-slate-300" onclick="updateAuctionField('${item.id}', 'comments', '')">+ Add note</span>`;
                     let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
+                    let tCrates = parseFloat(item.totalCrates) || 0;
+                    let lCrates = parseFloat(item.lessCrates) || 0;
+                    let sCrates = Math.max(0, tCrates - lCrates);
+                    let aPrice = parseFloat(item.auctionPrice) || 0;
+                    let tRate = parseFloat(item.transportRate) !== undefined ? parseFloat(item.transportRate) : 25;
+                    let cType = item.commissionType || 'percent';
+                    let cVal = parseFloat(item.commissionValue) !== undefined ? parseFloat(item.commissionValue) : 10;
+                    let rRate = parseFloat(item.rentRate) !== undefined ? parseFloat(item.rentRate) : 4;
+
+                    let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
+                    let totTransport = tCrates * tRate;
+                    let totComm = sCrates * commPerUnit;
+                    let totRent = sCrates * rRate;
+
                     let dateCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'date', '${item.date}')">${item.date}</span>` : item.date;
                     let gradeCell = currentUser !== 'Yumika' ? `<span class="badge ${badgeClass} editable-cell" onclick="updateAuctionField('${item.id}', 'crateType', '${item.crateType}')">${item.crateType}</span>` : `<span class="badge ${badgeClass}">${item.crateType}</span>`;
                     let totalUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${item.totalCrates})">${item.totalCrates}</span>` : item.totalCrates;
                     let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${item.lessCrates || 0})">${item.lessCrates || 0}</span>` : (item.lessCrates || 0);
                     let priceCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`;
+
+                    let transportCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-slate-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${tRate})">₹${totTransport.toFixed(0)}</span>` : `₹${totTransport.toFixed(0)}`;
+                    let commCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-slate-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${cVal})">₹${totComm.toFixed(0)}</span>` : `₹${totComm.toFixed(0)}`;
+                    let rentCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-slate-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${rRate})">₹${totRent.toFixed(0)}</span>` : `₹${totRent.toFixed(0)}`;
 
                     tbody.innerHTML += `
                         <tr>
@@ -1859,6 +1896,9 @@
                             <td class="p-2 text-center">${totalUnitsCell}</td>
                             <td class="p-2 text-center">${lessUnitsCell}</td>
                             <td class="p-2 text-center">${priceCell}</td>
+                            <td class="p-2 text-center">${transportCell}</td>
+                            <td class="p-2 text-center">${commCell}</td>
+                            <td class="p-2 text-center">${rentCell}</td>
                             <td class="p-2 text-center font-bold text-emerald-700">₹${item.finalAmount.toFixed(2)}</td>
                             ${delBtnHtml}
                         </tr>`;
@@ -1970,10 +2010,14 @@
         }
 
         if (cachedAuctionEntries.length === 0 && cloudExpenses.length === 0) return showToast('No data to export!');
-        let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Less Units,Net Sold,Rate,Net Amount\n`;
+        let csv = `\uFEFF=== ${currentCrop.toUpperCase()} RECORDS ===\nDate,Grade,Comments,Total Units,Less Units,Net Sold,Rate,Transport,Commission,Rent,Net Amount\n`;
         cachedAuctionEntries.forEach(e => { 
             let sold = e.soldCrates !== undefined ? e.soldCrates : Math.max(0, (e.totalCrates || 0) - (e.lessCrates || 0));
-            csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.lessCrates || 0},${sold},${e.auctionPrice || 0},${e.finalAmount || 0}\n`; 
+            let tRate = e.transportRate !== undefined ? e.transportRate : 25;
+            let cVal = e.commissionValue !== undefined ? e.commissionValue : 10;
+            let rRate = e.rentRate !== undefined ? e.rentRate : 4;
+            let commPerUnit = (e.commissionType || 'percent') === 'percent' ? ((e.auctionPrice || 0) * cVal) / 100 : cVal;
+            csv += `"${e.date}","${e.crateType || ''}","${e.comments || ''}",${e.totalCrates || 0},${e.lessCrates || 0},${sold},${e.auctionPrice || 0},${(e.totalCrates || 0) * tRate},${sold * commPerUnit},${sold * rRate},${e.finalAmount || 0}\n`; 
         });
         csv += '\n=== EXPENSES ===\nDate,Spent By,Category,Amount,Notes\n';
         cloudExpenses.forEach(e => { csv += `"${e.date}","${e.spentBy}","${e.category}",${e.amount},"${e.notes || ''}"\n`; });
