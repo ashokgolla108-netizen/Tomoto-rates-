@@ -1287,6 +1287,7 @@
                 if (item.commissionValue === undefined) item.commissionValue = 10;
                 if (item.rentRate === undefined) item.rentRate = 4;
 
+                let tCrates = item.totalCrates;
                 let sCrates = item.soldCrates;
                 let aPrice = parseFloat(item.auctionPrice) || 0;
                 let tRate = parseFloat(item.transportRate);
@@ -1295,9 +1296,9 @@
                 let rRate = parseFloat(item.rentRate);
 
                 let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
-                let totTransport = item.totalCrates * tRate;
+                let totTransport = tCrates * tRate;
                 let totComm = sCrates * commPerUnit;
-                let totRent = sCrates * rRate;
+                let totRent = tCrates * rRate; // Rent calculated on Total Units
 
                 item.totTransport = totTransport;
                 item.totComm = totComm;
@@ -1489,7 +1490,7 @@
         let commissionPerCrate = commType === 'percent' ? (auctionPrice * commVal) / 100 : commVal;
         const totalCommission = soldCrates * commissionPerCrate;
         const totalTransport = totalCrates * transportRate;
-        const totalRent = soldCrates * rentRate;
+        const totalRent = totalCrates * rentRate; // Rent calculated on Total Units
 
         const totalDeductions = totalTransport + totalCommission + totalRent;
         const finalAmount = grossAmount - totalDeductions;
@@ -1560,7 +1561,7 @@
 
         let gross = sCrates * aPrice;
         let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
-        let totalDeductions = (tCrates * tRate) + (sCrates * commPerUnit) + (sCrates * rRate);
+        let totalDeductions = (tCrates * tRate) + (sCrates * commPerUnit) + (tCrates * rRate); // Rent on Total Units
         
         entry.soldCrates = sCrates;
         entry.transportRate = tRate;
