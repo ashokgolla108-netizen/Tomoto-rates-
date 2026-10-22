@@ -690,8 +690,11 @@
         } else if (uInput === 'pawan' && pInput === '1234') {
             currentUser = 'Pawan';
             dbPrefix = 'pawan_';
+        } else if (uInput === 'ramakrishna' && pInput === '1234') {
+            currentUser = 'Ramakrishna';
+            dbPrefix = 'ramakrishna_';
         } else {
-            errDiv.classList.add('hidden');
+            errDiv.classList.remove('hidden');
             return;
         }
 
