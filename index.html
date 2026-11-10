@@ -275,6 +275,18 @@
             </div>
           </div>
 
+          <!-- DIRECT NET AMOUNT TOGGLE OPTION -->
+          <div class="bg-emerald-50/80 p-3 rounded-xl border border-emerald-200 flex items-center justify-between shadow-sm">
+            <span class="text-xs font-bold text-emerald-900">Direct Net Amount Entry (No Deductions)</span>
+            <input type="checkbox" id="directModeToggle" onchange="toggleDirectMode()" class="w-4 h-4 accent-emerald-700 cursor-pointer">
+          </div>
+
+          <!-- DIRECT NET AMOUNT FIELD (HIDDEN BY DEFAULT) -->
+          <div id="directAmountContainer" class="hidden">
+            <label class="block text-xs font-bold text-emerald-900 mb-1">Direct Net Amount (₹) [No Deductions]</label>
+            <input type="number" id="directFinalAmount" placeholder="e.g. 15000" oninput="calculate()" class="w-full rounded-xl p-2.5 text-sm border-emerald-400 bg-emerald-50/40 font-bold">
+          </div>
+
           <div class="grid grid-cols-2 gap-3" id="pricingInputsContainer">
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1">Auction Price / Unit (₹)</label>
@@ -1285,31 +1297,40 @@
                 if (item.totalCrates === undefined) item.totalCrates = item.soldCrates || 0;
                 if (item.lessCrates === undefined) item.lessCrates = 0;
                 if (item.soldCrates === undefined) item.soldCrates = Math.max(0, item.totalCrates - item.lessCrates);
-                if (item.transportRate === undefined) item.transportRate = 25;
-                if (item.commissionType === undefined) item.commissionType = 'percent';
-                if (item.commissionValue === undefined) item.commissionValue = 10;
-                if (item.rentRate === undefined) item.rentRate = 4;
+                
+                if (item.isDirect) {
+                    item.totTransport = 0;
+                    item.totComm = 0;
+                    item.totRent = 0;
+                    item.grossAmount = item.finalAmount || 0;
+                    item.totalDeductions = 0;
+                } else {
+                    if (item.transportRate === undefined) item.transportRate = 25;
+                    if (item.commissionType === undefined) item.commissionType = 'percent';
+                    if (item.commissionValue === undefined) item.commissionValue = 10;
+                    if (item.rentRate === undefined) item.rentRate = 4;
 
-                let tCrates = item.totalCrates;
-                let sCrates = item.soldCrates;
-                let aPrice = parseFloat(item.auctionPrice) || 0;
-                let tRate = parseFloat(item.transportRate);
-                let cType = item.commissionType;
-                let cVal = parseFloat(item.commissionValue);
-                let rRate = parseFloat(item.rentRate);
+                    let tCrates = item.totalCrates;
+                    let sCrates = item.soldCrates;
+                    let aPrice = parseFloat(item.auctionPrice) || 0;
+                    let tRate = parseFloat(item.transportRate);
+                    let cType = item.commissionType;
+                    let cVal = parseFloat(item.commissionValue);
+                    let rRate = parseFloat(item.rentRate);
 
-                let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
-                let totTransport = tCrates * tRate;
-                let totComm = sCrates * commPerUnit;
-                let totRent = tCrates * rRate; // Rent calculated on Total Units
+                    let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
+                    let totTransport = tCrates * tRate;
+                    let totComm = sCrates * commPerUnit;
+                    let totRent = tCrates * rRate;
 
-                item.totTransport = totTransport;
-                item.totComm = totComm;
-                item.totRent = totRent;
+                    item.totTransport = totTransport;
+                    item.totComm = totComm;
+                    item.totRent = totRent;
 
-                item.grossAmount = sCrates * aPrice;
-                item.totalDeductions = totTransport + totComm + totRent;
-                if (item.finalAmount === undefined) item.finalAmount = item.grossAmount - item.totalDeductions;
+                    item.grossAmount = sCrates * aPrice;
+                    item.totalDeductions = totTransport + totComm + totRent;
+                    if (item.finalAmount === undefined) item.finalAmount = item.grossAmount - item.totalDeductions;
+                }
 
                 cachedAuctionEntries.push(item);
             });
@@ -1477,23 +1498,48 @@
         });
     }
 
+    window.toggleDirectMode = function() {
+        const isDirect = document.getElementById('directModeToggle').checked;
+        document.getElementById('directAmountContainer').classList.toggle('hidden', !isDirect);
+        document.getElementById('pricingInputsContainer').classList.toggle('hidden', isDirect);
+        document.getElementById('deductionInputsContainer').classList.toggle('hidden', isDirect);
+        window.calculate();
+    };
+
     window.calculate = function() {
+        const isDirect = document.getElementById('directModeToggle').checked;
         const totalCrates = parseFloat(document.getElementById('totalCrates').value) || 0;
         const lessCrates = parseFloat(document.getElementById('lessCrates').value) || 0;
+        const soldCrates = Math.max(0, totalCrates - lessCrates);
+
+        if (isDirect) {
+            const directAmt = parseFloat(document.getElementById('directFinalAmount').value) || 0;
+            document.getElementById('soldCrates').innerText = soldCrates;
+            document.getElementById('grossAmount').innerText = directAmt.toFixed(2);
+            document.getElementById('calcCommissionPerCrate').innerText = "0.00 (Direct Mode)";
+            document.getElementById('totalDeductionsDisplay').innerText = "0.00";
+            document.getElementById('finalAmount').innerText = directAmt.toFixed(2);
+
+            return { 
+                totalCrates, lessCrates, soldCrates, 
+                auctionPrice: 0, transportRate: 0, 
+                commissionType: 'percent', commissionValue: 0, commissionPerCrate: 0, 
+                totalTransport: 0, totalCommission: 0, totalRent: 0, rentRate: 0, 
+                grossAmount: directAmt, totalDeductions: 0, finalAmount: directAmt, isDirect: true 
+            };
+        }
+
         const auctionPrice = parseFloat(document.getElementById('auctionPrice').value) || 0;
-        
         const transportRate = parseFloat(document.getElementById('transportRate').value) || 25;
         const commType = document.getElementById('commissionType').value;
         const commVal = parseFloat(document.getElementById('commissionValue').value) || 0;
         const rentRate = parseFloat(document.getElementById('rent').value) || 4;
 
-        const soldCrates = Math.max(0, totalCrates - lessCrates);
         const grossAmount = soldCrates * auctionPrice;
-        
         let commissionPerCrate = commType === 'percent' ? (auctionPrice * commVal) / 100 : commVal;
         const totalCommission = soldCrates * commissionPerCrate;
         const totalTransport = totalCrates * transportRate;
-        const totalRent = totalCrates * rentRate; // Rent calculated on Total Units
+        const totalRent = totalCrates * rentRate;
 
         const totalDeductions = totalTransport + totalCommission + totalRent;
         const finalAmount = grossAmount - totalDeductions;
@@ -1504,7 +1550,7 @@
         document.getElementById('totalDeductionsDisplay').innerText = totalDeductions.toFixed(2);
         document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
 
-        return { totalCrates, lessCrates, soldCrates, auctionPrice, transportRate, commissionType: commType, commissionValue: commVal, commissionPerCrate, totalTransport, totalCommission, totalRent, rentRate, grossAmount, totalDeductions, finalAmount };
+        return { totalCrates, lessCrates, soldCrates, auctionPrice, transportRate, commissionType: commType, commissionValue: commVal, commissionPerCrate, totalTransport, totalCommission, totalRent, rentRate, grossAmount, totalDeductions, finalAmount, isDirect: false };
     };
 
     window.saveAuctionEntry = async function() {
@@ -1516,16 +1562,22 @@
 
         if (!date) return showToast('Please select a date');
         const calc = window.calculate();
-        if (calc.soldCrates <= 0 || calc.auctionPrice <= 0) return showToast('Please enter valid quantity and price');
+        if (calc.soldCrates <= 0 && calc.finalAmount <= 0) return showToast('Please enter valid quantity and amount');
 
         try {
             await push(ref(db, `${dbPrefix}${currentCrop}_auction_entries`), {
-                date, crateType, comments: comments || '-', totalCrates: calc.totalCrates, lessCrates: calc.lessCrates, soldCrates: calc.soldCrates, auctionPrice: calc.auctionPrice, transportRate: calc.transportRate, commissionType: calc.commissionType, commissionValue: calc.commissionValue, rentRate: calc.rentRate, grossAmount: calc.grossAmount, totalDeductions: calc.totalDeductions, finalAmount: calc.finalAmount, timestamp: Date.now()
+                date, crateType, comments: comments || '-', 
+                totalCrates: calc.totalCrates, lessCrates: calc.lessCrates, soldCrates: calc.soldCrates, 
+                auctionPrice: calc.auctionPrice, transportRate: calc.transportRate, 
+                commissionType: calc.commissionType, commissionValue: calc.commissionValue, rentRate: calc.rentRate, 
+                grossAmount: calc.grossAmount, totalDeductions: calc.totalDeductions, finalAmount: calc.finalAmount, 
+                isDirect: calc.isDirect || false, timestamp: Date.now()
             });
             showToast('Details saved successfully');
             document.getElementById('totalCrates').value = '';
             document.getElementById('lessCrates').value = '0';
             document.getElementById('auctionPrice').value = '';
+            document.getElementById('directFinalAmount').value = '';
             document.getElementById('comments').value = '';
             window.calculate();
         } catch (error) { showToast("Error: " + error.message); }
@@ -1556,24 +1608,31 @@
         let tCrates = parseFloat(entry.totalCrates) || 0;
         let lCrates = parseFloat(entry.lessCrates) || 0;
         let sCrates = Math.max(0, tCrates - lCrates);
-        let aPrice = parseFloat(entry.auctionPrice) || 0;
-        let tRate = parseFloat(entry.transportRate) !== undefined ? parseFloat(entry.transportRate) : 25;
-        let cType = entry.commissionType || 'percent';
-        let cVal = parseFloat(entry.commissionValue) !== undefined ? parseFloat(entry.commissionValue) : 10;
-        let rRate = parseFloat(entry.rentRate) !== undefined ? parseFloat(entry.rentRate) : 4;
 
-        let gross = sCrates * aPrice;
-        let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
-        let totalDeductions = (tCrates * tRate) + (sCrates * commPerUnit) + (tCrates * rRate); // Rent on Total Units
-        
-        entry.soldCrates = sCrates;
-        entry.transportRate = tRate;
-        entry.commissionType = cType;
-        entry.commissionValue = cVal;
-        entry.rentRate = rRate;
-        entry.grossAmount = gross;
-        entry.totalDeductions = totalDeductions;
-        entry.finalAmount = gross - totalDeductions;
+        if (entry.isDirect) {
+            entry.soldCrates = sCrates;
+            entry.grossAmount = parseFloat(entry.finalAmount) || 0;
+            entry.totalDeductions = 0;
+        } else {
+            let aPrice = parseFloat(entry.auctionPrice) || 0;
+            let tRate = parseFloat(entry.transportRate) !== undefined ? parseFloat(entry.transportRate) : 25;
+            let cType = entry.commissionType || 'percent';
+            let cVal = parseFloat(entry.commissionValue) !== undefined ? parseFloat(entry.commissionValue) : 10;
+            let rRate = parseFloat(entry.rentRate) !== undefined ? parseFloat(entry.rentRate) : 4;
+
+            let gross = sCrates * aPrice;
+            let commPerUnit = cType === 'percent' ? (aPrice * cVal) / 100 : cVal;
+            let totalDeductions = (tCrates * tRate) + (sCrates * commPerUnit) + (tCrates * rRate);
+            
+            entry.soldCrates = sCrates;
+            entry.transportRate = tRate;
+            entry.commissionType = cType;
+            entry.commissionValue = cVal;
+            entry.rentRate = rRate;
+            entry.grossAmount = gross;
+            entry.totalDeductions = totalDeductions;
+            entry.finalAmount = gross - totalDeductions;
+        }
 
         try {
             await update(ref(db, `${dbPrefix}${currentCrop}_auction_entries/${id}`), {
@@ -1583,14 +1642,15 @@
                 totalCrates: entry.totalCrates,
                 lessCrates: entry.lessCrates,
                 soldCrates: entry.soldCrates,
-                auctionPrice: entry.auctionPrice,
-                transportRate: entry.transportRate,
-                commissionType: entry.commissionType,
-                commissionValue: entry.commissionValue,
-                rentRate: entry.rentRate,
+                auctionPrice: entry.auctionPrice || 0,
+                transportRate: entry.transportRate || 0,
+                commissionType: entry.commissionType || 'percent',
+                commissionValue: entry.commissionValue || 0,
+                rentRate: entry.rentRate || 0,
                 grossAmount: entry.grossAmount,
                 totalDeductions: entry.totalDeductions,
-                finalAmount: entry.finalAmount
+                finalAmount: entry.finalAmount,
+                isDirect: entry.isDirect || false
             });
             showToast('Updated successfully');
         } catch (error) {
@@ -1934,11 +1994,11 @@
                     let gradeCell = currentUser !== 'Yumika' ? `<span class="badge ${badgeClass} editable-cell" onclick="updateAuctionField('${item.id}', 'crateType', '${item.crateType}')">${item.crateType}</span>` : `<span class="badge ${badgeClass}">${item.crateType}</span>`;
                     let totalUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${tCrates})">${tCrates}</span>` : tCrates;
                     let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${lCrates})">${lCrates}</span>` : lCrates;
-                    let priceCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`;
-
-                    let transportCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${item.transportRate})">₹${tTransport.toFixed(2)}</span>` : `₹${tTransport.toFixed(2)}`;
-                    let commCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${item.commissionValue})">₹${tComm.toFixed(2)}</span>` : `₹${tComm.toFixed(2)}`;
-                    let rentCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${item.rentRate})">₹${tRent.toFixed(2)}</span>` : `₹${tRent.toFixed(2)}`;
+                    
+                    let priceCell = item.isDirect ? `<span class="text-slate-400 font-semibold">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`);
+                    let transportCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${item.transportRate})">₹${tTransport.toFixed(2)}</span>` : `₹${tTransport.toFixed(2)}`);
+                    let commCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${item.commissionValue})">₹${tComm.toFixed(2)}</span>` : `₹${tComm.toFixed(2)}`);
+                    let rentCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${item.rentRate})">₹${tRent.toFixed(2)}</span>` : `₹${tRent.toFixed(2)}`);
 
                     tbody.innerHTML += `
                         <tr>
