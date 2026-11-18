@@ -59,19 +59,19 @@
       <div class="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🌾</div>
       <div>
         <h2 class="text-xl font-extrabold text-slate-800">Yumika Designs Tracker</h2>
-        <p class="text-xs text-slate-500 mt-1">Please sign in to continue</p>
+        <p class="text-xs text-slate-500 mt-1">Please sign in with your Admin Panel credentials</p>
       </div>
 
       <div class="space-y-3 pt-2 text-left">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">User ID</label>
-          <input type="text" id="loginUser" placeholder="Enter your user id" class="w-full rounded-xl p-3 text-sm">
+          <label class="block text-xs font-bold text-slate-600 mb-1">User Name</label>
+          <input type="text" id="loginUser" placeholder="Enter your username" class="w-full rounded-xl p-3 text-sm">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
           <input type="password" id="loginPass" placeholder="Enter password" class="w-full rounded-xl p-3 text-sm">
         </div>
-        <div id="loginError" class="text-xs text-rose-600 font-semibold text-center hidden">Invalid User ID or Password!</div>
+        <div id="loginError" class="text-xs text-rose-600 font-semibold text-center hidden">Invalid credentials, account locked, or unauthorized app access!</div>
       </div>
 
       <button onclick="handleLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
@@ -677,6 +677,7 @@
     document.getElementById('sprayDate').valueAsDate = new Date();
 
     let currentUser = localStorage.getItem('farm_logged_user') || null;
+    let userRole = localStorage.getItem('farm_user_role') || 'Editor';
     let dbPrefix = localStorage.getItem('farm_db_prefix') || '';
 
     function showToast(msg = "Details saved successfully") {
@@ -688,51 +689,70 @@
         }, 2500);
     }
 
-    window.handleLogin = function() {
-        let uInput = document.getElementById('loginUser').value.trim().toLowerCase();
+    window.handleLogin = async function() {
+        let uInput = document.getElementById('loginUser').value.trim();
         let pInput = document.getElementById('loginPass').value.trim();
         let errDiv = document.getElementById('loginError');
 
-        if ((uInput === 'ashok' && pInput === '7457') || (uInput === 'yumika' && pInput === '1234')) {
-            currentUser = uInput === 'ashok' ? 'Ashok' : 'Yumika';
-            dbPrefix = '';
-        } else if (uInput === 'harish' && pInput === '1234') {
-            currentUser = 'Harish';
-            dbPrefix = 'harish_';
-        } else if (uInput === 'pawan' && pInput === '1234') {
-            currentUser = 'Pawan';
-            dbPrefix = 'pawan_';
-        } else if (uInput === 'ramakrishna' && pInput === '1234') {
-            currentUser = 'Ramakrishna';
-            dbPrefix = 'ramakrishna_';
-        } else {
+        if (!uInput || !pInput) {
             errDiv.classList.remove('hidden');
             return;
         }
 
-        localStorage.setItem('farm_logged_user', currentUser);
-        localStorage.setItem('farm_db_prefix', dbPrefix);
-        document.getElementById('loginModal').classList.add('hidden');
-        
-        applyUserPermissions();
-        initUserCrops();
+        let key = uInput.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+        try {
+            const snapshot = await get(ref(db, `yumika_system_users/${key}`));
+            if (!snapshot.exists()) {
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            let userData = snapshot.val();
+
+            // Validate password, account status, and app permission (Farm Tracker or Both)
+            if (userData.password !== pInput || userData.status === 'Locked' || (userData.targetApp !== 'Farm Tracker' && userData.targetApp !== 'Both')) {
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            errDiv.classList.add('hidden');
+            currentUser = userData.displayName;
+            userRole = userData.role || 'Editor';
+            dbPrefix = (currentUser.toLowerCase() === 'ashok' || currentUser.toLowerCase() === 'yumika') ? '' : `${currentUser.toLowerCase().replace(/[^a-z0-9]/g, '_')}_`;
+
+            localStorage.setItem('farm_logged_user', currentUser);
+            localStorage.setItem('farm_user_role', userRole);
+            localStorage.setItem('farm_db_prefix', dbPrefix);
+
+            document.getElementById('loginModal').classList.add('hidden');
+            
+            applyUserPermissions();
+            initUserCrops();
+        } catch (e) {
+            console.error(e);
+            errDiv.classList.remove('hidden');
+        }
     };
 
     window.logout = function() {
         localStorage.removeItem('farm_logged_user');
+        localStorage.removeItem('farm_user_role');
         localStorage.removeItem('farm_db_prefix');
         localStorage.removeItem('farm_last_selected_crop');
         localStorage.removeItem('farm_last_active_tab');
         currentUser = null;
+        userRole = 'Editor';
         dbPrefix = '';
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
+        document.getElementById('loginError').classList.add('hidden');
         document.getElementById('loginModal').classList.remove('hidden');
     };
 
     function applyUserPermissions() {
         const editorOnlyElements = document.querySelectorAll('.editor-only');
-        if (currentUser === 'Yumika') {
+        if (userRole === 'Viewer') {
             editorOnlyElements.forEach(el => el.classList.add('hidden'));
             document.getElementById('cropStatusSelect').disabled = true;
             document.getElementById('cropStartDateInput').disabled = true;
@@ -746,7 +766,7 @@
     }
 
     if (!currentUser) {
-        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('loginModal').classList.add('hidden');
     } else {
         applyUserPermissions();
     }
@@ -908,7 +928,7 @@
             let status = cfg.status || 'In Progress';
             html += `<option value="${key}">${cfg.name || key} ${status === 'Completed' ? '(Completed)' : ''}</option>`;
         }
-        if (currentUser !== 'Yumika') {
+        if (userRole !== 'Viewer') {
             html += `<option value="ADD_NEW">➕ Add New Crop...</option>`;
         }
         
@@ -918,7 +938,7 @@
 
     window.handleTopCropDropdownChange = function(val) {
         if (val === 'ADD_NEW') {
-            if (currentUser === 'Yumika') return alert('Read-only user cannot add crops.');
+            if (userRole === 'Viewer') return alert('Read-only user cannot add crops.');
             let newName = prompt("Enter new crop or project name (e.g. Chilli, Onion, Cotton):");
             if (newName && newName.trim() !== "") {
                 let key = newName.trim().toLowerCase().replace(/\s+/g, '_');
@@ -946,13 +966,13 @@
     };
 
     window.updateCropStatus = function(statusVal) {
-        if (currentUser === 'Yumika') return;
+        if (userRole === 'Viewer') return;
         if (currentCrop === 'MASTER_ALL') return;
         updateCropStatusDirect(currentCrop, statusVal);
     };
 
     window.updateCropStatusDirect = function(cropKey, statusVal) {
-        if (currentUser === 'Yumika') return;
+        if (userRole === 'Viewer') return;
         if (!cropConfigs[cropKey]) return;
         
         cropConfigs[cropKey].status = statusVal;
@@ -978,7 +998,7 @@
     };
 
     window.updateCropStartDate = function(startDateVal) {
-        if (currentUser === 'Yumika') return;
+        if (userRole === 'Viewer') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].startDate = startDateVal;
         localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
@@ -987,7 +1007,7 @@
     };
 
     window.updateCropEndDate = function(endDateVal) {
-        if (currentUser === 'Yumika') return;
+        if (userRole === 'Viewer') return;
         if (currentCrop === 'MASTER_ALL' || !cropConfigs[currentCrop]) return;
         cropConfigs[currentCrop].endDate = endDateVal;
         localStorage.setItem(`${dbPrefix}farm_custom_crops`, JSON.stringify(cropConfigs));
@@ -1096,7 +1116,7 @@
             }
         }
         
-        if (currentUser !== 'Yumika') {
+        if (userRole !== 'Viewer') {
             deleteCropBottomBtn.classList.remove('hidden');
         } else {
             deleteCropBottomBtn.classList.add('hidden');
@@ -1120,7 +1140,7 @@
     };
 
     window.deleteCurrentCropPrompt = async function() {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot delete crops.');
+        if (userRole === 'Viewer') return alert('Read-only user cannot delete crops.');
         if (currentCrop === 'MASTER_ALL') return;
         let cfg = cropConfigs[currentCrop];
         if (confirm(`Are you sure you want to delete "${cfg ? cfg.name : currentCrop}" and all its records? This cannot be undone.`)) {
@@ -1153,7 +1173,7 @@
     }
 
     window.manageSpentByNames = function() {
-        if (currentUser === 'Yumika') return alert('Read-only user cannot manage names.');
+        if (userRole === 'Viewer') return alert('Read-only user cannot manage names.');
         let currentList = globalSpentNames.join(', ');
         let input = prompt("Edit or remove Spent By names (comma-separated):", currentList);
         if (input !== null) {
@@ -1554,7 +1574,7 @@
     };
 
     window.saveAuctionEntry = async function() {
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot add entries');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot add entries');
         if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
         const date = document.getElementById('entryDate').value;
         const crateType = document.getElementById('crateType').value;
@@ -1584,12 +1604,12 @@
     };
 
     window.deleteAuctionEntry = async function(id) {
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete entries');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot delete entries');
         if (confirm("Delete this record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_auction_entries/${id}`));
     };
 
     window.updateAuctionField = async function(id, field, currentValue) {
-        if (currentUser === 'Yumika') return;
+        if (userRole === 'Viewer') return;
         let promptMsg = `Enter new value for ${field}:`;
         let newVal = prompt(promptMsg, currentValue);
         if (newVal === null) return;
@@ -1679,7 +1699,7 @@
 
     document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot add expenses');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot add expenses');
         if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
         const spentBy = document.getElementById('spentBySelect').value === 'CUSTOM' ? document.getElementById('customPersonInput').value.trim() : document.getElementById('spentBySelect').value;
         const category = document.getElementById('categorySelect').value === 'CUSTOM' ? document.getElementById('customCategoryInput').value.trim() : document.getElementById('categorySelect').value;
@@ -1705,13 +1725,13 @@
     });
 
     window.deleteExpense = async function(id) {
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete expenses');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot delete expenses');
         if (confirm("Delete this expense?")) await remove(ref(db, `${dbPrefix}${currentCrop}_expenses/${id}`));
     };
 
     window.addStockItem = async function(e) {
         e.preventDefault();
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot add stock');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot add stock');
         if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
 
         const name = document.getElementById('stockName').value.trim();
@@ -1736,7 +1756,7 @@
     };
 
     window.deleteStockItem = async function(id) {
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete stock');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot delete stock');
         if (confirm("Delete this stock item?")) await remove(ref(db, `${dbPrefix}${currentCrop}_stock_inventory/${id}`));
     };
 
@@ -1778,7 +1798,7 @@
             let consumed = consumedMap[item.name] || 0;
             let remaining = item.qty - consumed;
 
-            let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+            let delBtnHtml = userRole !== 'Viewer' ? `<td class="p-2 text-center editor-only"><button onclick="deleteStockItem('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
             if (remaining <= 0) {
                 outOfStockCount++;
@@ -1824,7 +1844,7 @@
 
     window.addSprayLog = async function(e) {
         e.preventDefault();
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot add spray logs');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot add spray logs');
         if (currentCrop === 'MASTER_ALL') return showToast('Please select a specific crop first');
 
         const rawType = document.getElementById('sprayType').value;
@@ -1849,7 +1869,7 @@
     };
 
     window.deleteSprayLog = async function(id) {
-        if (currentUser === 'Yumika') return showToast('Read-only user cannot delete spray logs');
+        if (userRole === 'Viewer') return showToast('Read-only user cannot delete spray logs');
         if (confirm("Delete this spray record?")) await remove(ref(db, `${dbPrefix}${currentCrop}_spray_logs/${id}`));
     };
 
@@ -1885,7 +1905,7 @@
             else if (tLower.includes('fungicide')) badgeClass = 'badge-fungicide';
             else if (tLower.includes('pesticide')) badgeClass = 'badge-pesticide';
 
-            let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+            let delBtnHtml = userRole !== 'Viewer' ? `<td class="p-2 text-center editor-only"><button onclick="deleteSprayLog('${log.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
             tbody.innerHTML += `
                 <tr>
@@ -1969,7 +1989,7 @@
                 filtered.forEach((item) => {
                     let badgeClass = 'badge-' + (item.crateType || 'High').toLowerCase();
                     let commentText = item.comments !== '-' && item.comments ? `<span class="comment-tag editable-cell" onclick="updateAuctionField('${item.id}', 'comments', '${item.comments}')">${item.comments}</span>` : `<span class="comment-tag editable-cell text-slate-300" onclick="updateAuctionField('${item.id}', 'comments', '')">+ Add note</span>`;
-                    let delBtnHtml = currentUser !== 'Yumika' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
+                    let delBtnHtml = userRole !== 'Viewer' ? `<td class="p-2 text-center editor-only"><button onclick="deleteAuctionEntry('${item.id}')" class="text-red-500 font-bold hover:underline">Del</button></td>` : '';
 
                     let tCrates = parseFloat(item.totalCrates) || 0;
                     let lCrates = parseFloat(item.lessCrates) || 0;
@@ -1990,15 +2010,15 @@
                     sumLessAmt += lessAmt;
                     sumNetAmt += netAmt;
 
-                    let dateCell = currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'date', '${item.date}')">${item.date}</span>` : item.date;
-                    let gradeCell = currentUser !== 'Yumika' ? `<span class="badge ${badgeClass} editable-cell" onclick="updateAuctionField('${item.id}', 'crateType', '${item.crateType}')">${item.crateType}</span>` : `<span class="badge ${badgeClass}">${item.crateType}</span>`;
-                    let totalUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${tCrates})">${tCrates}</span>` : tCrates;
-                    let lessUnitsCell = currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${lCrates})">${lCrates}</span>` : lCrates;
+                    let dateCell = userRole !== 'Viewer' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'date', '${item.date}')">${item.date}</span>` : item.date;
+                    let gradeCell = userRole !== 'Viewer' ? `<span class="badge ${badgeClass} editable-cell" onclick="updateAuctionField('${item.id}', 'crateType', '${item.crateType}')">${item.crateType}</span>` : `<span class="badge ${badgeClass}">${item.crateType}</span>`;
+                    let totalUnitsCell = userRole !== 'Viewer' ? `<span class="editable-cell font-bold" onclick="updateAuctionField('${item.id}', 'totalCrates', ${tCrates})">${tCrates}</span>` : tCrates;
+                    let lessUnitsCell = userRole !== 'Viewer' ? `<span class="editable-cell text-rose-600 font-bold" onclick="updateAuctionField('${item.id}', 'lessCrates', ${lCrates})">${lCrates}</span>` : lCrates;
                     
-                    let priceCell = item.isDirect ? `<span class="text-slate-400 font-semibold">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`);
-                    let transportCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${item.transportRate})">₹${tTransport.toFixed(2)}</span>` : `₹${tTransport.toFixed(2)}`);
-                    let commCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${item.commissionValue})">₹${tComm.toFixed(2)}</span>` : `₹${tComm.toFixed(2)}`);
-                    let rentCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (currentUser !== 'Yumika' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${item.rentRate})">₹${tRent.toFixed(2)}</span>` : `₹${tRent.toFixed(2)}`);
+                    let priceCell = item.isDirect ? `<span class="text-slate-400 font-semibold">-</span>` : (userRole !== 'Viewer' ? `<span class="editable-cell" onclick="updateAuctionField('${item.id}', 'auctionPrice', ${item.auctionPrice})">₹${item.auctionPrice}</span>` : `₹${item.auctionPrice}`);
+                    let transportCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (userRole !== 'Viewer' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'transportRate', ${item.transportRate})">₹${tTransport.toFixed(2)}</span>` : `₹${tTransport.toFixed(2)}`);
+                    let commCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (userRole !== 'Viewer' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'commissionValue', ${item.commissionValue})">₹${tComm.toFixed(2)}</span>` : `₹${tComm.toFixed(2)}`);
+                    let rentCell = item.isDirect ? `<span class="text-slate-400">-</span>` : (userRole !== 'Viewer' ? `<span class="editable-cell text-rose-600" onclick="updateAuctionField('${item.id}', 'rentRate', ${item.rentRate})">₹${tRent.toFixed(2)}</span>` : `₹${tRent.toFixed(2)}`);
 
                     tbody.innerHTML += `
                         <tr>
@@ -2013,7 +2033,7 @@
                             <td class="p-2 text-center text-slate-700 font-semibold">₹${grossAmt.toFixed(2)}</td>
                             <td class="p-2 text-center text-rose-600 font-bold">- ₹${lessAmt.toFixed(2)}</td>
                             <td class="p-2 text-center font-black text-emerald-700">₹${netAmt.toFixed(2)}</td>
-                            ${delBtnHtml}
+                            ${userRole !== 'Viewer' ? delBtnHtml : ''}
                         </tr>`;
                 });
 
@@ -2030,7 +2050,7 @@
                         <td class="p-2 text-center">₹${sumGrossAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="p-2 text-center text-rose-700">- ₹${sumLessAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td class="p-2 text-center text-emerald-900">₹${sumNetAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                        ${currentUser !== 'Yumika' ? '<td class="p-2 text-center">-</td>' : ''}
+                        ${userRole !== 'Viewer' ? '<td class="p-2 text-center">-</td>' : ''}
                     </tr>
                 `;
             }
@@ -2109,7 +2129,7 @@
         let filteredExpenses = cloudExpenses.filter(e => personFilter === 'ALL' || e.spentBy.toLowerCase() === personFilter.toLowerCase());
 
         listContainer.innerHTML = filteredExpenses.map(item => {
-            let delBtnHtml = currentUser !== 'Yumika' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
+            let delBtnHtml = userRole !== 'Viewer' ? `<button onclick="deleteExpense('${item.id}')" class="text-slate-400 hover:text-red-500 font-bold editor-only">✕</button>` : '';
             return `
                 <div class="flex justify-between items-center p-2.5 rounded-lg bg-emerald-50/30 border border-emerald-100 text-xs">
                     <div>
@@ -2198,7 +2218,7 @@
     if (currentUser) {
         initUserCrops();
     }
-</script>
+  </script>
 
 </body>
 </html>
