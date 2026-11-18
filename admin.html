@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yumika Designs - Master Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        input[type="text"], input[type="password"], select {
+            border: 1.5px solid #334155;
+            background-color: #1e293b;
+            color: #ffffff;
+            transition: all 0.2s ease-in-out;
+        }
+        input:focus, select:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+            outline: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6">
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastBanner" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-emerald-700 text-white px-5 py-2.5 rounded-2xl shadow-xl text-xs font-bold transition-all duration-300 opacity-0 pointer-events-none flex items-center gap-2">
+    <span>✅</span> <span id="toastText">Action completed successfully</span>
+  </div>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 border border-slate-800">
+      <div class="w-16 h-16 bg-emerald-950 text-emerald-400 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">🛡️</div>
+      <div>
+        <h2 class="text-xl font-extrabold text-white">Master Admin Access</h2>
+        <p class="text-xs text-slate-400 mt-1">Enter Master Password to manage accounts</p>
+      </div>
+
+      <div class="space-y-3 pt-2 text-left">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Master Password</label>
+          <input type="password" id="adminPassInput" placeholder="Enter admin password" class="w-full rounded-xl p-3 text-sm">
+        </div>
+        <div id="loginError" class="text-xs text-rose-500 font-semibold text-center hidden">Incorrect Master Password!</div>
+      </div>
+
+      <button onclick="handleAdminLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition">
+        Access Admin Panel 🔓
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- HEADER -->
+    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex justify-between items-center shadow-lg">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🛡️</span>
+        <div>
+          <h1 class="text-base font-extrabold text-white">Yumika Designs - Master Admin Panel</h1>
+          <p class="text-xs text-slate-400">Manage Farm & Transport system accounts globally</p>
+        </div>
+      </div>
+      <button onclick="adminLogout()" class="bg-slate-800 hover:bg-rose-950 hover:text-rose-200 text-slate-300 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-700 transition">
+        🔒 Lock Admin
+      </button>
+    </header>
+
+    <!-- ADD / EDIT USER SECTION -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+      <h2 class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2">➕ Add New User Account</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">User Name</label>
+          <input type="text" id="newUsername" placeholder="e.g. Guruswamy" class="w-full rounded-xl p-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Password</label>
+          <input type="text" id="newPassword" placeholder="e.g. 1234" class="w-full rounded-xl p-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Role / Permissions</label>
+          <select id="newUserRole" class="w-full rounded-xl p-2.5 text-sm">
+            <option value="Editor">Editor (Full Access)</option>
+            <option value="Viewer">Viewer (Read-Only like Yumika)</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="saveUserAccount()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition">
+        💾 Save / Update User Account
+      </button>
+    </section>
+
+    <!-- REGISTERED ACCOUNTS TABLE -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+      <h2 class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2">👥 All System User Accounts</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="bg-slate-800 text-slate-300">
+              <th class="p-3 text-left">User Name</th>
+              <th class="p-3 text-center">Password</th>
+              <th class="p-3 text-center">Role</th>
+              <th class="p-3 text-center">Status</th>
+              <th class="p-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="5" class="text-center text-slate-500 py-6">Loading accounts from Firebase...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWBw7KI3VG7M9FA00_DISNwVOTdAw5Rwg",
+      authDomain: "tomato-rate-tracker.firebaseapp.com",
+      databaseURL: "https://tomato-rate-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tomato-rate-tracker",
+      storageBucket: "tomato-rate-tracker.firebasestorage.app",
+      messagingSenderId: "982467450318",
+      appId: "1:982467450318:web:1538c54e03b50861b9879f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const MASTER_ADMIN_PASS = "yumika7457"; // Change this master password as needed
+    let allUsersData = {};
+
+    window.handleAdminLogin = function() {
+        let pass = document.getElementById('adminPassInput').value.trim();
+        if (pass === MASTER_ADMIN_PASS) {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+            loadAllUsers();
+            showToast("Logged into Admin Panel successfully");
+        } else {
+            document.getElementById('loginError').classList.remove('hidden');
+        }
+    };
+
+    window.adminLogout = function() {
+        document.getElementById('adminPassInput').value = '';
+        document.getElementById('adminLoginModal').classList.remove('hidden');
+    };
+
+    function showToast(msg = "Action completed successfully") {
+        const toast = document.getElementById('toastBanner');
+        document.getElementById('toastText').innerText = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+    }
+
+    function loadAllUsers() {
+        onValue(ref(db, `yumika_system_users`), (snapshot) => {
+            allUsersData = {};
+            snapshot.forEach(child => {
+                allUsersData[child.key] = child.val();
+            });
+            renderUserTable();
+        });
+    }
+
+    window.saveUserAccount = async function() {
+        let username = document.getElementById('newUsername').value.trim();
+        let password = document.getElementById('newPassword').value.trim();
+        let role = document.getElementById('newUserRole').value;
+
+        if (!username || !password) {
+            return alert("Please enter both Username and Password");
+        }
+
+        let key = username.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+        try {
+            await set(ref(db, `yumika_system_users/${key}`), {
+                displayName: username,
+                password: password,
+                role: role,
+                status: 'Active',
+                updatedAt: Date.now()
+            });
+            showToast(`User ${username} saved successfully`);
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    };
+
+    window.toggleUserLock = async function(key) {
+        let user = allUsersData[key];
+        if (!user) return;
+        let newStatus = user.status === 'Locked' ? 'Active' : 'Locked';
+
+        try {
+            await set(ref(db, `yumika_system_users/${key}/status`), newStatus);
+            showToast(`User ${user.displayName} is now ${newStatus}`);
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
+    };
+
+    window.deleteUserAccount = async function(key, name) {
+        if (confirm(`Are you sure you want to delete account "${name}"?`)) {
+            try {
+                await remove(ref(db, `yumika_system_users/${key}`));
+                showToast(`User ${name} deleted successfully`);
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
+        }
+    };
+
+    function renderUserTable() {
+        let tbody = document.getElementById('userTableBody');
+        let keys = Object.keys(allUsersData);
+
+        if (keys.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-slate-500 py-6">No users found. Add your first user above.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        keys.forEach(key => {
+            let u = allUsersData[key];
+            let statusBadge = u.status === 'Locked' 
+                ? `<span class="bg-rose-950 text-rose-300 border border-rose-800 px-2.5 py-0.5 rounded-full font-bold text-[10px]">🔒 Locked</span>`
+                : `<span class="bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-0.5 rounded-full font-bold text-[10px]">🟢 Active</span>`;
+
+            let lockBtnText = u.status === 'Locked' ? 'Unlock' : 'Lock';
+            let lockBtnClass = u.status === 'Locked' ? 'bg-emerald-800 hover:bg-emerald-700 text-white' : 'bg-amber-700 hover:bg-amber-600 text-white';
+
+            tbody.innerHTML += `
+                <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                    <td class="p-3 font-bold text-white text-sm">${u.displayName}</td>
+                    <td class="p-3 text-center text-slate-300 font-mono">${u.password}</td>
+                    <td class="p-3 text-center"><span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${u.role}</span></td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="toggleUserLock('${key}')" class="${lockBtnClass} px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">${lockBtnText}</button>
+                        <button onclick="deleteUserAccount('${key}', '${u.displayName}')" class="bg-rose-800 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+  </script>
+
+</body>
+</html>
