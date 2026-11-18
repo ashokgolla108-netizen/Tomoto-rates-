@@ -18,6 +18,12 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
             outline: none !important;
         }
+        input:read-only {
+            background-color: #0f172a !important;
+            color: #64748b !important;
+            border-color: #1e293b !important;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-6 pb-20">
@@ -68,45 +74,59 @@
     </header>
 
     <!-- ADD / EDIT USER SECTION -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-5">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <h2 class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider" id="formTitle">➕ Add New User Account</h2>
+        <h2 class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider" id="formTitle">➕ Add / Configure User Accounts</h2>
         <button id="cancelEditBtn" onclick="resetUserForm()" class="text-xs text-slate-400 hover:text-white hidden">Cancel Edit</button>
       </div>
 
-      <input type="hidden" id="editUserKey" value="">
+      <input type="hidden" id="editOriginalKey" value="">
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">User Name</label>
-          <input type="text" id="newUsername" placeholder="e.g. Guruswamy" class="w-full rounded-xl p-2.5 text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Password</label>
-          <input type="text" id="newPassword" placeholder="e.g. 1234" class="w-full rounded-xl p-2.5 text-sm">
+      <!-- TOP APPLICATION SELECTOR -->
+      <div>
+        <label class="block text-xs font-bold text-slate-400 mb-1">Select Application</label>
+        <select id="targetApp" class="w-full rounded-xl p-3 text-sm font-bold">
+          <option value="Farm Tracker">🌾 Farm & Master Tracker App</option>
+          <option value="Transport App">🚛 Transport & Price Dispatcher App</option>
+          <option value="Both">🌐 Both Applications</option>
+        </select>
+      </div>
+
+      <!-- SECTION 1: FULL ACCESS ACCOUNT -->
+      <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <h3 class="text-xs font-extrabold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+          <span>👑</span> 1st Section: Full Access Account (Editor)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">User Name <span id="fullAccessLockNote" class="text-[10px] text-slate-500 font-normal"></span></label>
+            <input type="text" id="fullUserName" placeholder="e.g. Ashok" class="w-full rounded-xl p-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">Password</label>
+            <input type="text" id="fullPassword" placeholder="e.g. 7457" class="w-full rounded-xl p-2.5 text-sm">
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Select Application</label>
-          <select id="targetApp" class="w-full rounded-xl p-2.5 text-sm">
-            <option value="Farm Tracker">🌾 Farm & Master Tracker App</option>
-            <option value="Transport App">🚛 Transport & Price Dispatcher App</option>
-            <option value="Both">🌐 Both Applications</option>
-          </select>
+      <!-- SECTION 2: READ-ONLY ACCOUNTS -->
+      <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>👁️</span> 2nd Section: Read-Only Accounts (Viewer)
+          </h3>
+          <button type="button" onclick="addReadOnlyRow()" class="bg-amber-700 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow-sm flex items-center gap-1">
+            <span>➕</span> Add Next Entry
+          </button>
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Role / Permissions</label>
-          <select id="newUserRole" class="w-full rounded-xl p-2.5 text-sm">
-            <option value="Editor">Editor (Full Access)</option>
-            <option value="Viewer">Viewer (Read-Only)</option>
-          </select>
+
+        <div id="readOnlyRowsContainer" class="space-y-2.5">
+          <!-- Dynamic Read-Only Rows go here -->
         </div>
       </div>
 
-      <button onclick="saveUserAccount()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition" id="saveUserBtn">
-        💾 Save User Account
+      <button onclick="saveAllAccounts()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition" id="saveUserBtn">
+        💾 Save All Accounts to Cloud
       </button>
     </section>
 
@@ -188,30 +208,84 @@
         });
     }
 
-    window.saveUserAccount = async function() {
-        let editKey = document.getElementById('editUserKey').value.trim();
-        let username = document.getElementById('newUsername').value.trim();
-        let password = document.getElementById('newPassword').value.trim();
-        let targetApp = document.getElementById('targetApp').value;
-        let role = document.getElementById('newUserRole').value;
+    window.addReadOnlyRow = function(username = '', password = '') {
+        const container = document.getElementById('readOnlyRowsContainer');
+        const rowId = 'ro_' + Date.now() + Math.random().toString(36).substr(2, 4);
 
-        if (!username || !password) {
-            return alert("Please enter both Username and Password");
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex items-center gap-2 ro-row';
+        rowDiv.id = rowId;
+        rowDiv.innerHTML = `
+            <input type="text" placeholder="Read-only Username (e.g. Yumika)" value="${username}" class="ro-user w-1/2 rounded-xl p-2.5 text-sm">
+            <input type="text" placeholder="Password" value="${password}" class="ro-pass w-1/2 rounded-xl p-2.5 text-sm">
+            <button type="button" onclick="document.getElementById('${rowId}').remove()" class="bg-rose-900 hover:bg-rose-800 text-white p-2.5 rounded-xl font-bold text-xs" title="Remove row">✕</button>
+        `;
+        container.appendChild(rowDiv);
+    };
+
+    // Initialize with 1 default read-only row if empty
+    window.onload = function() {
+        if(document.getElementById('readOnlyRowsContainer').children.length === 0) {
+            addReadOnlyRow();
+        }
+    };
+
+    window.saveAllAccounts = async function() {
+        let targetApp = document.getElementById('targetApp').value;
+        let editOriginalKey = document.getElementById('editOriginalKey').value;
+
+        // 1. Full Access Account
+        let fullUser = document.getElementById('fullUserName').value.trim();
+        let fullPass = document.getElementById('fullPassword').value.trim();
+
+        if (!fullUser || !fullPass) {
+            return alert("Please enter Full Access (Editor) Username and Password");
         }
 
-        let key = editKey ? editKey : username.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        let existingStatus = editKey && allUsersData[editKey] ? allUsersData[editKey].status : 'Active';
-
         try {
-            await set(ref(db, `yumika_system_users/${key}`), {
-                displayName: username,
-                password: password,
-                targetApp: targetApp,
-                role: role,
-                status: existingStatus,
-                updatedAt: Date.now()
-            });
-            showToast(`User ${username} saved successfully`);
+            // If editing an existing account
+            if (editOriginalKey) {
+                let existingStatus = allUsersData[editOriginalKey] ? allUsersData[editOriginalKey].status : 'Active';
+                await set(ref(db, `yumika_system_users/${editOriginalKey}`), {
+                    displayName: fullUser,
+                    password: fullPass,
+                    targetApp: targetApp,
+                    role: 'Editor',
+                    status: existingStatus,
+                    updatedAt: Date.now()
+                });
+            } else {
+                // New full access account
+                let key = fullUser.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                await set(ref(db, `yumika_system_users/${key}`), {
+                    displayName: fullUser,
+                    password: fullPass,
+                    targetApp: targetApp,
+                    role: 'Editor',
+                    status: 'Active',
+                    updatedAt: Date.now()
+                });
+            }
+
+            // 2. Read-Only Accounts
+            const roRows = document.querySelectorAll('.ro-row');
+            for (let row of roRows) {
+                let roUser = row.querySelector('.ro-user').value.trim();
+                let roPass = row.querySelector('.ro-pass').value.trim();
+                if (roUser && roPass) {
+                    let roKey = roUser.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    await set(ref(db, `yumika_system_users/${roKey}`), {
+                        displayName: roUser,
+                        password: roPass,
+                        targetApp: targetApp,
+                        role: 'Viewer',
+                        status: 'Active',
+                        updatedAt: Date.now()
+                    });
+                }
+            }
+
+            showToast("All accounts saved successfully!");
             resetUserForm();
         } catch (e) {
             alert("Error: " + e.message);
@@ -221,26 +295,44 @@
     window.editUserAccount = function(key) {
         let u = allUsersData[key];
         if (!u) return;
-        document.getElementById('editUserKey').value = key;
-        document.getElementById('newUsername').value = u.displayName;
-        document.getElementById('newPassword').value = u.password;
-        document.getElementById('targetApp').value = u.targetApp || 'Farm Tracker';
-        document.getElementById('newUserRole').value = u.role || 'Editor';
 
-        document.getElementById('formTitle').innerText = `✏️ Edit User: ${u.displayName}`;
-        document.getElementById('saveUserBtn').innerText = `💾 Update User Account`;
+        document.getElementById('editOriginalKey').value = key;
+        document.getElementById('targetApp').value = u.targetApp || 'Farm Tracker';
+
+        if (u.role === 'Editor') {
+            let userIn = document.getElementById('fullUserName');
+            userIn.value = u.displayName;
+            userIn.readOnly = true;
+            document.getElementById('fullAccessLockNote').innerText = "(Read-only while editing)";
+            document.getElementById('fullPassword').value = u.password;
+        } else {
+            // If editing a viewer/read-only account, populate it into the first row
+            document.getElementById('fullUserName').value = '';
+            document.getElementById('fullPassword').value = '';
+            document.getElementById('readOnlyRowsContainer.innerHTML').innerHTML = '';
+            addReadOnlyRow(u.displayName, u.password);
+        }
+
+        document.getElementById('formTitle').innerText = `✏️ Edit Account: ${u.displayName} (${u.role})`;
+        document.getElementById('saveUserBtn').innerText = `💾 Update Account`;
         document.getElementById('cancelEditBtn').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.resetUserForm = function() {
-        document.getElementById('editUserKey').value = '';
-        document.getElementById('newUsername').value = '';
-        document.getElementById('newPassword').value = '';
+        document.getElementById('editOriginalKey').value = '';
+        let userIn = document.getElementById('fullUserName');
+        userIn.value = '';
+        userIn.readOnly = false;
+        document.getElementById('fullAccessLockNote').innerText = "";
+
+        document.getElementById('fullPassword').value = '';
         document.getElementById('targetApp').value = 'Farm Tracker';
-        document.getElementById('newUserRole').value = 'Editor';
-        document.getElementById('formTitle').innerText = `➕ Add New User Account`;
-        document.getElementById('saveUserBtn').innerText = `💾 Save User Account`;
+        document.getElementById('readOnlyRowsContainer').innerHTML = '';
+        addReadOnlyRow();
+
+        document.getElementById('formTitle').innerText = `➕ Add / Configure User Accounts`;
+        document.getElementById('saveUserBtn').innerText = `💾 Save All Accounts to Cloud`;
         document.getElementById('cancelEditBtn').classList.add('hidden');
     };
 
@@ -273,7 +365,7 @@
         let keys = Object.keys(allUsersData);
 
         if (keys.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-slate-500 py-6">No users found. Add your first user above.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-slate-500 py-6">No users found. Add your accounts above.</td></tr>`;
             return;
         }
 
